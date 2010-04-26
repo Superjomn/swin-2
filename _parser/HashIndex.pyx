@@ -1,10 +1,9 @@
 from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
 import os
-
-import ConfigParser
-config = ConfigParser.ConfigParser()
-path = 
-config.read("../swin2.ini")
+import sys
+sys.path.append('../')
+from Config import Config
+config = Config()
 
 DEF STEP = 20
 
@@ -12,7 +11,7 @@ cdef struct HI:
     int left    #左侧范围
     int right   #右侧范围
 
-cdef class Create_hashIndex:
+cdef class CreateHashIndex:
     '''
     建立一级hash参考表
     使用较复杂的中分法 单独作为一类
@@ -20,23 +19,26 @@ cdef class Create_hashIndex:
     结果将会把完整hash划分为step步
     '''
     cdef: 
-        object wlist
-        double left     #左侧最小hash
-        double right    #右侧最大hash
+        long* wlist
+        long size
+        long left     #左侧最小hash
+        long right    #右侧最大hash
         long step
 
 
-    def __cinit__(self, left, right, li):
+    def __cinit__(self, left, right):
         '''
         init
-        li : 词库list
-        '''
-        self.wlist = li
+        li : 词库list '''
         self.left = left
         self.right = right
         self.step=long( (self.right-self.left)/STEP )
 
-    cdef createHash(self, char *ph):
+    cdef void initList(self, long* li, long size):
+        self.wlist = li
+        self.size = size
+
+    cdef createHash(self):
         '''
         产生hash index
         '''
@@ -54,28 +56,45 @@ cdef class Create_hashIndex:
             hashIndex[i].left = cur_step+1
             hashIndex[i].right = self.find(minidx)
 
-        self.saveHash(ph, hashIndex)
+        self.__saveHash(hashIndex)
+        self.__saveWidth()
 
-    cdef saveHash(self, char *ph, HI *hi):
+
+    cdef __saveHash(self, HI *hi):
         '''
         将hash参考表用二进制文件方式进行保存
         '''
-        print 'begin to save hash'
+        print '.. begin to save hash'
+        cdef object path = config.getpath('parser', 'hash_index_path')
+        cdef char* ph = path
         cdef FILE *fp = <FILE *>fopen(ph,"wb")
         fwrite(hi, sizeof(HI), STEP, fp)
         fclose(fp)
-        print 'succeed save hash'
+        print '.. succeed save hash'
 
-    cdef double v(self,double data):
+
+    cdef __saveWidth(self):
+        '''
+        save left right
+        '''
+        print '.. save width'
+        path = config.getpath('parser', 'hash_index_width')
+        f = open(path, 'w')
+        content = str(self.left) + ' ' + str(self.right)
+        f.write(content)
+        f.close()
+        
+
+    cdef double v(self, double data):
         '''
         将元素比较的属性取出
         '''
         return data
 
     def show(self):
-
-        for d in self.wlist:
-            print hash(d),d
+        
+        for i in range(self.size):
+            print self.wlist[i]
 
     cdef int find(self, double data):
         '''
@@ -91,7 +110,7 @@ cdef class Create_hashIndex:
             int mid
             int end
 
-        l=len(self.wlist)
+        l=self.size
         dv=self.v(data)     #传入词的hash
 
         #取得 hash 的一级推荐范围
@@ -140,6 +159,8 @@ cdef class Create_hashIndex:
 
 
 
+
+
 cdef class InitHashIndex:
     '''
     init he hash index
@@ -147,11 +168,12 @@ cdef class InitHashIndex:
     #define the hash index 
     cdef HI hi[STEP]
 
-    def __cinit__(self, char *ph):
+    def __cinit__(self):
         '''
         init
         '''
-        #cdef object ph = config.get("parser", "hash_index_path")
+        cdef object path = config.get("parser", "hash_index_path")
+        cdef char *ph = path
         cdef FILE *fp = <FILE *>fopen(ph, "rb")
         fread(self.hi, sizeof(HI), STEP, fp)
         fclose(fp)
