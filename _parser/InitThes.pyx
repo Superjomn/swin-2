@@ -19,10 +19,19 @@ cdef class InitThes:
 
 
     def __cinit__(self):
-        self.hi = InitHashIndex()
+        print '.. cinit'
+        self.hashIndex = InitHashIndex()
+        self.hashIndex.show()
         self.__initList()
 
     def __dealloc__(self):
+        '''
+        释放c内存空间
+        '''
+        print 'delete all C space'
+        free(self.__list)
+
+    def __del__(self):
         '''
         释放c内存空间
         '''
@@ -34,6 +43,7 @@ cdef class InitThes:
         '''
         将二进制文件载入内存
         '''
+        print '__initList'
         #get thes size
         cdef object size
         size_ph = config.getpath('parser', 'thes_size_path')
@@ -53,8 +63,10 @@ cdef class InitThes:
         cdef FILE *fp=<FILE *>fopen(ph,"rb")
         fread(self.__list, sizeof(long), self.size ,fp)
         fclose(fp)
+        self.hashIndex.initList(self.__list)
+        
 
-    def find(self, dv):
+    def find(self, v):
         '''
         通过hashvalue查找wordID
         若存在 返回位置 
@@ -69,70 +81,41 @@ cdef class InitThes:
             HI cur  #范围
 
         #print '初始化数据ok'
+        cdef long dv = hash(v)
 
         pos=self.hashIndex.pos( dv )
-
-        #print '开始 pos',pos
+        print 'hash pos', pos
 
         if pos!=-1 and pos<STEP:
-            #print '开始>cur=self.hashIndex.hi[pos]',pos
             cur = self.hashIndex.hi[pos]
-            #print 'cur< OK ',cur.left,cur.right
-
         else:
             print "the word is not in wordbar or pos wrong"
             return False
-
+        
         #取得 hash 的一级推荐范围
         fir=cur.left
         end=cur.right
+        print 'hash left right hashvalue', self.__list[fir], self.__list[end], dv
         mid=fir
         '''
-        print 'hello world'
-        print 'fir ,end',fir,end
-        print 'the 1th word is',self.v(self.word_list[1])
-        print '-'*50
-
-        for i in range(self.length-1):
-            print i,self.v(self.word_list[i])
+        fir = 0
+        end = self.size-1
+        mid = fir
         '''
-        #print 'length',self.length
-
-        #print 'trying ...',
-
-        #print self.v(self.word_list[fir])
-
-        #print 'the fir end gv',self.v(self.word_list[fir]),self.v(self.word_list[end]),dv
-
-        if dv > self.v(self.word_list[end]):
+        if dv > self.__list[end]:
             return 0
 
         #print '词库: fir,end,mid',fir,end,mid
 
         while fir<end:
 
-            #print 'in wordbar while'
-            #print 'dv',dv
-
             mid=(fir+ end)/2
-            #print 'mid',mid
-            '''
-            print 'self.word_list[mid]'
-            print self.word_list[mid]
 
-            print 'dv self.v(self.word_list[mid])'
-            print dv,self.v(self.word_list[mid])
-
-            print '-'*50
-            '''
-
-
-
-            if ( dv > self.v(self.word_list[mid]) ):
+            if ( dv > self.__list[mid] ):
                 fir = mid + 1
                 #print '1 if fir',fir
 
-            elif  dv < self.v(self.word_list[mid]) :
+            elif  dv < self.__list[mid] :
                 end = mid - 1
                 #print '1 elif end',end
 
@@ -140,26 +123,20 @@ cdef class InitThes:
                 break
 
         if fir == end:
-            
-            #print 'fir==end'
 
-            if self.v(self.word_list[fir]) > dv:
+            if self.__list[fir] > dv:
                 return 0 
 
-            elif self.v(self.word_list[fir]) < dv:
+            elif self.__list[fir] < dv:
                 return 0
 
             else:
-                #print 'return fir,mid,end',fir,mid,end
-                #print '查得 wordid',end
                 return end#需要测试
                 
         elif fir>end:
             return 0
 
         else:
-            #print '1return fir,mid,end',fir,mid,end
-            #print '查得 wordid',mid
             return mid#需要测试
 
 

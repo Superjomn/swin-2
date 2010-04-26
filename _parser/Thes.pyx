@@ -50,12 +50,12 @@ cdef class CreateThes:
         '''
         for i in range(self.htmlnum):
             _content = self.htmldb.getContentByIndex(i)
-            print '-'*50 
+            #print '-'*50 
             #print _content
-            print self.ict.split('try:中国农业大学')
+            #print self.ict.split('try:中国农业大学')
             _splitedContent = self.ict.split(str(_content))
-            print _splitedContent
-            print '-'*50 
+            #print _splitedContent
+            #print '-'*50 
 
             for word in _splitedContent.split() :
                 self.__list.find( word )
@@ -96,7 +96,10 @@ cdef class CreateThes:
         cdef long left, right
         _size = self.__list.getSize()
         left = self.__list._list[0]
-        right = self.__list._list[_size]
+        right = self.__list._list[_size-1]
+        print '-'*50
+        print 'left : right',left, right
+        print '-'*50
 
         cdef CreateHashIndex cHashIdx = CreateHashIndex(left, right)
         _list = self.__list.getListPos()

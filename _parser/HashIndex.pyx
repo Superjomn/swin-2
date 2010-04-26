@@ -1,4 +1,5 @@
 from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
+from libc.stdlib cimport malloc,free
 import os
 import sys
 sys.path.append('../')
@@ -8,8 +9,8 @@ config = Config()
 DEF STEP = 20
 
 cdef struct HI: 
-    int left    #左侧范围
-    int right   #右侧范围
+    long left    #左侧范围
+    long right   #右侧范围
 
 cdef class CreateHashIndex:
     '''
@@ -21,8 +22,8 @@ cdef class CreateHashIndex:
     cdef: 
         long* wlist
         long size
-        long left     #左侧最小hash
-        long right    #右侧最大hash
+        double left     #左侧最小hash
+        double right    #右侧最大hash
         long step
 
 
@@ -32,7 +33,11 @@ cdef class CreateHashIndex:
         li : 词库list '''
         self.left = left
         self.right = right
-        self.step=long( (self.right-self.left)/STEP )
+        print '.. create hash index'
+        print 'left : right', self.left, self.right
+        self.step = long( (self.right - self.left) / STEP ) + 1
+        print '.. right - left', self.right - self.left
+        print '.. step', self.step
 
     cdef void initList(self, long* li, long size):
         self.wlist = li
@@ -48,13 +53,19 @@ cdef class CreateHashIndex:
             int cur_step
             double minidx
         
+        cur_step=0
         minidx = self.left
+        print '.. size:', self.size
+        print '.. max', self.right
 
         for i in range(STEP):
             #寻找边界
-            minidx += self.step*i
-            hashIndex[i].left = cur_step+1
-            hashIndex[i].right = self.find(minidx)
+            minidx += self.step
+            print i,'minidx',minidx
+            hashIndex[i].left = cur_step
+            hashIndex[i].right = self.find(minidx)-1
+            cur_step = hashIndex[i].right
+            print i,'left,right', hashIndex[i].left, hashIndex[i].right
 
         self.__saveHash(hashIndex)
         self.__saveWidth()
@@ -96,69 +107,22 @@ cdef class CreateHashIndex:
         for i in range(self.size):
             print self.wlist[i]
 
-    cdef int find(self, double data):
+    cdef int find(self,double data):
+
         '''
         具体查取值 
-        若存在 返回位置 
-        若不存在 返回   0
         '''
-        #需要测试 
-        #print 'want to find ',hash(data),data
+
+        #使用更加常规的方式
         cdef:
-            int l
-            int fir
-            int mid
-            int end
+            int i
 
-        l=self.size
-        dv=self.v(data)     #传入词的hash
-
-        #取得 hash 的一级推荐范围
-        #此处可以进一步推进fir范围 暂时没有必要
-        fir=0
-        end=l-1
-        mid=0
-
-        if l == 0:
-            return 0#空
-
-        while fir<end:
-
-            mid=(fir+ end)/2
-
-            if ( dv > self.v(self.wlist[mid]) ):
-                fir = mid + 1
-
-            elif  dv < self.v(self.wlist[mid]) :
-                end = mid - 1
-
-            else:
-                break
-
-        if fir == end:
-
-            if self.v(self.wlist[fir]) > dv:
-                #假定 在此hash值内
-                return fir-1 
-
-            elif self.v(self.wlist[fir]) < dv:
-                #此处不确定??????
-                return fir
-
-            else:
-                #print 'return fir,mid,end',fir,mid,end
-                return end#需要测试
-                
-        elif fir>end:
-            #此情况为何种情况????????
-            return 0
-
-        else:
-            #print '1return fir,mid,end',fir,mid,end
-            return mid#需要测试
-
-
-
+        for i in range(self.size):
+            if self.wlist[i] > data:
+                return i-1
+        #最后一个词汇 
+        print 'last data'
+        return self.size 
 
 
 cdef class InitHashIndex:
@@ -167,33 +131,46 @@ cdef class InitHashIndex:
     '''
     #define the hash index 
     cdef HI hi[STEP]
+    cdef long *li
 
     def __cinit__(self):
         '''
         init
         '''
-        cdef object path = config.get("parser", "hash_index_path")
+        print 'init hashindex'
+        cdef object path = config.getpath("parser", "hash_index_path")
         cdef char *ph = path
+        print 'path', path
         cdef FILE *fp = <FILE *>fopen(ph, "rb")
         fread(self.hi, sizeof(HI), STEP, fp)
         fclose(fp)
+        print 'hashindex init ok'
 
-    def pos(self,double hashvalue):
+    cdef initList(self, long* wordlist):
+        self.li = wordlist
+        
+    def show(self):
+        print '.. show hashindex'
+        for i in range(STEP):
+            print self.hi[i].left, self.hi[i].right
+
+    def pos(self, double hashvalue):
         '''
         pos the word by hashvalue 
         if the word is beyond hash return -1
         else return the pos
         '''
-        cdef int cur=-1
+        cdef int cur = -1
         
-        if hashvalue>self.hi[0].left:
-            cur+=1
+        if hashvalue> self.li[self.hi[0].left] :
+            cur += 1
         else:
-            return cur
+            return cur-1
 
-        while hashvalue > self.hi[cur].left:
+        while hashvalue > self.li[self.hi[cur].left] :
             cur+=1
-
-        return cur
+            if cur==STEP:
+                return STEP-1
+        return cur-1
 
 
