@@ -45,6 +45,7 @@ cdef class WordWidthList:
         运行主程序
         每次处理一个段 
         处理的hitlist必须已经根据wordid及docid进行排序
+        range(left, right)
         '''
         cdef: 
             long i, j
@@ -60,11 +61,10 @@ cdef class WordWidthList:
         
         _size = hitlist.size
         _hits = hitlist._list
+            
+        print '.. _size', _size
         wordID = _hits[0].wordID
         left = 0
-            
-        print 'value ok'
-        print '.. _size', _size
 
         for i in range(_size):
             '''
@@ -72,32 +72,31 @@ cdef class WordWidthList:
             '''
             if _hits[i].wordID != wordID:
                 wordwidth.left =  left
-                wordwidth.right = i-1
-                wordwidth.pos = pos
+                wordwidth.right = i
                 left = i
+                wordwidth.pos = pos
                 self.append(wordwidth)
+                wordID = _hits[i].wordID
+
         #the last one
-        wordwidth.right = _size-1
+        wordwidth.left = left
+        wordwidth.right = _size
         self.append(wordwidth)
         
         #生成docnum
-        for j in range(_size):
-            docID = _hits[curwidth.left].docID
-            docnum = 0
-            for i in range(self.size):
-                '''
-                统计每个wordID命中的不同doc数量
-                '''
-                curwidth = self._list[i]
-                #开始计算docnum
+        curwidth = self._list+0
+        for i in range(self.size):
+            curwidth = self._list + i
+            docID = _hits[ curwidth.left ].docID
+            docnum = 1
+            curwidth.docnum = docnum
 
-                if _hits[i].docID != docID:
+            for j in range(curwidth.left, curwidth.right):
+                if docID != _hits[j].docID:
                     docnum += 1
                     docID = _hits[j].docID
-
-            wordwidth.docnum = docnum
-
-
+                    curwidth.docnum = docnum
+        #the last one
        
 
     cdef void __save(self):
