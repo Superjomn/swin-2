@@ -1,119 +1,174 @@
-from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
 import sys
 sys.path.append('../')
 from Config import Config
 config = Config()
-
-Cimport Hit.pyx     swin2/indexer/Hit.pyx
+from debug import *
 #导入类型
-Cimport Type.pyx    swin2/indexer/Type.pyx
+Cimport Type.pyx            swin2/indexer/Type.pyx
+Cimport hitlist.pyx         swin2/indexer/hitlist.pyx
+Cimport doclist.pyx         swin2/indexer/doclist.pyx
+Cimport common.pyx          swin2/indexer/common.pyx
+Cimport wordwidthlist.pyx   swin2/indexer/wordwidthlist.pyx
+Cimport idxlist.pyx         swin2/indexer/idxlist.pyx
 
-Cimport ../_parser/InitThes.pyx     swin2/_parser/InitThes.pyx
-
-Cimport Sorter.pyx  swin2/indexer/Sorter.pyx
+import math
+from datetime import date
 
 DEF STEP = 20
 
+
 cdef class Indexer:
+
     cdef:
-        #词库
-        InitThes thes
-        HitCtrl hitctrl
-        HitSort hitsort
-        object htmldb
-        object htmlnum
-        object ict
+        object          htmldb
+        InitHitlist     hitlist
+        InitDocList     doclist
+        InitWordWidthList wordwidthlist
+        IdxList         idxlist
+        Idx             temidx      #合并同wordID docID的记录判断
+        uint            docnum
+        uint            pos
+        long            curWordID
 
+    '''
+    计算每个hit的私有score
+    log(D/Di) * F(Wi)
+    '''
     def __cinit__(self):
-        #database
-        self.htmldb = htmldb.HtmlDB()
-        self.htmlnum = self.htmldb.getHtmlNum()
-        self.ict = Ictclas( config.getpath('parser', 'ict_configure_path') )
-        self.hitctrl = HitCtrl()
-        self.hitsort = HitSort()
-
+        conheader('Indexer') 
+        self.hitlist = InitHitlist()
+        self.doclist = InitDocList()
+        self.idxlist = IdxList()
+        self.htmldb = HtmlDB()
+        self.__initDocnum()
 
     def run(self):
         '''
-        循环运行主程序
+        完全运行主程序
+        从0 - 20 
         '''
-        for i in range(self.htmlnum):
-            self.htmldb.setRecordHandle(i)
-            #level 1
-            format1 = self.htmldb.getTitle() + self.htmldb.getUrlDec() 
-            #level 2 string
-            format2 = self.htmldb.getB() + self.htmldb.getHOne()
-            #level 3 string
-            format3 = self.htmldb.getContent() + self.htmldb.getHTwo()
-
-            #开始分词及作处理
-            self.indexStr(format1, 1)
-            self.indexStr(format2, 2)
-            self.indexStr(format3, 3)
-
-    def indexStr(self, word, _format):
-        '''
-        word:词汇
-        _format: 1 2 3 4
-        '''
-        FORMAT = {
-            1   :   LOW,
-            2   :   MID,
-            3   :   TOP
-        }
-
-        LEVEL = {
-            1   :   ONE,
-            2   :   TWO,
-            3   :   THREE,
-            4   :   FOUR
-        }
-
-        wordID = self.thes.find(word)
-        pos = self.thes.pos(len(word))
-        docID = self.htmldb.getDocID()
-        level = self.__getLevel(self.htmldb.getUrl())
-        self.hitctrl.setFormat(FORMAT[_format])
-        self.hitctrl.setLevel( LEVEL[level] )
-        self.hitctrl.setWordID(wordID)
-        self.hitctrl.setDocID(docID)
-        self._lists[pos].append(self.hitctrl.getIndex())
-
-    def sort(self):
-        '''
-        排序主程序
-        单独为每一个pos内的index排序
-        先依照wordID排序
-        然后在相同wordID内进行docID的排序
-        同时记录wordID的范围表
-        '''
-        for i in range(STEP):
-            self.hitsort.init(i, self._lists[i].getList(), self._lists[i].getSize())
-            self.hitsort.run()
-
-
-    #此方法无效!!!!!!!!!!!!!!!!!
-    cdef save(self):
-        '''
-        将index通过文件进行存储
-        '''
-        print 'begin to save'
-        path = config.getpath('indexer', 'hits_path')
-        cdef object fn
+        console('run')
+        hits_num = ""
 
         for i in range(STEP):
-            fn = path + str(i) + '.hit'
-            cdef char *fname =  fn
-            cdef FILE *fp=<FILE *>fopen(fname,"wb")
-            fwrite(self._lists[i].getList() , sizeof(Hit), self._lists[i].getSize(), fp)
-            fclose(fp)
-        #save num of hits of each list
-        numstr = ''
-        for i in range(STEP):
-            numstr += str(self._lists[i].getSize())+' '
-        path = config.getpath('indexer', 'hits_num_path')
+            print i
+            self.init(i)
+            self.cal()
+            print '.. end cal'
+            hits_num += str(self.hitlist.size) + ' '
+            print 'hits_num', hits_num
+
+        #save idxs_num
+        path = config.getpath('indexer', 'idxs_num_path')
         f = open(path, 'w')
-        f.write(numstr)
+        f.write(hits_num)
         f.close()
 
+    cdef init(self, pos):
+        console('init')
+        self.pos = pos
+        self.hitlist.init(pos)
+
+    cdef cal(self):
+        '''
+        确定pos后 运行将此list处理完毕
+        '''
+        cdef:
+            unsigned int i 
+            #外部 doc score
+            #外部 doc决定的score
+            float doc_score
+            #内部词决定的score
+            float private_score
+            object path
+            Idx idx
+            Hit hit
+            char *ph
+            Hit cur
+            unsigned int temid
+
+        console('cal')
+
+        cur = self.hitlist.get(0)
+        self.temidx.wordID = cur.wordID
+        self.temidx.docID = cur.docID
+
+        for i in range(self.hitlist.size):
+            print i
+            hit = self.hitlist.get(i)
+            idx.wordID = hit.wordID
+            idx.docID = hit.docID
+            print 'private_score'
+            private_score = self.calPrivateScore(i)
+            print 'end private_score'
+            doc_score = self.doclist.get(hit.docID)
+            idx.score = private_score * doc_score
+            print 'score cal ok'
+
+            #合并记录值
+            if not ( cur.wordID == self.temidx.wordID and cur.docID == self.temidx.wordID ):
+                print 'in if'
+                print i
+                print 'start to append'
+                self.idxlist.append(idx)
+                print 'after append'
+                self.temidx = idx
+                temid = i
+            print '合并ok'
+
+        if self.hitlist.size-1 != temid:
+            print self.hitlist.size - 1
+            self.idxlist.append(idx)
+
+        path = config.getpath('indexer', 'idxs_path')
+        path += str(self.pos) + '.idx'
+        ph = path
+        self.idxlist.save(ph)
+
+
+    cdef float calPrivateScore(self, unsigned long i):
+        '''
+        i is a hit's index
+        确定好pos后， 外界传入hit的序号，本程序计算出hit的private score
+        '''
+        cdef:
+            Hit cur
+
+        console('calPrivateScore')
+
+        cur = self.hitlist.get(i)
+        print 'return format docscore'
+        return self.calFormatScore(cur.format) * self.calHitedDocScore(cur.wordID)
+
+
+    cdef float calHitedDocScore(self, unsigned long wordID):
+        '''
+        得到 命中同一个wordID的文档数目
+        原有的hitlist 已经先根据wordID 然后 docID排序
+        '''
+        cdef:
+            unsigned int docnum
+
+        console('calHitedDocScore')
+        docnum = self.wordwidthlist.get(wordID).docnum
+        cdef float res = math.log( self.docnum / docnum )
+        print 'get HitedDocScore', res
+
+
+    cdef float calFormatScore(self, ushort _format):
+        '''
+        _format 1 2 3 4
+        '''
+
+        console(' calFormatScore')
+
+        cdef float res = math.log(math.e, _format)
+        print 'format score', res
+        return res
+
+    cdef __initDocnum(self):
+
+        console(' __initDocnum ')
+
+        self.docnum = self.htmldb.getHtmlNum()
 

@@ -3,7 +3,15 @@ sys.path.append('../')
 from cimport import Cimport
 
 files = [
-    'Indexer.pyx',
+    'hitlist.pyx',
+    'hitlists.pyx',
+    'sorter.pyx',
+    'wordwidthlist.pyx',
+    'hitindexer.pyx',
+    'indexer.pyx',
+    'doclist.pyx',
+    'idxlist.pyx',
+    '_wordwidthlist.pyx',
 ]
 
 for f in files:

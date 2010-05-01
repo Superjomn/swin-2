@@ -1,24 +1,33 @@
+ctypedef unsigned int   uint
+ctypedef unsigned long  ulong
+ctypedef unsigned short ushort
+
+ctypedef unsigned int   docid
+ctypedef unsigned long  wordid
+
 cdef struct Hit:
-    unsigned int wordID
-    unsigned int docID
-    unsigned char score     #二进制位
-
-#2 byte to save format
-cdef enum Format:   #1th - 2th
-    # a | 00111111
-    LOW 0   #00 00 0000
-    MID 64  #01 00 0000
-    TOP 128 #10 00 0000
-
-#2 byte to save format
-cdef enum Level:    #3th - 4th
-    ONE 0       #00 00 0000
-    TWO 16      #00 01 0000
-    THREE 32    #00 10 0000
-    FOUR 48     #00 11 0000
+    uint wordID
+    uint docID
+    ushort format
 
 #记录单个wordid对应的笨pos内的范围
 cdef struct WordWidth:
-    long left
-    long right
+    long left   #左范围
+    long right  #右范围
+    #本wordID命中的不重复的文档数目
+    uint docnum
+    int pos     #记录数组号
  
+#倒排索引
+cdef struct Idx:
+    uint  wordID
+    uint    docID
+    float score
+
+#单个hitlist字段
+cdef struct HitList:
+    Hit *_list
+    ulong size
+    ulong space
+
+   
