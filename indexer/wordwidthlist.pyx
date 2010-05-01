@@ -39,6 +39,19 @@ cdef class WordWidthList:
         print "delete C space"
         free(self._list)
 
+    def __dealloc(self):
+        '''
+        日常的内存清扫
+        '''
+        if self.size > 0:
+            print '清扫下内存'
+            free(self._list)
+            self.size = 0
+            self.space = 0
+            print '重新 init'
+            self.__initSpace()
+
+
 
     cdef short transWidth(self, HitList hitlist, uint pos):
         '''
@@ -56,7 +69,9 @@ cdef class WordWidthList:
             unsigned int docID
             unsigned int docnum
             Hit *_hits
+
             
+        self.__dealloc()
         console('transWidth')
         
         _size = hitlist.size
@@ -117,6 +132,7 @@ cdef class WordWidthList:
         self.__saveToText()
 
     cdef void saveToText(self):
+        print '-'*5000
         path = config.getpath('indexer', 'word_width_path')
         path += '.txt'
         res = ""
@@ -128,7 +144,7 @@ cdef class WordWidthList:
             res += str(self._list[i].pos) + ' '
             res += "\n"
 
-        f = open(path, 'a')
+        f = open(path, 'w')
         f.write(res)
         f.close()
             
@@ -167,11 +183,11 @@ cdef class WordWidthList:
 
 
     cdef append(self, WordWidth li):
-        console('append')
         self.size += 1
         if self.size == self.space:
             self.__addSpace()
         self._list[self.size - 1] = li
+
 
 
     cdef WordWidth get(self, long i):
@@ -191,7 +207,10 @@ cdef class InitWordWidthList:
     def __cinit__(self):
         self.initSize()
         self.initList()
-
+    
+    def __dealloc__(self):
+        print 'delete all C space'
+        free(self._list)
 
     cdef get(self, long wordID):
         '''
