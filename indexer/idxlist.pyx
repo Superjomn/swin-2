@@ -16,6 +16,7 @@ cdef class IdxList:
     '''
     cdef:
         Idx *_list
+        ushort pos
         ulong size
         ulong space
         ulong InitSize
@@ -28,6 +29,27 @@ cdef class IdxList:
         self.AddPer = 50
         self.__initSpace()
         self.size = 0
+
+    def init(self, ushort pos):
+        '''
+        负责内存刷新
+        '''
+        self.setPos(pos)
+        #内存准备
+        self.__initSpace()
+
+    
+
+    cdef void setPos(self, ushort pos):
+        '''
+        清空老的内存
+        '''
+        self.pos = pos
+        self.__dealloc()
+        self.space = 0
+        self.size = 0
+
+        
 
     cdef void append(self, Idx idx):
         console('append')
@@ -42,11 +64,32 @@ cdef class IdxList:
         cdef FILE *fp=<FILE *>fopen(path,"wb")
         fwrite( self._list, sizeof(Idx), self.size, fp)
         fclose(fp)
+        self.saveToText(path)
+
+    cdef saveToText(self, path):
+        path += '.txt'
+        res = ""
+        for i in range(self.size):
+            res += str(self._list[i].wordID) + ' '
+            res += str(self._list[i].docID) + ' '
+            res += str(self._list[i].score) + ' '
+            res += "\n"
+
+        f = open(path, 'w')
+        f.write(res)
+        f.close()
 
     def __dealloc__(self):
         console('__dealloc__')
         print 'delete all C space!'
         free(self._list)
+
+
+    cdef void __dealloc(self):
+        if self.size > 0:
+            free(self._list)
+        self.size = 0
+
 
     cdef short __addSpace(self):
         '''
@@ -69,24 +112,34 @@ cdef class IdxList:
 
 
 
+
+
+
+
+
 cdef class InitIdxList:
     '''
     初始化单个idxlist
     '''
     cdef: 
         uint pos
-        ulong size
+        long size
         Idx *_list
         #scope
         uint left
         uint right
-        ulong curWid
+        long curWid
 
     def __cinit__(self):
         conheader('InitIdxList')
-        pass
+        self.pos = 0
+        self.size = 0
+        self.left = 0
+        self.right = 0
+        self.curWid = 0
 
-    cdef void init(self, unsigned int pos):
+
+    cdef void init(self, uint pos):
         '''
         只载入一个段的idxlist
         '''
@@ -105,11 +158,12 @@ cdef class InitIdxList:
         return self._list[i]
 
     
-    cdef QueryResList find(self, wordID):
+    cdef QueryResList find(self, long wordID):
         '''
         查找 并返回 ResList结果
         '''
         console('find')
+        print 'find wordID:', wordID
         self.curWid = wordID
         #产生对应的范围 (self.left, self.right)
         self.__posWidScope()
@@ -131,10 +185,11 @@ cdef class InitIdxList:
         console('__transResList')
         size = self.right - self.left + 1
         #初始化空间
+        print 'malloc reslist size:',size
         reslist._list = <QueryRes *>malloc(sizeof(QueryRes)*size)
+        print 'end malloc'
         reslist.size = size
         reslist.space = size
-        
 
         #QueryResList index
         j=0
@@ -142,6 +197,7 @@ cdef class InitIdxList:
             '''
             开始赋值 QueryResList._list
             '''
+            print i
             curIdx = self._list+i
             curRes = reslist._list + j
             #开始赋值
@@ -163,19 +219,23 @@ cdef class InitIdxList:
         '''
         利用二分发确定wid的大概位置
         '''
+        cdef:
+            uint fir
+            uint mid
+            uint end
+
         self.left = 0 
         self.right = 0
-
-        cdef:
-            int fir
-            int mid
-            int end
 
         fir = 0
         mid = 0
         end = self.size - 1
         
         console('__posWidMid')
+        print 'self.curWid:', self.curWid
+        print 'self.size', self.size
+        print 'fir, mid, end:', fir,mid,end
+        print 'left.wordID, right:', self._list[0].wordID, self._list[self.size-1].wordID
 
         while fir<end:
             mid = (fir+end)/2
@@ -210,10 +270,13 @@ cdef class InitIdxList:
         需要另外的wid的hash表支持
         '''
         cdef:
+
             int i
 
         console('__posWidScope')
         i = self.__posWidMid()
+
+        print 'pos mid:', i
 
         while i>=0:
             if self._list[i].wordID == self.curWid:
@@ -244,35 +307,44 @@ cdef class InitIdxList:
         '''
         console('__dealloc')
         print 'delete C Idx list space!'
-        if self._list:
+        if self.size > 0:
             free(self._list)
+
+        self.size = 0
 
     cdef void __setPos(self, unsigned int pos):
         console('__setPos')
+        print 'setPos:',pos
         self.pos = pos
+        self.__dealloc()
 
 
     cdef void __initList(self):
         console('__initList')
         path = str(self.pos)+'.idx'
         path = config.getpath('indexer', 'idxs_path') + path
+        print 'init path', path
         cdef char* ph = path
         cdef FILE *fp=<FILE *>fopen(ph,"rb")
-        fread(self._list, sizeof(Idx), self.size ,fp)
+        fread(self._list, sizeof(Idx), self.size, fp)
         fclose(fp)
     
 
     cdef void __initSize(self):
         console('__initSize')
-        path = config.getpath('indexer', 'idxs_num_path ')
+        path = config.getpath('indexer', 'idxs_num_path')
         f = open(path)
         c = f.read()
         f.close()
         _split = c.split()
         self.size = int(_split[self.pos])
+        print 'size', self.size
         
     cdef void __initSpace(self):
         console('__initSpace')
+        #清扫内存
+        if self.size > 0:
+            free(self._list)
         self._list = <Idx *>malloc(sizeof(Idx)*self.size)
  
  

@@ -18,6 +18,10 @@ DEF STEP = 20
 
 
 cdef class Indexer:
+    '''
+    对已经生存的hits 进行加工
+    计算出每个词汇的 score
+    '''
 
     cdef:
         object          htmldb
@@ -41,6 +45,7 @@ cdef class Indexer:
         self.idxlist = IdxList()
         self.htmldb = HtmlDB()
         self.__initDocnum()
+        print 'init OK'
 
     def run(self):
         '''
@@ -49,6 +54,7 @@ cdef class Indexer:
         '''
         console('run')
         hits_num = ""
+        idxs_num = ""
 
         for i in range(STEP):
             print i
@@ -56,7 +62,10 @@ cdef class Indexer:
             self.cal()
             print '.. end cal'
             hits_num += str(self.hitlist.size) + ' '
-            print 'hits_num', hits_num
+            idxs_num += str(self.idxlist.size) + ' '
+
+        print 'hits_num', hits_num
+        print 'idxs_num', idxs_num
 
         #save idxs_num
         path = config.getpath('indexer', 'idxs_num_path')
@@ -68,6 +77,7 @@ cdef class Indexer:
         console('init')
         self.pos = pos
         self.hitlist.init(pos)
+        self.idxlist.init(pos)
 
     cdef cal(self):
         '''
@@ -90,8 +100,8 @@ cdef class Indexer:
         console('cal')
 
         cur = self.hitlist.get(0)
-        self.temidx.wordID = cur.wordID
-        self.temidx.docID = cur.docID
+        self.temidx.wordID  =   cur.wordID
+        self.temidx.docID   =   cur.docID
 
         for i in range(self.hitlist.size):
             print i
@@ -138,7 +148,7 @@ cdef class Indexer:
 
         cur = self.hitlist.get(i)
         print 'return format docscore'
-        return self.calFormatScore(cur.format) * self.calHitedDocScore(cur.wordID)
+        return self.calFormatScore(cur.format) #* self.calHitedDocScore(cur.wordID)
 
 
     cdef float calHitedDocScore(self, unsigned long wordID):
