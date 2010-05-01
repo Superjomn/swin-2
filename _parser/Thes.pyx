@@ -14,13 +14,12 @@ Created on May 19, STEP11
 
 from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
 
-
 import sys
 sys.path.append('../')
 from Config import Config
 config = Config()
 import htmldb
-from ICTCLAS50.Ictclas import Ictclas
+from _parser.ICTCLAS50.Ictclas import Ictclas
 
 Cimport HashIndex.pyx swin2/_parser/HashIndex.pyx
 Cimport ../reptile/datalist/List.pyx swin/reptile/datalist/List.pyx
@@ -50,19 +49,14 @@ cdef class CreateThes:
         '''
         for i in range(self.htmlnum):
             _content = self.htmldb.getContentByIndex(i)
-            #print '-'*50 
-            #print _content
-            #print self.ict.split('try:中国农业大学')
             _splitedContent = self.ict.split(str(_content))
-            #print _splitedContent
-            #print '-'*50 
+            f = open('../data/bug_words.txt', 'a')
+            f.write(_splitedContent)
+            f.close()
 
-            for word in _splitedContent.split() :
+            for word in _splitedContent.split():
                 self.__list.find( word )
 
-            if i > 5:
-                print '.. larger than 5 return'
-                return
         print '词库分词完毕'
 
         

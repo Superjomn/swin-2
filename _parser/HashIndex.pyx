@@ -165,7 +165,7 @@ cdef class InitHashIndex:
         if hashvalue> self.li[self.hi[0].left] :
             cur += 1
         else:
-            return cur-1
+            return 0
 
         while hashvalue > self.li[self.hi[cur].left] :
             cur+=1

@@ -1,8 +1,10 @@
-from cimport.cimport import Cimport
+import sys
+sys.path.append('../')
+from cimport import Cimport
 
 files = [
+    'Thes.pyx',
     'InitThes.pyx',
-    'Thesaurus.pyx',
 ]
 
 for f in files:

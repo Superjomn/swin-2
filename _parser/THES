@@ -1,0 +1,13 @@
+词库结构:
+    thes_path:  long list 
+    使用hash值代替词汇 以减少内存消耗和加快速度
+    二进制
+
+    thes_size_path : long size
+    存储词库的规模
+    文本
+
+    hash_index_width: long left ' ' long right
+    存储词库的范围
+    文本
+

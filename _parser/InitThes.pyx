@@ -6,7 +6,7 @@ sys.path.append('../')
 from Config import Config
 config = Config()
 
-Cimport HashIndex.pyx swin2/_parser/HashIndex.pyx
+Cimport HashIndex.pyx   swin2/_parser/HashIndex.pyx
 
 cdef class InitThes:
     '''
@@ -64,7 +64,13 @@ cdef class InitThes:
         fread(self.__list, sizeof(long), self.size ,fp)
         fclose(fp)
         self.hashIndex.initList(self.__list)
-        
+
+    def pos(self, dv):
+        '''
+        返回hashindex对应块
+        '''
+        return self.hashIndex.pos(dv)
+
 
     def find(self, v):
         '''
@@ -72,6 +78,11 @@ cdef class InitThes:
         若存在 返回位置 
         若不存在 返回   0
         '''
+        #print '初始化数据ok'
+        cdef long dv = hash(v)
+        return self.findByHash(dv)
+
+    cdef findByHash(self, long dv):
         cdef:
             long l
             long fir
@@ -80,8 +91,6 @@ cdef class InitThes:
             long pos
             HI cur  #范围
 
-        #print '初始化数据ok'
-        cdef long dv = hash(v)
 
         pos=self.hashIndex.pos( dv )
         print 'hash pos', pos
