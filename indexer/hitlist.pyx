@@ -108,9 +108,15 @@ cdef class InitHitlist:
     def __dealloc__(self):
         print 'delete all C space'
         free(self._list)
+    
+    cdef void __dealloc(self):
+        if self.size > 0:
+            print 'delete all C space'
+            free(self._list)
 
     cdef void __setPos(self, unsigned int pos):
         self.pos = pos
+        self.__dealloc()
 
 
     cdef void __initList(self):
@@ -129,6 +135,7 @@ cdef class InitHitlist:
         f.close()
         _split = c.split()
         self.size = int(_split[self.pos])
+        print 'self.size', self.size
         
     cdef void __initSpace(self):
         self._list = <Hit *>malloc(sizeof(Hit)*self.size)

@@ -18,7 +18,19 @@ cdef class Sorter:
         self.length = length
 
 
-    cdef double gvalue(self, Hit data):
+    cdef void saveToText(self):
+        res = ""
+        for i in range(self.length):
+            res += str(self.dali[i].wordID) + " "
+            res += str(self.dali[i].docID) + " "
+            res += "\n"
+
+        f = open('../data/wid_sorted_hits.txt', 'w')
+        f.write(res)
+        f.close()
+
+
+    cdef long gvalue(self, Hit data):
         '''
 		返回需要进行比较的值
         '''
@@ -85,7 +97,7 @@ cdef class WidSort(Sorter):
         Sorter.init(self, data,length)
     '''
 
-    cdef double gvalue(self, Hit data):
+    cdef long gvalue(self, Hit data):
         '''
         重载 Sorter 方法
 		返回需要进行比较的值
@@ -106,7 +118,7 @@ cdef class DidSort(Sorter):
         #初始化 父亲 Sorter
         Sorter.init(self,data,length)
     '''
-    cdef double gvalue(self,Hit data):
+    cdef long gvalue(self, Hit data):
         '''
         返回排序字段
         '''
@@ -157,15 +169,15 @@ cdef class HitSort:
         cdef HitList temhitlist
         self.wordidsort()
         #此处为临时产生width
+        print 'end wordidsort'
         #trans type
-        '''
         temhitlist.size = self.size
-        temhitlist.space = self.space
         temhitlist._list = self._list
-        '''
-        self.transWordWidth()
-        self.widthlist.saveToText()
+
+        self.widthlist.transWidth(temhitlist, 0)
         self.docidsort()
+        self.widthlist.saveToText()
+
 
     cdef void wordidsort(self):
         '''
@@ -174,40 +186,32 @@ cdef class HitSort:
         '''
         print 'begin to sort wid'
         self.widsort.quicksort(0, self.size-1)
-
-
-    cdef void  transWordWidth(self):
-        '''
-        扫描list 产生对于每个wordID的序列范围表
-        '''
-        cdef:
-            WordWidth ww
-
-        cdef long cur_wid = self._list[0].wordID
-
-        ww.left = 0
-
-        for i in range(self.size):
-            if self._list[i].wordID != cur_wid:
-                ww.right = i-1
-                self.widthlist.append(ww)
-                ww.left = i
-
-        ww.right = self.size-1
-
-        self.widthlist.append(ww)
+        self.widsort.saveToText()
+        print 'end wordidsort'
 
 
     cdef void docidsort(self):
         '''
         在同一个wordID范围内进行docID的排序
         '''
+        cdef:
+            ulong _size
+            long i
+            WordWidth width
+
         _size = self.widthlist.getSize()
-        cdef long i
-        cdef WordWidth width
+
         for i in range(_size):
             width = self.widthlist.get(i)
-            self.didsort.quicksort(width.left, width.right)
+            print '-'*50
+            print 'width: ',i, 'left:right', width.left, width.right
+            print 'words:'
+            for i in range(width.left, width.right):
+                print self._list[i].wordID, self._list[i].docID
+            print '-'*50
+                
+            if width.right - width.left > 1:
+                self.didsort.quicksort(width.left, width.right-1)
 
     cdef void save(self):
         #self.__saveWidth()

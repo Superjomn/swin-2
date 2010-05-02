@@ -143,7 +143,7 @@ cdef class InitDocList:
         self.__initSpace()
         self.__initList()
 
-    cdef float get(self, int docID):
+    def get(self, int docID):
         return self._list[docID]
 
     cdef __initSize(self):
@@ -152,12 +152,13 @@ cdef class InitDocList:
         f = open(path)
         c = f.read()
         f.close()
+        self.size = int(c)
         
         
     cdef __initList(self):
         path = config.getpath('indexer', 'doc_score_path')
         cdef char* ph = path
-        cdef FILE *fp=<FILE *>fopen(ph,"rb")
+        cdef FILE *fp=<FILE *>fopen(ph, "rb")
         fread(self._list, sizeof(float), self.size ,fp)
         fclose(fp)
 
@@ -166,8 +167,6 @@ cdef class InitDocList:
         '''
         取得dod数量 初始化空间
         '''
-        #get doc num
-        self.size = self.htmldb.getHtmlNum()
         #分配空间
         self._list = <float *>malloc(sizeof(float) * self.size)
         

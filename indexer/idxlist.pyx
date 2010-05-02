@@ -105,8 +105,8 @@ cdef class IdxList:
         return True
 
     cdef __initSpace(self):
-        console('__initSpace')
-        print '.. init space'
+        console('IdxList __initSpace')
+        print '.. IdxList init space'
         self._list = <Idx *>malloc(sizeof(Idx) * self.InitSize)
         self.space = self.InitSize
 
@@ -197,7 +197,7 @@ cdef class InitIdxList:
             '''
             开始赋值 QueryResList._list
             '''
-            print i
+            #print i
             curIdx = self._list+i
             curRes = reslist._list + j
             #开始赋值
@@ -272,27 +272,34 @@ cdef class InitIdxList:
         cdef:
 
             int i
+            uint mid
 
         console('__posWidScope')
-        i = self.__posWidMid()
+        mid = self.__posWidMid()
 
+        i = mid
         print 'pos mid:', i
+        print 'mid wordID', self._list[i].wordID
 
-        while i>=0:
-            if self._list[i].wordID == self.curWid:
+        while i-1>=0:
+            if self._list[i-1].wordID == self.curWid:
                 i -= 1
             else:
                 break
 
-        self.left = i+1
+        self.left = i
         
-        while i <= self.size - 1:
-            if self._list[i].wordID == self.curWid:
+        i = mid
+        while i+1 <= self.size - 1:
+            if self._list[i+1].wordID == self.curWid:
                 i += 1
             else:
                 break
 
-        self.right = i-1
+        self.right = i
+
+        print 'scope: left,right', self.left, self.right
+        print 'scope wordID: left,right', self._list[self.left].wordID, self._list[self.right].wordID
 
 
         
@@ -341,11 +348,11 @@ cdef class InitIdxList:
         print 'size', self.size
         
     cdef void __initSpace(self):
-        console('__initSpace')
+        console('InitIdxList __initSpace')
         #清扫内存
-        if self.size > 0:
-            free(self._list)
+        print 'begin to malloc'
         self._list = <Idx *>malloc(sizeof(Idx)*self.size)
+        print 'end malloc'
  
  
 

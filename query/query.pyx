@@ -44,22 +44,42 @@ cdef class ResList:
         cdef:
             uint i
             object res
-
+        
+        print 'res:'
+        for i in range(self.size):
+            print self._list[i].docID, self._list[i].score, self._list[i].able
         res = []
         for i in range(self.size):
             print self._list[i].docID
-            res.append( self._list[i].docID )
+            if self._list[i].able:
+                res.append( self._list[i].docID )
 
         return res
 
 
 
     cdef append(self, QueryResList reslist, uint step):
+        self.saveToText(reslist, step)
         if step == 0:
             self.appendInitList(reslist)
 
         else:
             self.stepAppend(reslist)
+
+    cdef void saveToText(self, QueryResList reslist, uint step):
+        path = '../data/query'+str(step)+'.txt'
+        res = ''
+        for i in range(reslist.size):
+            res += str(reslist._list[i].docID) + ' '
+            res += str(reslist._list[i].score) + ' '
+            res += str(reslist._list[i].able) + ' '
+            res += "\n"
+
+        f = open(path, 'w')
+        f.write(res)
+        f.close()
+        
+
 
 
     cdef inline void stepAppend(self, QueryResList reslist):
@@ -68,12 +88,17 @@ cdef class ResList:
         新一轮会在原有基础上进行叠加
         '''
         cdef:
-            uint cur
-            QueryRes *res
+            QueryRes *res       #reslist cur
+            QueryRes *cur       #self._list cur
+            QueryRes *listend
+            QueryRes *lasthited
             uint i
 
         #新的一轮开始
-        cur = 0
+        cur = self._list
+        #self._list last item
+        listend = self._list + self.size-1
+        print 'reslist size:', self.size
         for i in range(reslist.size):
             '''
             对于每一个i都需要进行处理
@@ -82,15 +107,28 @@ cdef class ResList:
             '''
             res = reslist._list + i
 
-            while reslist._list[cur].docID < res.docID :
-                cur += 1
+            print 'cur:', res.docID, res.score, res.able
 
-            if res.docID == reslist._list[cur].docID:
-                reslist._list[cur].score += res.score
+            while cur.docID < res.docID :
+                cur.able = false
+                cur += 1
+                if cur>listend:
+                    break
+
+            if cur.docID == cur.docID :
+                if cur.able:
+                    cur.score += res.score
+                    lasthited = cur
             else:
                 #cur > res
-                res.able = false
-            
+                cur.able = false
+
+        print 'self.size',self.size
+        cur = lasthited + 1
+        while cur <= listend:
+            cur.able = false
+            cur += 1
+
         print 'end stepAppend'
         #清空内存
         self.__freeResList( reslist )
@@ -103,16 +141,37 @@ cdef class ResList:
         '''
         cdef:
             uint i 
+            QueryRes tem
+
+        tem = reslist._list[0]
+        tem.score = 0
+
         for i in range(reslist.size):
             '''
             对每个记录进行处理
             '''
-            self.size += 1
-            if self.size == self.space:
-                self.__addSpace()
-            self._list[self.size - 1] = reslist._list[i]
+            if reslist._list[i].docID == tem.docID:
+                tem.score += reslist._list[i].score
+            else:
+                self.__append(tem)
+                tem = reslist._list[i]
         #清空reslist参数 内存
+        if self._list[self.size-1].docID != tem.docID:
+            self.__append(tem)
+        
+        print '.. +++ show initappend +++'
+        for i in range(self.size):
+            print ' docID, score', self._list[i].docID, self._list[i].score
+
+
         self.__freeResList(reslist)
+
+    cdef inline void __append(self, QueryRes res):
+        self.size += 1
+        if self.size == self.space:
+            self.__addSpace()
+        self._list[self.size - 1] = res
+        
 
 
     cdef __freeResList(self, QueryResList reslist):
