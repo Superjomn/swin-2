@@ -13,6 +13,9 @@ setup_environ(settings)
 from pyquery import PyQuery as pq
 
 from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
+
+import indexer.models as models
+
 from debug import *
 
 class HtmlDB:
@@ -88,12 +91,138 @@ class HtmlDB:
         html = self.dd('html')
         return html.attr('url')
 
-        
-
     def getDocID(self):
         return self.docID
 
-    #----------end content-------------------
+
+
+
+class ArrangePageDB:
+    '''
+    整理页面顺序
+    将同一个站点的页面在一起
+    '''
+    def __init__(self):
+        self.sitenum = None
+        self.sites = []
+
+    def getSiteNum(self):
+        self.sitenum = len(HomeUrl.objects.all())
+
+    def clearOldDB(self):
+        '''
+        清空原有记录
+        '''
+        print 'delete old records'
+        HtmlInfo.objects.all().delete()
+        
+    def clearNewDB(self):
+        '''
+        清空原有记录
+        '''
+        print 'delete new records'
+        models.HtmlInfo.objects.all().delete()
+
+
+    def run(self):
+        '''
+        !!!!!!!!!!!!!!!!!!!!
+        必须在之前将 homeUrls信息记录下来
+        '''
+        self.getSiteNum()
+        self.save()
+        self.moveNewRecord()
+        self.reverseRecord()
+
+
+    def save(self):
+        path = config.getpath('indexer', 'sites_num_path')
+        res = ''
+        for num in self.sites:
+            res += str(num)
+        f = open(path, 'w')
+        f.write(res)
+        f.close()
+        
+
+
+    def moveNewRecord(self):
+        '''
+        将 reptile 记录进行排序 
+        传入新的数据表中
+        '''
+        for i in range(self.size):
+            htmlinfos = HtmlInfo.objects.filter(siteID = i)
+            #记录数目
+            self.sites.append(len(htmlinfos))
+            for htmlinfo in htmlinfos:
+                self.saveRecord(htmlinfo)
+
+
+    def reverseRecord(self):
+        '''
+        排序后 将新记录返回
+        重新传输到 reptile 中
+        '''
+        htmlinfos = models.HtmlInfo.objects.all()
+        for htmlinfo in htmlinfos:
+            _htmlinfo = HtmlInfo(
+                    siteID = htmlinfo.siteID,
+                    title = htmlinfo.title,
+                    url = htmlinfo.url,
+                    date = htmlinfo.date
+                )
+            htmlsource = htmlinfo.htmlsource_set.all()[0]
+            _htmlsource = HtmlSource(
+                    parsed_source = htmlsource.parsed_source,
+                    info = _htmlinfo
+                )
+        self.clearNewDB()
+
+
+
+            
+
+    def saveRecord(self, htmlinfo):
+        '''
+        导入 htmlinfo 自动进行各种记录的排序
+        '''
+        _htmlinfo = models.HtmlInfo(
+                       title = htmlinfo.title,
+                       url = htmlinfo.url,
+                       date = htmlinfo.date
+                    )
+        _htmlinfo.save()
+
+        htmlsource = htmlinfo.htmlsource_set.all()[0]
+        _htmlsource = models.HtmlSource(
+                        parsed_source = htmlsource.parsed_source,
+                        info = _htmlinfo
+                    )
+        _htmlsource.save()
+        
+
+        
+        
+
+    
+    
+
+    def save(self):
+        res = ''
+        for i in self.sites:
+            res += str(i) + ' '
+        path = config.getpaht('indexer', 'sites_num')
+        f = open(path, 'w')
+        f.write(res)
+        f.close()
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     htmldb = HtmlDB()
