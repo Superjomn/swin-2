@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>更多站点</title>
+<link type="text/css" rel="stylesheet" href="/media/child.css" />
+<link type="text/css" rel="stylesheet" href="/media/query_more.css" />
+
+</head>
+
+<body>
+	<div id="content">
+			<a href='/index/'> 
+            	<img src="/media/image/logo.png" />
+            </a>
+		<div id="navs">
+			{%for i in titles%}
+			<a href="/index/site={{forloop.counter}}">{{i}}</a>
+			{%endfor%}
+		</div>
+		
+	</div>
+	<div class="clear"></div>
+	<div id="footer"></div>
+</body>
+</html>

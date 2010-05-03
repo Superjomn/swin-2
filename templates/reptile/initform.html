@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>初始化信息填写</title>
+<link type="text/css" rel="stylesheet" href="/media/script/development-bundle/themes/start/jquery.ui.all.css" />
+<style>
+span.title{
+	font-size:18px;
+	font-family:"微软雅黑", "黑体";
+    font-weight:bold;
+    color:blue;
+	}
+.num input{
+    width:5em;
+}
+</style>
+</head>
+
+<body>
+	<form id="init_form" method="get" action="/reptile/init-form-info/" target="info">
+		<span class="title">爬取地址</span>
+        <input id="homeurl_num" name="homeurl_num" type="hidden"/>
+
+		<table id="homeUrl_table">
+            <tr> <td><span>站点名称</span></td><td><span>首页地址</span></td> <td><span>下载页数</span></td> </tr>
+            {% if homeurls %}
+                {% for site in homeurls %}
+			<tr> <td class="homeurl"><input type="text" name="titles[]" size="10" /></td><td><input type="text" size="20" name="urls[]" value="http://" /></td> <td class="num"><input type="text" name="maxpages[]" /></td> </tr>
+                {% endfor %}
+            {% endif %}
+
+		</table>
+        <br/>
+		
+		<span class="title">爬虫线程个数</span>
+		<input type="text" name="reptile_num" size="5"/>
+        <br/>
+        <button type="subbmit">确定</button> 
+	</form>
+</body>
+
+<script type="text/javascript" src="/media/script/development-bundle/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.core.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.button.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	$("button").button();
+
+});
+
+</script>
+
+</html>

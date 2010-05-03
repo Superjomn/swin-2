@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Swin2 爬虫系统</title>
+<link type="text/css" rel="stylesheet" href="/media/script/development-bundle/themes/start/jquery.ui.all.css" />
+<link type="text/css" rel="stylesheet" href="/media/style/reptile-index.css"/>
+
+</head>
+<body>
+<div id="content">
+    <span id = "header">Swin2爬虫控制系统</span>
+
+	<div id="init_sel">
+		<div id="bar1" class="bar">
+			<span class="title">选择开始模式</span> <br />
+			<select class='sel' id="start_sel">
+                <option value='none'></option>
+				<option value='init'>Init</option>
+				<option value='resume'>Resume</option>
+			</select>
+			<button type="button" id="init_sel_button" >确定</button>
+		</div><!-- end bar1 -->
+        <div id-"bar2" class="bar">
+            <span class="title">开始运行</span> <br/>
+            <button id="start" type="button">Start</button>
+        </div>
+		<div id="bar3" class="bar">
+			<span class="title">选择结束模式</span> <br />
+			<select class='sel' id="end_sel">
+                <option value='none'></option>
+				<option value='stop'>stop</option>
+				<option value='halt'>halt</option>
+			</select>
+			<button type="button" id="end_sel_button">确定</button>
+		</div><!-- end bar1 -->
+
+		<iframe id="info"> </iframe><!-- info -->
+
+	</div><!-- form -->
+
+	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/reptile/default-info/"> </iframe><!-- baright --><div class="clear"></div>
+
+	<div class="clear"	></div>
+</div><!-- end content -->
+
+
+</body>
+<script type="text/javascript" src="/media/script/development-bundle/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.core.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/media/script/development-bundle/ui/jquery.ui.button.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	$("button").button();
+
+    $("button#start").click(function(){
+        $("#baright").attr("src", "/reptile/start/");
+    });
+    //开始模式选择
+    $("button#init_sel_button").click(function(){
+        var se=$("#start_sel").children('option:selected').val();
+        alert(se);
+        var path = "/reptile/"+se+"/";
+        $("#baright").attr("src", path);
+    });
+    //结束模式选择
+    $("button#end_sel_button").click(function(){
+        var se=$("end_sel").children('option:selected').val();
+        var path = "/reptile/"+se+"/";
+        $("#baright").attr("src", path);
+    });
+
+    $(".sel").change(function(){
+        var pa=$(this).children('option:selected').val();
+        if(pa == 'none')
+        {
+            $("#baright").attr('src', '/reptile/default-info/');
+        }
+        else //if(p1 != 'none')
+        {
+            //reptile/resume-info/
+            var path='/reptile/'+pa+'-info/';
+            $("#baright").attr('src', path);
+        }
+    });
+
+});
+
+</script>
+
+</html>
