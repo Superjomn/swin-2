@@ -1,0 +1,146 @@
+*{
+    padding:0;
+    margin:0;
+    }
+body{
+    text-align:center;
+    background-color:#B2BDC4;
+    font-family:"微软雅黑", "黑体";
+    }
+div#content{
+    height:520px;
+    width:900px;
+    background:url(/media/image/background.jpg);
+    background-repeat:no-repeat;
+    background-position:center top;
+    border:5px solid #fff;
+    margin-top:50px;
+    margin-left:auto;
+    margin-right:auto;
+}
+div#content table{
+    border-collapse: collapse;
+    width:100%;
+}
+.clear{
+    clear:both;
+    height:0;
+    width:100%;
+    }
+#logo{
+    font-size:50px;
+    font-family:"微软雅黑", "黑体";
+    color:#fff;
+    margin-top:30px;
+    }
+/*
+form#search input{
+    width:25em;
+    padding:0.3em;
+    font-size:18px;
+    border:1px solid #ccc;
+    font-family:"微软雅黑", "黑体";
+    }
+form#search button{
+    margin-top:10px;
+
+    }
+
+*/
+div#header{
+margin-top:10px;
+width:400px;
+margin-left:auto;
+margin-right:auto;
+color:#fff;
+}
+
+div#header a{
+text-decoration:none;
+color:#fff;
+}
+div#heder a:hover{
+color:yellow;
+text-decoration:underline;
+}
+
+div#header li{
+    display:block;
+    float:left;
+    padding:0.4em 0.1em;
+    }
+
+
+form#search{
+    width:400px;
+    padding:5px;
+    font-size:17px;
+    border:1px solid #ccc;
+    margin-left: auto;
+    margin-right:auto;
+    text-align:left;
+    background-color:#fff;
+}
+form#search input{
+    font-size:20px;
+    float:left;
+    border:none;
+    width:370px;
+}
+
+form#search button{
+    width: 25px;
+    height:25px;
+    float:left;
+    background:url(/media/image/tt.png);
+    background-position:center;
+    border:none;
+}
+
+.ui-autocomplete{
+font-size:16px;
+width:100px;
+text-align:left;
+}
+#suggest{
+font-size:15px;
+display:block;
+position:absolute;
+width: 400px;
+z-index:20;
+background:#fff;
+padding:0;
+}
+#suggest li{
+display:block;
+list-style:none;
+text-align:left;
+padding:0.1em;
+}
+.li{
+background:#fff;
+}
+.sug_on{
+background-color:blue;
+color:#fff;
+}
+
+#footer{
+background-color:#D0D9DD;
+height:50px;
+position:relative;
+top:300px;
+margin:0;
+padding:0;
+}	
+#footer td{
+padding:10px;
+}
+#footer a{
+color:#737373;
+text-decoration:none;
+font-size:18px;
+}
+#footer a:hover{
+text-decoration:underline;
+}

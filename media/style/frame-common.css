@@ -1,0 +1,15 @@
+span.title{
+    font-weight:bold;
+    font-size:23px;
+}
+
+span.subtitle{
+    font-weight:bold;
+    font-size:20px;
+}
+
+span.value{
+    color:red;
+}
+
+

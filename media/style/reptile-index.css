@@ -1,0 +1,73 @@
+body{
+    background-color:#eee;
+}
+span#header{
+    font-size:33px;
+    color:blue;
+    display:block;
+    width:600px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:10px;
+    margin-bottom:20px;
+    text-align:center;
+    clear:both;
+}
+div#content
+{
+    border:2px solid;
+    border-radius:15px;
+    -moz-border-radius:15px; /* Firefox 3.6 and earlier */
+    background-color:#fff;
+    padding:18px;
+} 	
+div#init_sel{
+    width:200px;
+    float:left;
+}
+iframe#baright{
+    border:1px solid #999;
+    border-radius:15px;
+    -moz-border-radius:15px;
+    padding:18px;
+}
+iframe#baright{
+    height:1100px;
+    width:600px;
+    float:left;
+    margin-left:10px;
+    }
+iframe#info{
+    height:500px;
+    width:100%;
+    border:1px solid #eee;
+    }
+.clear{
+    clear:both;
+    width:100%;
+    }
+div.bar{
+    border:1px solid #eee;
+    margin-top:20px;
+}
+#mode_select select{
+    font-size:20px;
+    font-family:"微软雅黑", "黑体";
+    }
+#content{
+    width:900px;
+    border:2px solid #999;
+    margin-left:auto;
+    margin-right:auto;
+}
+#content span.title{
+    font-size:18px;
+    font-family:"微软雅黑", "黑体";
+}
+#content form#mode_select{
+    border-bottom:2px solid #999;
+    width:300px;
+    float:left;
+}
+
+
