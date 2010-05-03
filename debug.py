@@ -2,8 +2,8 @@
 
 def dec(func):
     def Function(*args,**kargs):
-        print '<=', args, '=>'
-        print '<<<',func.__name__,'>>>'
+        #print '<=', args, '=>'
+        #print '<<<',func.__name__,'>>>'
         return func(*args,**kargs)
     return Function
 
@@ -18,14 +18,14 @@ def conheader(name):
     print ')'*4
 
 def console(func, strr=""):
-        '''
-        输出： 
-            ---------------------------------
-            <<<func>>> strr
-            ---------------------------------
-        '''
-        print '--------------------------------'
-        print '<<<%s>>> %s' % (func, strr)
+    '''
+    输出： 
+        ---------------------------------
+        <<<func>>> strr
+        ---------------------------------
+    '''
+    print '--------------------------------'
+    print '<<<%s>>> %s' % (func, strr)
 
 WIDTH = 60
 def hr():

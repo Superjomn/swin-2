@@ -145,18 +145,3 @@ class HtmlParser:
         html.appendChild(contentNode)
         return html.toxml()
 
-
-
-
-            
-
-        
-
-        
-       
-
-        
-
-
-
-

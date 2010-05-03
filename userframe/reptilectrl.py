@@ -137,7 +137,7 @@ class ReptileCtrl:
     def sendInit(self):
         signal = '''
             <signal type='init'>
-                <homeurl reptilenum=10>
+                <homeurl reptilenum=2>
                     <item title='CAU'  url='http://www.cau.edu.cn' maxpage=200 />
                     <item title='news'  url='http://news.cau.edu.cn' maxpage=200 />
                     <item title='hsz'  url='http://org.wusetu.cn/hsz/' maxpage=200 />

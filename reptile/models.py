@@ -10,6 +10,8 @@ class HomeUrl(models.Model):
 
 
 class HtmlInfo(models.Model):
+    #记录siteID    
+    siteID = models.IntegerField()
     title = models.CharField(max_length=100)
     url = models.URLField(max_length=150)
     date = models.DateField()
@@ -39,9 +41,9 @@ class UrlQueue(models.Model):
     path = models.CharField(max_length=120)
 
 '''
+admin.site.register(HomeUrl)
 admin.site.register(HtmlInfo)
 admin.site.register(HtmlSource)
-admin.site.register(HomeUrl)
 admin.site.register(Urlist)
 admin.site.register(UrlQueue)
 '''

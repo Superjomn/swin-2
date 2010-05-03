@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from query import Query
+from _query import Query
 
 import sys
 from debug import *
@@ -8,4 +8,4 @@ from Config import Config
 config = Config()
 
 query = Query()
-print query.query('重点实验室')
+print query.query('中国')

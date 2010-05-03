@@ -12,7 +12,7 @@ class Ictclas:
     def __del__ (self):
         ictclas.ict_exit()
 
-    def split(self,s):
+    def split(self, s):
         #print '--------------split----------------'
         #print chardet.detect(s)
         length=len(s)

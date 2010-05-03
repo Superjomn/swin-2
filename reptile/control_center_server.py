@@ -52,6 +52,7 @@ class ReptileSignal:
         res['reptilenum'] = int( htmlurl.attr('reptilenum') )
         res['homeurls'] = []
         res['maxpages'] = []
+
         for i in range(len(items)):
             item = items.eq(i)
             sg = []

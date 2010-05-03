@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 import threading  
 import chardet
+import urllib2  
+import StringIO  
+import gzip  
+import string  
+
+
 import httplib
 import sys
 reload(sys)
@@ -169,7 +175,7 @@ class Reptile(threading.Thread):
             self.__pages[self.__temSiteID] += 1
 
             self.Flock.acquire()
-            self.htmldb.saveHtml(pathinfo[1][0], pageStdUrl, htmlsource)
+            self.htmldb.saveHtml(self.__curSiteID[0], pathinfo[1][0], pageStdUrl, htmlsource)
             self.Flock.release()
 
             if self.__pages[self.__temSiteID] == self.__maxPageNums[self.__temSiteID] :
@@ -222,6 +228,7 @@ class ReptileLib(threading.Thread):
         '''
         全局数据控制
         '''
+        self.htmldb = HtmlDB()
         threading.Thread.__init__(self, name = "reptilelib" )  
         print "... init ReptileLib ..."
         #信号队列 由人机界面控制程序运行
@@ -359,6 +366,10 @@ class ReptileLib(threading.Thread):
         self.urlQueue.init(self.homeUrls)
         self.urlQueue.initFrontPage()
         self.urlist.init(len(self.homeUrls))
+
+        #存储 homeUrls
+        self.htmldb.saveHomeUrls(homeUrls, maxPages, self.pages)
+
 
     def initThreads(self):
         self.thlist = []

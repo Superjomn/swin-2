@@ -240,7 +240,7 @@ cdef class Query:
         #分配空间
         _reslit = <QueryResList *>malloc(sizeof(QueryResList))
 
-        words = self.ict.split(strr).split()
+        words = self.ict.split(str(strr)).split()
         wordhashs = [hash(word) for word in words]
         wordgroups = self.__splitGroup(wordhashs)
         #将词通过pos分组

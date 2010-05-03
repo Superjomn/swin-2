@@ -60,9 +60,9 @@ cdef class HitIndexer:
             format3 = self.htmldb.getContent() + self.htmldb.getHTwo()
 
             #开始分词及作处理
-            self.indexStr(format1, 1)
+            self.indexStr(format1, 3)
             self.indexStr(format2, 2)
-            self.indexStr(format3, 3)
+            self.indexStr(format3, 1)
         #进行存储
         #存储hits 和 hit_num
         self.sort()

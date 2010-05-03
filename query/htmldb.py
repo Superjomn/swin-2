@@ -11,9 +11,8 @@ from swin2 import settings
 setup_environ(settings)
 
 from pyquery import PyQuery as pq
-
 from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
-from debug import *
+
 
 class HtmlDB:
     def __init__(self):
@@ -35,7 +34,6 @@ class HtmlDB:
         self.xmlhtml = xmlcontent
         self.dd = pq(self.xmlhtml)
         return _htmlinfo
-
 
     #----------content-------------------
     def getUrlDec(self):
@@ -64,18 +62,24 @@ class HtmlDB:
     def getDocID(self):
         return self.docID
 
-    #----------end content-------------------
+    #---------query index -------------
+    def get_title(self, siteID):
+        '''
+        '''
+        assert(siteID>0)
+        siteID -= 1
+        homeurl = HomeUrl.objects.all()[siteID]
+        return homeurl.title
 
-if __name__ == '__main__':
-    htmldb = HtmlDB()
-    print 'get html num', htmldb.getHtmlNum()
-    print 'set handle 8',  htmldb.setRecordHandle(8)
-    format1 = htmldb.getTitle() + htmldb.getUrlDec() 
-    #print 'format1', format1
-    format2 = htmldb.getB() + htmldb.getHOne()
-    #print 'format2', format2
-    format3 = htmldb.getContent() + htmldb.getHTwo()
-    #print 'format3', format3
-    f = open('../data/d1.txt', 'w')
-    f.write(str(format1+format2+format3))
-    f.close()
+    def get_titles(self):
+        '''
+        取得首页站点的导航
+        '''
+        homeurls = HomeUrl.objects.all()[:4]
+        return [homeurl.title for homeurl in homeurls]
+
+
+
+
+
+

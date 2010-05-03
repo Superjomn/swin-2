@@ -6,9 +6,10 @@ from django.contrib import admin
 from django.conf import settings
 
 from userframe.reptileframe import ReptileFrame
+from query.views import QueryFrame
 
 #import reptile.views as reptile_views
-
+queryframe = QueryFrame()
 reptileframe = ReptileFrame()
 
 print 'init ok reptile run'
@@ -28,6 +29,12 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     #界面
+    #query 
+    ('^index/$', queryframe.index),
+    ('^index/more_sites/$', queryframe.more_sites),
+    ('^search/$', queryframe.search),
+    
+
     #info
     url(r'^reptile/$', reptileframe.index),
     url(r'^reptile/default-info/$', reptileframe.default_info),

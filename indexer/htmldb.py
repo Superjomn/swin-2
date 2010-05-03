@@ -3,6 +3,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 sys.path.append('../')
+from Config import Config
+config = Config()
 
 #使用django的模型
 from django.core.management import setup_environ
@@ -129,17 +131,22 @@ class ArrangePageDB:
         !!!!!!!!!!!!!!!!!!!!
         必须在之前将 homeUrls信息记录下来
         '''
+        print 'running'
         self.getSiteNum()
-        self.save()
         self.moveNewRecord()
         self.reverseRecord()
+        print self.sites
+        self.save()
 
 
     def save(self):
+        print 'begin to save size'
         path = config.getpath('indexer', 'sites_num_path')
         res = ''
         for num in self.sites:
-            res += str(num)
+            res += str(num) + ' '
+        print 'size', res
+
         f = open(path, 'w')
         f.write(res)
         f.close()
@@ -147,11 +154,12 @@ class ArrangePageDB:
 
 
     def moveNewRecord(self):
+        print '.. moveNewRecord'
         '''
         将 reptile 记录进行排序 
         传入新的数据表中
         '''
-        for i in range(self.size):
+        for i in range(self.sitenum):
             htmlinfos = HtmlInfo.objects.filter(siteID = i)
             #记录数目
             self.sites.append(len(htmlinfos))
@@ -164,6 +172,7 @@ class ArrangePageDB:
         排序后 将新记录返回
         重新传输到 reptile 中
         '''
+        print '.. reverseRecord'
         htmlinfos = models.HtmlInfo.objects.all()
         for htmlinfo in htmlinfos:
             _htmlinfo = HtmlInfo(
@@ -188,6 +197,7 @@ class ArrangePageDB:
         导入 htmlinfo 自动进行各种记录的排序
         '''
         _htmlinfo = models.HtmlInfo(
+                       siteID = htmlinfo.siteID,
                        title = htmlinfo.title,
                        url = htmlinfo.url,
                        date = htmlinfo.date
@@ -202,9 +212,6 @@ class ArrangePageDB:
         _htmlsource.save()
         
 
-        
-        
-
     
     
 
@@ -212,7 +219,7 @@ class ArrangePageDB:
         res = ''
         for i in self.sites:
             res += str(i) + ' '
-        path = config.getpaht('indexer', 'sites_num')
+        path = config.getpath('indexer', 'sites_num_path')
         f = open(path, 'w')
         f.write(res)
         f.close()

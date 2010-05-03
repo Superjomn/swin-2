@@ -17,13 +17,14 @@ class HtmlDB:
     '''
     Html处理及存储层
     '''
-    def __init__(self, htmlparser):
+    def __init__(self, htmlparser=None):
         #此处urlparser 和 htmlparser都已经在外界更新过
         self.htmlparser = htmlparser
 
     #---------------------------------------------------------------------
     #   缓存操作
     #---------------------------------------------------------------------
+    
 
     def saveUrlQueue(self, url, siteID):
 
@@ -72,13 +73,13 @@ class HtmlDB:
             )
             homeurl.save()
             
-    def saveHtml(self, _title, stdUrl, _source):
+    def saveHtml(self, siteID, _title, stdUrl, _source):
         _source = self.htmlparser.transcode(_source)
         today = date.today()
         #_date = today.strftime("%y-%m-%d")
         #存储网页信息
         print '.. save htmlinfo'
-        htmlinfo = HtmlInfo(title=_title, url=stdUrl, date=today)
+        htmlinfo = HtmlInfo(siteID = siteID, title=_title, url=stdUrl, date=today)
         htmlinfo.save()
         xmltext = self.htmlparser.transXML(stdUrl)
         #print '.. save htmlsource'
@@ -200,8 +201,6 @@ class HtmlDB:
             queues.append(_res)
 
         return queues
-
-
 
     
 if __name__ == '__main__':

@@ -6,9 +6,12 @@ import Queue as Q
 
 sys.path.append('../')
 from debug import *
+from htmldb import HtmlDB
+#from sourceparser.htmlparser import HtmlParser
+#from sourceparser.urlparser import UrlParser
+
 
 TIMEOUT = 3
-
 class UrlQueue:
     '''
     url队列
@@ -28,11 +31,22 @@ class UrlQueue:
         self.__siteNum = len(self.homeUrls)
         '''
         self.homeUrls = homeUrls
+        #self.urlparser = UrlParser(homeUrls)
+        #self.htmlparser = HtmlParser(self.urlparser)
+        self.htmldb = HtmlDB(None)#self.htmlparser)
         self.__siteNum = len(self.homeUrls)
         self.__queue = []
         for i in range(self.__siteNum):
             self.__queue.append(Q.Queue())
 
+    @dec
+    def append(self, siteID, path):
+        '''
+        path = [title, path]
+        '''
+        _id = self.htmldb.saveUrlQueue( path, siteID)
+        self.__queue[siteID].put(_id)
+        
     @dec 
     def initFrontPage(self):
         '''
@@ -41,11 +55,8 @@ class UrlQueue:
         default: reptile get homeurl as first page to download
         '''
         for i,url in enumerate(self.homeUrls):
-            print i,url
-            self.__queue[i].put([url[0], ""])
-
-    def append(self, siteID, path):
-        self.__queue[siteID].put(path)
+            self.append( i, [url[0], ""] )
+            #self.__queue[i].put([url[0], ""])
 
     def pop(self, siteID):
         '''
@@ -72,13 +83,14 @@ class UrlQueue:
                 if self.__queue[siteID].qsize() == 0 :
                     pass
                 else:
-                    return (siteID, self.__queue[siteID].empty())
+                    pathid = self.__queue[siteID].get()
+                    return (siteID, self.htmldb.getCacheUrl(pathid))
+            return (siteID, False)
 
         try:
-            path = self.__queue[siteID].get(timeout = TIMEOUT)
-            return (siteID,  path)
+            pathid = self.__queue[siteID].get(timeout = TIMEOUT)
+            return (siteID, self.htmldb.getCacheUrl(pathid))
         except:
-
             return getQueue(siteID)
 
     def show(self):
@@ -114,3 +126,14 @@ class UrlQueue:
         for i,queue in enumerate(queues):
             for u in queue:
                 self.__queue[i].put(u)
+
+if __name__ == '__main__':
+    urlqueue = UrlQueue()
+    homeurls = [
+        ['cau', 'http://www.cau.edu.cn'],
+        ['news', 'http://news.cau.edu.cn'],
+    ]
+    urlqueue.init(homeurls)
+    path = ['cau', '']
+    urlqueue.append(4, path)
+        

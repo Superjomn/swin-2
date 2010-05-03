@@ -145,6 +145,7 @@ cdef class HitLists:
     
     cdef void saveToText(self):
         path = config.getpath('indexer', 'hits_path')
+
         for pos in range(STEP):
             ph = path + str(pos)+'.txt'
             res = ""

@@ -5,6 +5,7 @@ from cimport import Cimport
 files = [
     'sorter.pyx',
     'query.pyx',
+    'Queryer.pyx',
 ]
 
 for f in files:
