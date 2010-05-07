@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 #sys.path.append('../../')
 #from debug import *
 import urlparse
@@ -17,8 +18,8 @@ class UrlParser:
         ]
         '''
         self.__homeUrls = homeUrls
+
     
-    @dec
     def transToStdUrl(self, homeUrl, newUrl):
         ''' ok '''
         '''
@@ -34,6 +35,7 @@ class UrlParser:
             '''
             return newUrl
         return urlparse.urljoin(homeUrl, newUrl)
+
 
     def transSiteID(self, stdUrl):
         ''' ok '''
@@ -83,7 +85,7 @@ class UrlParser:
         ''' ok '''
         return urlparse.urlsplit(stdurl).netloc
 
-    @dec
+
     def judgeUrl(self, stdPageUrl, newUrl):
         ''' ok '''
         '''
@@ -91,12 +93,48 @@ class UrlParser:
         如果在，则返回对应站点id
         '''
         url = self.transToStdUrl(stdPageUrl, newUrl)
-        print 'trans to stdurl >> ', url
+        #print 'trans to stdurl >> ', url
         return self.transSiteID(url)
+
+    def getFileExtention(self):
+        '''
+        得到url扩展名
+        '''
+        pass
+
+
+    def typeDetect(self, stdUrl):
+        '''
+        通过url检测file的类型
+        返回 文件扩展名 如： mp3  png  jpg  jpeg  gif
+        doc  pdf  exl
+        return image or doc or ''
+        '''
+        path = urlparse.urlparse(stdUrl).path
+        ext = os.path.splitext(path)[1:]
+        ext = ext[0][1:]
+        if ext in ('png', 'jpg', 'jpeg', 'gif'):
+            return ('image', ext)
+
+        elif ext in ('doc', 'pdf', 'xls'):
+            return ('doc', ext)
+        #html
+        return ('', '')
+
+
+
+
+
 
 if __name__ == '__main__':
 
     u = UrlParser(None)
+    '''
     pageStdUrl = "http://www.cau.edu.cn"
     url = "http://www.cau.edu.cn/index.php?name=hello&site=ttgo"
     print u.transPath(pageStdUrl, url)
+    '''
+    url = 'http://www.cau.edu.cn/hello/world/td.jpg'
+    print url
+    print u.typeDetect(url)
+

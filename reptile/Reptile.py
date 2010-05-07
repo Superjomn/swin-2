@@ -40,9 +40,6 @@ class Reptile(threading.Thread):
         '''
         pages:  记录下载的网页数目
         '''
-        print '@'*50
-        print '.. Reptile, get imagenum', imagenum, type(imagenum)
-        print '@'*50
 
         self.__name = name
         threading.Thread.__init__(self, name = name )  
@@ -62,9 +59,6 @@ class Reptile(threading.Thread):
         #记录下载的页面数目
         self.pages = pages
         self.imagenum = imagenum
-        print '@'*50
-        print 'get self.imagenum', self.imagenum, type(self.imagenum)
-        print '@'*50
         #---------------------
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
@@ -414,9 +408,11 @@ class ReptileLib(threading.Thread):
             #first clear list
             clearList(_List)
             for l in List:
+                print l
                 _List.append(l)
 
-        initList(self.homeUrls ,homeUrls)
+        print '.. init homeUrls'
+        initList(self.homeUrls, homeUrls)
         initList(self.maxPages, maxPages)
         self.threadNum = threadNum
         self.maxPages = maxPages

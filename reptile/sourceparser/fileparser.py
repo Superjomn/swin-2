@@ -99,14 +99,14 @@ class ImageParser:
         print 'image', self.image
         self.image.save(path)
         #取得 docid
-        htmlinfo = HtmlInfo.objects.filter(id = self.toDocID)[0]
+        #htmlinfo = HtmlInfo.objects.filter(id = self.toDocID)[0]
         #存储到数据库
         image = ImageFile(
             width = size[0],
             height = size[1],
             path = path,
             url = self.url,
-            doc = htmlinfo
+            todocid = self.toDocID
         )
         image.save()
 
@@ -161,7 +161,7 @@ class TextFileParser:
         doc = TextFile(
                 title = title,
                 url = url,
-                doc = htmlinfo
+                todocid = toDocID
             )
         #将文件记录添加到原来的html中
         #将title插入到原来的xml内容中 并h1的

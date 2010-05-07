@@ -60,19 +60,20 @@ class HtmlParser:
         for i in range(len(a)):
             aindex=a.eq(i)
             href = aindex.attr('href')
+            #print '.. html link:', href
             aa.append( [aindex.text(), href])
         return aa
 
     def getSrcs(self):
         '''
         取得图片地址列表
-        [src,]
+        [ ['', src] ]
         '''
         src = self.d('img')
         ads = []
         for i in range(len(src)):
             srcidx = src.eq(i)
-            ads.append(srcidx.attr('src'))
+            ads.append(['',srcidx.attr('src')])
         return ads
 
     def getTextNodes(self, tagname):

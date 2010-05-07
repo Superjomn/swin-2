@@ -26,7 +26,9 @@ class HtmlDB:
     #---------------------------------------------------------------------
     
 
-    def saveUrlQueue(self, url, siteID):
+    #------------------- urlQueue -----------------------
+
+    def saveUrlQueue(self, url, siteID, toDocID):
 
         '''
         内存中的url存储到数据库中
@@ -34,23 +36,31 @@ class HtmlDB:
         u = UrlQueue(
             siteID = siteID,
             title = url[0],
-            path = url[1]
+            url = url[1],
+            toDocID = toDocID
         )
         u.save()
         return u.id
 
-    def getCacheUrl(self, _id):
+    def getCacheUrl(self):
         '''
         取回urlqueue
         并且删除记录
+        返回 object
+        u.siteID
+        u.title
+        u.url
+        u.toDocID
         '''
-        u = UrlQueue.objects.filter(id=_id)[0]
-        res = []
-        res.append( u.title )
-        res.append( u.path )
+        u = UrlQueue.objects.all()[0]
         #删除记录
         u.delete()
-        return res
+        return u
+
+
+    def clearUrlQueue(self):
+        print '.. clear url queue'
+        UrlQueue.objects.all().delete()
 
     #---------------------------------------------------------------------
     #   resume 操作
@@ -85,6 +95,7 @@ class HtmlDB:
         #print '.. save htmlsource'
         htmlsource = HtmlSource(parsed_source=xmltext, info=htmlinfo)
         htmlsource.save()
+        return htmlinfo.id
 
     @dec
     def saveList(self, urlist):
