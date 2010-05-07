@@ -47,12 +47,14 @@ cdef class ResList:
             uint i
             object res
         
-        print 'res:'
+        '''
+        #print 'res:'
         for i in range(self.size):
             print self._list[i].docID, self._list[i].score, self._list[i].able
+        '''
         res = []
         for i in range(self.size):
-            print self._list[i].docID
+            #print self._list[i].docID
             if self._list[i].able:
                 res.append( self._list[i].docID )
 
@@ -68,7 +70,7 @@ cdef class ResList:
         else:
             self.stepAppend(reslist)
         self.saveListToText()
-        print 'step append, self.size', self.size
+        #print 'step append, self.size', self.size
 
     cdef void saveToText(self, QueryResList reslist, uint step):
         path = '/home/chunwei/swin2/data/query'+str(step)+'.txt'
@@ -116,8 +118,8 @@ cdef class ResList:
         cur = self._list
         #self._list last item
         listend = self._list + self.size-1
-        print 'listend', listend.docID
-        print 'reslist size:', self.size
+        #print 'listend', listend.docID
+        #print 'reslist size:', self.size
         lasthited = listend
         for i in range(reslist.size):
             '''
@@ -128,8 +130,8 @@ cdef class ResList:
             '''
             res = reslist._list + i
 
-            print 'cur:', res.docID, res.score, res.able
-            print 'end cur, begin to while'
+            #print 'cur:', res.docID, res.score, res.able
+            #print 'end cur, begin to while'
             while cur.docID < res.docID :
                 if lasthited == cur:
                     pass
@@ -145,21 +147,19 @@ cdef class ResList:
                     cur.score += res.score
                     lasthited = cur
 
-        print '.. self.size',self.size
-        if lasthited > self._list:
-            print 'overflow!'
-        print '.. begin to listend'
-        print '.. listend:', listend.docID, listend.score, listend.able
+        #print '.. self.size',self.size
+        #print '.. begin to listend'
+        #print '.. listend:', listend.docID, listend.score, listend.able
 
         cur = lasthited + 1
-        print 'cur 0:', cur.docID, cur.score, cur.able
-        print 'begin cur<=listend'
-        print 'listend id:',int(listend - self._list)
+        #print 'cur 0:', cur.docID, cur.score, cur.able
+        #print 'begin cur<=listend'
+        #print 'listend id:',int(listend - self._list)
         while cur <= listend:
             cur.able = false
             cur += 1
 
-        print 'end stepAppend'
+        #print 'end stepAppend'
         #清空内存
         self.__freeResList( reslist )
 
@@ -192,9 +192,11 @@ cdef class ResList:
         if self._list[self.size-1].docID != tem.docID:
             self.__append(tem)
         
-        print '.. +++ show initappend +++'
+        #print '.. +++ show initappend +++'
+        '''
         for i in range(self.size):
             print ' docID, score', self._list[i].docID, self._list[i].score
+        '''
 
 
         self.__freeResList(reslist)

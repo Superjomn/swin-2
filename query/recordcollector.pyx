@@ -92,10 +92,15 @@ cdef class RecordCollector:
         cdef:
             object res
             uint i
-        
-        res = self.transImagesRes(images)
 
-        return [self.transImageRes(res) for res in images]
+        res = []
+        for image in images:
+            print 'image', image
+            res.append(self.transImageRes(image))
+
+        print 'final res', res
+
+        return res
 
 
     cdef object transFileRes(self, values):

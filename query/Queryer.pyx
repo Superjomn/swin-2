@@ -5,6 +5,7 @@ config = Config()
 from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
 import time
 import math
+import htmldb
 
 Cimport recordcollector.pyx swin2/query/recordcollector.pyx
 Cimport query.pyx           swin2/query/query.pyx
@@ -49,6 +50,7 @@ cdef class Queryer:
         object  resIDs              #返回的docIDs
         object  siteNums             #num of pages of each site
         RecordCollector             recordCollector
+        object  htmldb
 
 
     def __cinit__(self):
@@ -64,6 +66,7 @@ cdef class Queryer:
         self.filePerNum = config.getint('query', 'file_per_num')
         #siteID 区分
         self.initSiteNums()
+        self.htmldb = htmldb.HtmlDB()
 
 
     cdef void setDomain(self, FileType filetype, uint page):
@@ -113,12 +116,13 @@ cdef class Queryer:
         if self.text == strr and siteID == self.siteID:
             #底层 Cache
             return
+
         #缓存判断
         self.text = strr
         self.docIDs = self.__query.query(strr)
         self.pageNum = len(self.docIDs)
 
-        print '.. return docIDs', self.docIDs
+        #print '.. return docIDs', self.docIDs
 
         if siteID != 0:
             '''
@@ -155,10 +159,12 @@ cdef class Queryer:
         res['res_list'] = self.recordCollector.getRecord(self.resIDs, self.__query.words)
         time2 = time.time()
         res['time'] = round(time2-time1, 4)
+        res['site'] = siteID
         res['length'] = self.pageNum
         res['page'] = page
         res['title'] = strr
         res['pagenum'] = pagenum
+        res['query_text'] = strr
 
         return res
 
@@ -169,12 +175,45 @@ cdef class Queryer:
         '''
         cdef:
             object res
+            object images
+            object image
+            object tem
+            uint pagenum
 
+        time1 = time.time()
+        print '.. searching Image'
         self.search(strr, siteID)
-        self.imageNum = self.htmldb.get_image_num()
+        self.imageNum = self.htmldb.get_image_num(self.docIDs)
         self.setDomain(Image, page)
-        res = self.get_images(self.docIDs, self.domain.left, self.domain.right)
-        return self.recordCollector.getImages(res)
+        res = self.htmldb.get_images(self.docIDs, self.domain.left, self.domain.right)
+
+        images = []
+        for image in res:
+            tem = []
+            tem.append(image.height)
+            tem.append(image.width)
+            tem.append(image.path[24:])
+            tem.append(image.url)
+            images.append(tem)
+
+        time2 = time.time()
+        #res =  self.recordCollector.getImages(res)
+        #print '.. final res',res
+        pagenum = self.imageNum / self.imagePerNum
+        if pagenum * self.imagePerNum > self.imageNum:
+            pagenum += 1
+
+        res = {}
+        res['time'] = round(time2-time1, 4)
+        res['site'] = siteID
+        res['length'] = self.imageNum
+        res['page'] = page
+        res['title'] = strr
+        res['pagenum'] = pagenum
+        res['res_list'] = images
+        res['query_text'] = strr
+
+        return res
 
 
     def searchFiles(self, strr, siteID, page):
@@ -214,7 +253,7 @@ cdef class Queryer:
         cdef:
             int i
 
-        path = getpath('indexer', 'sites_num_path')
+        path = config.getpath('indexer', 'sites_num_path')
         f = open(path)
         c = f.read()
         f.close()
