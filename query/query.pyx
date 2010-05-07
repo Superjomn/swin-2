@@ -22,6 +22,7 @@ cdef class ResList:
 
         long size
         long space
+        int step    #测试用
         QueryRes *_list
         QueryResSorter sorter
         #现在的轮数 以区分不同的批次
@@ -32,6 +33,7 @@ cdef class ResList:
         self.AddPer = 100
         self.size = 0
         self.space = 0
+        self.step = 0
         self.__initSpace()
         
         self.sorter = QueryResSorter()
@@ -65,15 +67,31 @@ cdef class ResList:
 
         else:
             self.stepAppend(reslist)
+        self.saveListToText()
+        print 'step append, self.size', self.size
 
     cdef void saveToText(self, QueryResList reslist, uint step):
-        path = '../data/query'+str(step)+'.txt'
+        path = '/home/chunwei/swin2/data/query'+str(step)+'.txt'
         res = ''
         for i in range(reslist.size):
             res += str(reslist._list[i].docID) + ' '
             res += str(reslist._list[i].score) + ' '
             res += str(reslist._list[i].able) + ' '
             res += "\n"
+
+        f = open(path, 'w')
+        f.write(res)
+        f.close()
+
+    cdef saveListToText(self):
+        path = '/home/chunwei/swin2/data/idxlist'+str(self.step)+'.txt'
+        self.step += 1
+        res = ''
+        for i in range(self.size):
+            if self._list[i].able:
+                res += str(self._list[i].docID) + ' '
+                res += str(self._list[i].score) + ' '
+                res += "\n"
 
         f = open(path, 'w')
         f.write(res)
@@ -98,33 +116,45 @@ cdef class ResList:
         cur = self._list
         #self._list last item
         listend = self._list + self.size-1
+        print 'listend', listend.docID
         print 'reslist size:', self.size
+        lasthited = listend
         for i in range(reslist.size):
             '''
             对于每一个i都需要进行处理
             对于命中的res需要合并
             对于未命中的 将其有效值减去
+            只会对 hitlist <= cur的情况
             '''
             res = reslist._list + i
 
             print 'cur:', res.docID, res.score, res.able
-
+            print 'end cur, begin to while'
             while cur.docID < res.docID :
-                cur.able = false
+                if lasthited == cur:
+                    pass
+                else:
+                    cur.able = false
+
                 cur += 1
                 if cur>listend:
                     break
 
-            if cur.docID == cur.docID :
+            if cur.docID == res.docID :
                 if cur.able:
                     cur.score += res.score
                     lasthited = cur
-            else:
-                #cur > res
-                cur.able = false
 
-        print 'self.size',self.size
+        print '.. self.size',self.size
+        if lasthited > self._list:
+            print 'overflow!'
+        print '.. begin to listend'
+        print '.. listend:', listend.docID, listend.score, listend.able
+
         cur = lasthited + 1
+        print 'cur 0:', cur.docID, cur.score, cur.able
+        print 'begin cur<=listend'
+        print 'listend id:',int(listend - self._list)
         while cur <= listend:
             cur.able = false
             cur += 1
@@ -145,6 +175,9 @@ cdef class ResList:
 
         tem = reslist._list[0]
         tem.score = 0
+
+        self.__dealloc()
+        self.__initSpace()
 
         for i in range(reslist.size):
             '''
@@ -201,11 +234,23 @@ cdef class ResList:
         print '.. reslist init space'
         self._list = <QueryRes *>malloc(sizeof(QueryRes) * self.InitSize)
         self.space = self.InitSize
+        self.size = 0
 
 
     def __dealloc__(self):
         print 'delete all C space'
         free(self._list)
+
+    def __dealloc(self):
+        print 'delete reslist C space'
+        if self.space > 0:
+            free(self._list)
+            self.size = 0
+            self.space = 0
+
+
+
+
 
 
 
@@ -220,12 +265,14 @@ cdef class Query:
         InitThes    thes
         ResList     reslist
         InitIdxList idxlist
+        object      words
 
     def __cinit__(self):
         self.ict = Ictclas( config.getpath('parser', 'ict_configure_path') )
         self.thes = InitThes()
         self.reslist = ResList()
         self.idxlist = InitIdxList()
+        self.words = None
 
     def query(self, strr):
         '''
@@ -240,8 +287,8 @@ cdef class Query:
         #分配空间
         _reslit = <QueryResList *>malloc(sizeof(QueryResList))
 
-        words = self.ict.split(str(strr)).split()
-        wordhashs = [hash(word) for word in words]
+        self.words = self.ict.split(str(strr)).split()
+        wordhashs = [hash(word) for word in self.words]
         wordgroups = self.__splitGroup(wordhashs)
         #将词通过pos分组
         #self.__splitGroup(words)

@@ -53,16 +53,16 @@ cdef class HitIndexer:
             #print 'index %d' % i
             self.htmldb.setRecordHandle(i)
             #level 1
-            format1 = self.htmldb.getTitle() + self.htmldb.getUrlDec() 
+            format1 = self.htmldb.getUrlDec() 
             #level 2 string
-            format2 = self.htmldb.getB() + self.htmldb.getHOne()
+            format2 =self.htmldb.getTitle()+ self.htmldb.getB() + self.htmldb.getHOne()
             #level 3 string
             format3 = self.htmldb.getContent() + self.htmldb.getHTwo()
 
             #开始分词及作处理
-            self.indexStr(format1, 3)
+            self.indexStr(format1, 1)
             self.indexStr(format2, 2)
-            self.indexStr(format3, 1)
+            self.indexStr(format3, 3)
         #进行存储
         #存储hits 和 hit_num
         self.sort()

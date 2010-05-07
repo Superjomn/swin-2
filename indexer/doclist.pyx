@@ -51,7 +51,12 @@ cdef class DocList:
     cdef void calScore(self):
         #默认不启用 timespan
         #_score = self.getLevel() * self.getTW() / self.getWordCount()
-        _score = self.getLevel() / self.getWordCount()
+        cdef:
+            unsigned int size
+            float _score
+
+        size = max(1, self.getWordCount())
+        _score = self.getLevel() / size
         self.setValue(_score)
 
 
@@ -67,6 +72,19 @@ cdef class DocList:
         f = open(path, 'w')
         f.write(str(self.size))
         f.close()
+        self.saveToText()
+        
+    cdef void saveToText(self):
+        #测试使用
+        path = '/home/chunwei/swin2/data/doclist.txt'
+        res = ''
+        for  i in range(self.size):
+            res += str(i) + ' ' + str(self._list[i])
+            res += '\n'
+        f=open(path, 'w')
+        f.write(res)
+        f.close()
+        
 
 
     cdef __initSpace(self):
@@ -93,10 +111,20 @@ cdef class DocList:
         计算页面level值
         '''
         cdef:
-            int _level
+            float _level
+            unsigned int size
+            
+        size = self.url.count('/')
 
-        _level = self.url.count('/') - 2
-        return math.log(math.e, _level)
+        if self.url[-1] == '/':
+            _level = size  - 3
+        else:
+            _level = size - 2
+
+        _level += 1.1
+
+
+        return 1/_level
 
 
     cdef float getTW(self):

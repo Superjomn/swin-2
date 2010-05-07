@@ -169,10 +169,11 @@ cdef class Indexer:
         '''
         _format 1 2 3 4
         '''
-
         console(' calFormatScore')
 
-        cdef float res = math.log(math.e, _format)
+        #cdef float res = math.log(math.e, _format)
+        cdef float format = _format + 0.1
+        cdef float res = 1/format
         print 'format score', res
         return res
 
