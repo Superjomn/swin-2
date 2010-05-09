@@ -116,51 +116,60 @@ class Reptile(threading.Thread):
         self.opener = urllib2.build_opener()     
 
         while self.continueRun[0] :
-            self.Flock.acquire()
-            self.__pathinfo = self.__urlQueue.pop()
-            self.Flock.release()
-            print '.. get pathinfo', self.__pathinfo.url, self.__name
-            #get (siteID, (title, path))
+            try:
+                try:
+                    self.Flock.acquire()
+                    self.__pathinfo = self.__urlQueue.pop()
+                    self.Flock.release()
+                except:
+                    print 'nothing in urlqueue'
+                    print 'droped'
+                    return
+                print '.. get pathinfo', self.__pathinfo.url, self.__name
+                #get (siteID, (title, path))
 
-            if not self.__pathinfo:
-                '''
-                如果所有的队列均为空 则退出线程
-                '''
-                print '.. get pathinfo empty'
-                #return None
-                break
+                if not self.__pathinfo:
+                    '''
+                    如果所有的队列均为空 则退出线程
+                    '''
+                    print '.. get pathinfo empty'
+                    #return None
+                    break
 
-            #self.__curSiteID[0] = pathinfo[0]
-            self.__temSiteID = self.__pathinfo.siteID
-            self.__temHomeUrl = self.__homeUrls[self.__temSiteID]
-                        
-            #判断是否超过限制页数
-            if not self.underPageLimit():
-                continue
+                #self.__curSiteID[0] = pathinfo[0]
+                self.__temSiteID = self.__pathinfo.siteID
+                self.__temHomeUrl = self.__homeUrls[self.__temSiteID]
+                            
+                #判断是否超过限制页数
+                if not self.underPageLimit():
+                    continue
 
-            #print '.. curSite', self.__curSiteID[0] 
-            #print '.. homeurls', self.__homeUrls
-            #print '.. get cursiteid', self.__curSiteID
-            #print 'the path is ', pathinfo[1][1]
-            source = self.requestSource(self.__pathinfo.url)
+                #print '.. curSite', self.__curSiteID[0] 
+                #print '.. homeurls', self.__homeUrls
+                #print '.. get cursiteid', self.__curSiteID
+                #print 'the path is ', pathinfo[1][1]
+                source = self.requestSource(self.__pathinfo.url)
 
-            if not source:
-                print 'htmlsource is empty'
-                continue
+                if not source:
+                    print 'htmlsource is empty'
+                    continue
 
-            filetype = self.urlparser.typeDetect(self.__pathinfo.url)
-            _type = filetype[0]
-            print '.. get file type', filetype, self.__name
+                filetype = self.urlparser.typeDetect(self.__pathinfo.url)
+                _type = filetype[0]
+                print '.. get file type', filetype, self.__name
 
-            if not _type:
-                self.dealHtml(source)
-            elif _type == 'image':
-                self.dealImage(source, filetype[1])
-                print 'self.imagenum', self.imagenum
-                self.imagenum[0] += 1
-            else:
-                self.dealDoc()
-                self.imagenum[0] += 1
+                if not _type:
+                    self.dealHtml(source)
+                elif _type == 'image':
+                    self.dealImage(source, filetype[1])
+                    print 'self.imagenum', self.imagenum
+                    self.imagenum[0] += 1
+                else:
+                    self.dealDoc()
+                    self.imagenum[0] += 1
+            except:
+                print '!'*50
+                print 'something wrong'
 
             #处理源码为xml文件 存储到数据库
             #print '.. start to save html'
@@ -199,7 +208,10 @@ class Reptile(threading.Thread):
         '''
         对 image文件 从解析到存储的完整操作
         '''
-        self.imageparser.deal(source, extention, self.__pathinfo.url, self.__pathinfo.toDocID)
+        try:
+            self.imageparser.deal(source, extention, self.__pathinfo.url, self.__pathinfo.toDocID)
+        except:
+            return
 
     
     def dealDoc(self):
