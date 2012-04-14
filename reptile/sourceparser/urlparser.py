@@ -41,23 +41,37 @@ class UrlParser:
                 return i
         return -1
 
+    @dec
     def transPathByStd(self, stdUrl):
         ''' ok '''
         '''
         直接返回绝对地址的path
         '''
-        path = urlparse.urlsplit(stdUrl).path
+        t = urlparse.urlsplit(stdUrl)
+
+        if (not t.path) and (not t.query):
+            return ''
+
+        if t.query:
+            path = t.path + '?' +t.query
+
+        else:
+            path = t.path
+        
         if path.startswith('/'):
             return path
-        return '/' + path
+        else:
+            return '/'+path
 
+    @dec
     def transPath(self, pageStdUrl, url):
         ''' ok '''
         '''
         将任意一个链接转化为 路径
         '''
         url = self.transToStdUrl(pageStdUrl, url)
-        return urlparse.urlsplit(url).path
+        length = len(pageStdUrl)
+        return url[length : ]
 
     def transNetloc(self, stdurl):
         ''' ok '''
@@ -70,7 +84,19 @@ class UrlParser:
         如果在，则返回对应站点id
         '''
         url = self.transToStdUrl(stdPageUrl, newUrl)
+        print 'trans to stdurl >> ', url
+
         return self.transSiteID(url)
+
+if __name__ == '__main__':
+
+    u = UrlParser(None)
+    pageStdUrl = "http://www.cau.edu.cn"
+    url = "http://www.cau.edu.cn/index.php?name=hello&site=ttgo"
+    print u.transPath(pageStdUrl, url)
+
+
+    
 
 
 

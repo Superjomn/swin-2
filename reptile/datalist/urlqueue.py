@@ -27,7 +27,7 @@ class UrlQueue:
         如果需要的list为空
         则循环返回其他list的path
         '''
-        print "get siteID%d"%siteID
+        #print "get siteID%d"%siteID
         assert(siteID>-1)
         assert(self.__siteNum>0)
 

@@ -23,7 +23,6 @@ class HtmlParser:
         self.initRemoveNodes()
         return True
 
-    @dec
     def initRemoveNodes(self):
         '''
         初始化时删除一些无用的标签
@@ -50,7 +49,6 @@ class HtmlParser:
         else:
             return unicode(source, encoding, 'ignore')
 
-    @dec
     def getLinks(self):
         '''
         取得链接地址
@@ -64,7 +62,6 @@ class HtmlParser:
             aa.append( [aindex.text(), href])
         return aa
 
-    @dec
     def getSrcs(self):
         '''
         取得图片地址列表
@@ -77,7 +74,6 @@ class HtmlParser:
             ads.append(srcidx.attr('src'))
         return ads
 
-    @dec
     def getTextNodes(self, tagname):
         '''
         取得普通标签的列表
@@ -89,7 +85,6 @@ class HtmlParser:
             nodelist.append(node.text())
         return nodelist
 
-    @dec
     def transXML(self, pageStdUrl):
         '''
         trans html source to xml
@@ -146,6 +141,7 @@ class HtmlParser:
         content = self.d.text()
         ctext=self.dd.createTextNode(content)
         contentNode.appendChild(ctext)
+        html.appendChild(contentNode)
         return html.toxml()
 
 

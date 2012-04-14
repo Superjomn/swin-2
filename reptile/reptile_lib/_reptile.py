@@ -48,9 +48,9 @@ class debug_Reptile:
                 '/home/dingceng/jiazhang.htm',
                 '/xiaonei/out/today.php',
             ]:
-            print path,
+            #print path,
             source = self.reptile.getPage(path)
-            print len(source)
+            #print len(source)
 
     def run(self):
         self.urlQueue.append(0,('中国农业大学',''))
@@ -62,13 +62,13 @@ class debug_ReptileLib:
     def __init__(self):
         self.reptilelib = ReptileLib()
         self.homeurls = [
-            'http://www.cau.edu.cn',
-            'http://www.baidu.com',
+            #'http://www.cau.edu.cn',
+            'http://jwc.cau.edu.cn',
             ]
 
     def init(self):
         self.reptilelib.init(self.homeurls, 10)
-        self.reptilelib.urlQueue.append(0,('中国农业大学',''))
+        self.reptilelib.urlQueue.append(0,('中国农业大学教务处','/administration_office/'))
 
     def initThreads(self):
         self.reptilelib.initThreads()

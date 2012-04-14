@@ -25,11 +25,13 @@ class Reptile(threading.Thread):
     '''
     单个线程
     '''
-    def __init__(self, name, urlQueue, urlist, Flock, homeUrls, maxPageNums, curSiteID = [0], continueRun = [True]):
+    def __init__(self, name, urlQueue, urlist, Flock, homeUrls, maxPageNums, pages, curSiteID = [0], continueRun = [True]):
         '''
+        pages:  记录下载的网页数目
         '''
         threading.Thread.__init__(self, name = name )  
         #own data
+        self.__pages = pages
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
@@ -43,7 +45,7 @@ class Reptile(threading.Thread):
         #num of downloaded pages
         self.__maxPageNums = maxPageNums
         #记录下载的页面数目
-        self.__pages = 0      
+        self.__netloc = None
         #---------------------
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
@@ -54,21 +56,26 @@ class Reptile(threading.Thread):
         DNS缓存
         '''
         if self.__curSiteID[0] != self.__temSiteID:
-            '''
-            更新DNS
-            '''
+
             try:
                 self.__conn.close()
             except:
                 pass
 
-            print '@'*50
-            print '更新path'
+            #print '@'*50
+            #print '更新path'
             self.__temSiteID = self.__curSiteID[0]
             self.__homeurl = self.__homeUrls[self.__temSiteID]
-            netloc = self.urlparser.transNetloc(self.__homeurl)
-            self.__conn = httplib.HTTPConnection(netloc, 80, timeout = 10)
+            self.__netloc = self.urlparser.transNetloc(self.__homeurl)
+            print 'netloc> ',self.__netloc
+            self.__conn = httplib.HTTPConnection(self.__netloc, 80, timeout = 10)
+
+        else:
+
+            self.__conn = httplib.HTTPConnection(self.__netloc, 80, timeout = 10)
+
         return self.__conn
+
 
     def requestSource(self, path):
         conn = self.conn()
@@ -79,11 +86,10 @@ class Reptile(threading.Thread):
         return data
 
     def getPage(self, path):
+        print '>>path to load', path
+
         try:
             r = self.requestSource(path)
-
-            if len(r)<227:
-                r = None
         except:
             r = None
 
@@ -94,16 +100,15 @@ class Reptile(threading.Thread):
         while True :
 
             if not self.continueRun[0]:
-                print '.. stop run'
                 return 
             #从temSiteID开始 
-            print ' ..temSiteID : ', self.__temSiteID
+            #print ' ..temSiteID : ', self.__temSiteID
 
             assert(self.__curSiteID[0] != -1)
 
             pathinfo = self.__urlQueue.pop(self.__curSiteID[0])
             #get (siteID, (title, path))
-            print '.. get pathinfo', pathinfo
+            #print '.. get pathinfo', pathinfo
 
             if not pathinfo:
                 '''
@@ -114,10 +119,14 @@ class Reptile(threading.Thread):
 
             self.__curSiteID[0] = pathinfo[0]
             self.__temHomeUrl = self.__homeUrls[self.__curSiteID[0]]
-            print '.. get cursiteid', self.__curSiteID
+            #print '.. get cursiteid', self.__curSiteID
 
-            print 'the path is ', pathinfo[1][1]
-            htmlsource = self.getPage(pathinfo[1][1])
+            #print 'the path is ', pathinfo[1][1]
+            try:
+                htmlsource = self.getPage(pathinfo[1][1])
+            except:
+                print 'pathinfo bool'
+                continue
 
             if not htmlsource:
                 print 'htmlsource is wrong'
@@ -131,12 +140,18 @@ class Reptile(threading.Thread):
                 continue
             #添加 path 到队列中
             pageStdUrl = self.urlparser.transToStdUrl(self.__temHomeUrl, pathinfo[1][1])
-
+            
             self.addNewInQueue(pageStdUrl)
 
             #处理源码为xml文件 存储到数据库
             print '.. start to save html'
+            self.__pages[self.__temSiteID] += 1
             self.htmldb.saveHtml(pathinfo[1][0], pageStdUrl, htmlsource)
+            if self.__pages[self.__temSiteID] == self.__maxPageNums[self.__temSiteID] :
+                '''
+                达到最大数量
+                '''
+                return
 
     def addNewInQueue(self, pageStdUrl):
         '''
@@ -179,6 +194,11 @@ class ReptileLib:
         self.urlQueue = UrlQueue(len(homeUrls))
         self.urlist = Urlist(len(homeUrls))
         self.threadNum = threadNum
+        #pages
+        self.pages = []
+
+        for i in range(len(homeUrls)):
+            self.pages.append(0)
 
     @dec
     def initThreads(self):
@@ -193,7 +213,8 @@ class ReptileLib:
                 urlist = self.urlist,
                 Flock = None,
                 homeUrls = self.homeUrls,
-                maxPageNums = 200,
+                maxPageNums = [200],
+                pages = self.pages,
                 curSiteID = self.curSiteID,
                 continueRun = self.continueRun
             )

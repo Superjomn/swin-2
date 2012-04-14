@@ -32,7 +32,7 @@ class HtmlDB:
         htmlinfo = HtmlInfo(title=_title, url=stdUrl, date=today)
         htmlinfo.save()
         xmltext = self.htmlparser.transXML(stdUrl)
-        print '.. save htmlsource'
+        #print '.. save htmlsource'
         htmlsource = HtmlSource(parsed_source=xmltext, info=htmlinfo)
         htmlsource.save()
 
