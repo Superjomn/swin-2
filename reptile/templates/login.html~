@@ -1,0 +1,11 @@
+<html>
+<head>
+<title>login to Swin Reptile System</title>
+</head>
+<body>
+	<form id="login_form">
+		<input type="text" name="user_name"/>
+		<input type="password" name="user_pwd"/>
+	</form>
+</body>
+</html>
