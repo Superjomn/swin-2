@@ -18,6 +18,8 @@ from datalayer.htmldb import HtmlDB
 from datalist.urlqueue import UrlQueue
 from datalist.urlist import Urlist
 
+from reptilectrl import ReptileCtrl
+
 sys.path.append('../../')
 from debug import *
 
@@ -223,17 +225,24 @@ class ReptileLib(threading.Thread):
                 self.init(
                     homeUrls = signal['homeUrls'] ,
                     maxPages = signal['maxPages'] ,
-                    threadNum = threadNum
+                    threadNum = signal['reptileNum']
                     )
 
             elif _type is 'resume':
                 print '.. resume from database ..'
-
-
-                
-
-
-
+                self.reptilectrl.resume()
+            
+            elif _type is 'stop':
+                self.reptilectrl.stop()
+            
+            elif _type is 'halt':
+                self.reptilectrl.halt()
+            
+            elif _type is 'status':
+                '''
+                ask for status
+                '''
+                self.reptilectrl.status()
 
     @dec
     def init(self, homeUrls, maxPages, threadNum):

@@ -66,13 +66,6 @@ class HtmlDB:
             for j in range(size):
                 u = UrlQueue( i, queue.get() )
                 u.save()
-    
-    def savePages(self, pages):
-        '''
-        save nums of pages
-        '''
-        for i,_page in enumerate(pages):
-            page = Pages(i, _page)
 
     def saveStatus(self, urlist, urlqueue, pages):
         '''

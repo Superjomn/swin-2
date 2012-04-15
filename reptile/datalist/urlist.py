@@ -80,4 +80,10 @@ class Urlist:
     def getAll(self):
         return self.list
 
+    def getNums(self):
+        nums = []
+        for l in self.list:
+            nums.append(len(l))
+        return nums
+
 

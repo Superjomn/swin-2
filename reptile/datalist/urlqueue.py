@@ -64,6 +64,16 @@ class UrlQueue:
 
             for u in qu:
                 print u
+    
+    def getNums(self):
+        '''
+        返回每个queue的长度
+        '''
+        nums = []
+        for q in self.__queue:
+            nums.append(q.qsize())
+        return nums
+            
 
     def getAll(self):
         return self.__queue

@@ -33,6 +33,7 @@ class UrlQueue(models.Model):
     save urlqueue
     '''
     site = models.ForeignKey(HomeUrl)
+    title = models.CharField(max_length=100)
     path = models.CharField(max_length=120)
 
 
