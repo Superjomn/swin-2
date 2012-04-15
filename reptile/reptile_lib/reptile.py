@@ -177,25 +177,77 @@ class Reptile(threading.Thread):
                     self.__urlQueue.append(siteId, (urlInfor[0],path))
 
 
-class ReptileLib:
+class ReptileLib(threading.Thread):
     '''
     爬虫线程库
     '''
-    def __init__(self):
+    def __init__(self, signalQueue):
         '''
         全局数据控制
         '''
+        #信号队列 由人机界面控制程序运行
+        self.signalQueue = signalQueue
         self.continueRun = [True]
         self.curSiteID = [0]
+        self.urlQueue = UrlQueue()
+        self.urlist = Urlist()
+        self.homeUrls = []
+        self.pages = []
+        self.maxPages = []
+        self.reptilectrl = ReptileCtrl(
+            homeUrls = self.homeUrls,
+            urlist = self.urlist,
+            urlQueue = self.urlQueue,
+            maxPages = self.maxPages,
+            pages = self.pages,
+        )
+
+    def run(self):
+        '''
+        运行主程序
+        signal:
+        {
+            type:type
+        }
+        '''
+        while(True):
+            signal = self.signalQueue.get()
+
+            _type = signal['type']
+
+            if _type is 'init':
+                '''
+                全新运行
+                '''
+                print '.. init from empty project ..'
+                self.init(
+                    homeUrls = signal['homeUrls'] ,
+                    maxPages = signal['maxPages'] ,
+                    threadNum = threadNum
+                    )
+
+            elif _type is 'resume':
+                print '.. resume from database ..'
+
+
+                
+
+
+
 
     @dec
-    def init(self, homeUrls, threadNum):
+    def init(self, homeUrls, maxPages, threadNum):
+        '''
+        完全初始化
+        首次运行
+        '''
         self.homeUrls = homeUrls
-        self.urlQueue = UrlQueue(len(homeUrls))
-        self.urlist = Urlist(len(homeUrls))
         self.threadNum = threadNum
+        self.maxPages = maxPages
         #pages
         self.pages = []
+
+        self.htmldb = HtmlDB(self.htmlparser)
 
         for i in range(len(homeUrls)):
             self.pages.append(0)
@@ -224,4 +276,5 @@ class ReptileLib:
     def threadsRun(self):
         for th in self.thlist:
             th.start()
+
 

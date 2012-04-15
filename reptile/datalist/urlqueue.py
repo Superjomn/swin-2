@@ -13,8 +13,10 @@ class UrlQueue:
     '''
     url队列
     '''
-    def __init__(self, siteNum):
+    def __init__(self):
         self.__queue = []
+
+    def init(self, siteNum):
         self.__siteNum = siteNum
         for i in range(siteNum):
             self.__queue.append(Q.Queue())
@@ -62,6 +64,9 @@ class UrlQueue:
 
             for u in qu:
                 print u
+
+    def getAll(self):
+        return self.__queue
 
             
         

@@ -56,11 +56,14 @@ class List(list):
         return self
 
 class Urlist:
-    def __init__(self, siteNum):
-        self.siteNum = siteNum
+    def __init__(self):
         self.list = []
+    
+    def init(self, siteNum):
+        self.siteNum = siteNum
         for i in range(siteNum):
             self.list.append(List())
+
 
     def find(self, siteID, url):
         '''
