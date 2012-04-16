@@ -6,11 +6,11 @@ sys.path.append('../')
 from datetime import date
 #使用django的模型
 from django.core.management import setup_environ
-sys.path.append('../../../')
-import swin2.settings as settings
+sys.path.append('../../')
+import settings
 setup_environ(settings)
 
-from swin2.reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
+from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
 
 sys.path.append('../../')
 from debug import *

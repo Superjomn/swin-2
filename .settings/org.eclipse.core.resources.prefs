@@ -1,13 +1,16 @@
-#Sun Apr 15 12:57:13 CST 2012
+#Mon Apr 16 22:12:20 CST 2012
 eclipse.preferences.version=1
+encoding//reptile/_reptile.py=utf-8
 encoding//reptile/datalayer/htmldb.py=utf-8
 encoding//reptile/datalist/urlist.py=utf-8
 encoding//reptile/datalist/urlqueue.py=utf-8
 encoding//reptile/reptile_lib/_reptile.py=utf-8
 encoding//reptile/reptile_lib/reptile.py=utf-8
 encoding//reptile/reptile_lib/reptilectrl.py=utf-8
+encoding//reptile/reptilectrl.py=utf-8
 encoding//reptile/sourceparser/_htmlparser.py=utf-8
 encoding//reptile/sourceparser/_urlparser.py=utf-8
 encoding//reptile/sourceparser/htmlparser.py=utf-8
 encoding//reptile/sourceparser/urlparser.py=utf-8
+encoding//reptile/views.py=utf-8
 encoding/debug.py=utf-8
