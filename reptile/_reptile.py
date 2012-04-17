@@ -182,12 +182,13 @@ class ReptileLib(threading.Thread):
     '''
     爬虫线程库
     '''
-    def __init__(self, signalQueue):
+    def __init__(self, inSignalQueue, outSignalQueue):
         '''
         全局数据控制
         '''
         #信号队列 由人机界面控制程序运行
-        self.signalQueue = signalQueue
+        self.inSignalQueue = inSignalQueue
+        self.outSignalQueue = outSignalQueue
         self.continueRun = [True]
         self.curSiteID = [0]
         self.urlQueue = UrlQueue()
@@ -242,6 +243,13 @@ class ReptileLib(threading.Thread):
                 ask for status
                 '''
                 self.reptilectrl.status()
+                
+            elif _type is 'run':
+                '''
+                run reptiles
+                '''
+                self.initThreads()
+                self.threadsRun()
 
     @dec
     def init(self, homeUrls, maxPages, threadNum):

@@ -123,12 +123,6 @@ class HtmlDB:
         status['pages'] = self.getPages()
         return status
 
-
-
-
-
-
-
     
 if __name__ == '__main__':
     htmlinfo = HtmlInfo(title="try:中国农业大学", url="http://www.cau.edu.cn", date="2012-4-17")

@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>初始化信息填写</title>
+<link type="text/css" rel="stylesheet" href="script/development-bundle/themes/start/jquery.ui.all.css" />
+<style>
+span.title{
+	font-size:18px;
+	font-family:"微软雅黑", "黑体";
+	}
+</style>
+</head>
+
+<body>
+	<form id="init_form">
+		<span class="title">爬取主站地址</span>
+		<table id="homeUrl_table">
+			<tr>
+				<td><input type="text" name="homeUrl" /></td>
+				<td><input type="text" name="num" /></td>
+			</tr>
+			<tr>
+				<td><input type="text" name="homeUrl" /></td>
+				<td><input type="text" name="num" /></td>
+			</tr>
+		</table>
+		<button type="button">Add</button>
+		
+		<span class="title">爬虫线程个数</span>
+		<input type="text" />
+	</form>
+</body>
+<script type="text/javascript" src="script/development-bundle/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="script/development-bundle/ui/jquery.ui.core.js"></script>
+<script type="text/javascript" src="script/development-bundle/ui/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="script/development-bundle/ui/jquery.ui.button.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	$("button").button();
+	$("#bu").click(function(){
+		$("#theifra").attr("src","http://www.baidu.com");
+	});
+});
+
+</script>
+
+</html>
