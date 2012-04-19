@@ -186,6 +186,8 @@ class ReptileLib(threading.Thread):
         '''
         全局数据控制
         '''
+        threading.Thread.__init__(self, name = "reptilelib" )  
+        print "... init ReptileLib ..."
         #信号队列 由人机界面控制程序运行
         self.inSignalQueue = inSignalQueue
         self.outSignalQueue = outSignalQueue
@@ -202,6 +204,7 @@ class ReptileLib(threading.Thread):
             urlQueue = self.urlQueue,
             maxPages = self.maxPages,
             pages = self.pages,
+            outSignalQueue = self.outSignalQueue
         )
 
     def run(self):
@@ -212,8 +215,10 @@ class ReptileLib(threading.Thread):
             type:type
         }
         '''
+        print "... run while ..."
+
         while(True):
-            signal = self.signalQueue.get()
+            signal = self.inSignalQueue.get()
 
             _type = signal['type']
 

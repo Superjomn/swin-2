@@ -1,4 +1,4 @@
-from cimport._search import Include
+from cimport.cimport import Cimport
 
 files = [
     'InitThes.pyx',
@@ -7,4 +7,4 @@ files = [
 
 for f in files:
 
-    Include(f)
+    Cimport(f)

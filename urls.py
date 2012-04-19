@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.conf.urls.defaults import patterns, include, url
 # Uncomment the next two lines to enable the admin:
 
@@ -8,6 +9,14 @@ from django.conf import settings
 from reptile.views import hello
 import reptile.views as reptile_views
 
+reptilectrl = reptile_views.ReptileCtrl()
+reptilectrl.run()
+
+print 'init ok reptile run'
+
+def initReptileCtrl(request):
+    global reptilectrl
+    reptilectrl = reptile_views.ReptileCtrl()
 
 urlpatterns = patterns('',
     # Examples:
@@ -18,15 +27,20 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^reptile/', reptile_views.index),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^hello/', reptile_views.hello),
-    #reptile 控制 核心程序 将来是人机界面进行控制
-    url(r'^reptile/resume', reptile_views.ReptileCtrl.sendResume),
-    url(r'^reptile/stop', reptile_views.ReptileCtrl.sendStop),
-    url(r'^reptile/init', reptile_views.ReptileCtrl.sendInit),
-    url(r'^reptile/halt', reptile_views.ReptileCtrl.sendHalt),
-    url(r'^reptile/run', reptile_views.ReptileCtrl.sendRun),
+    #界面
+    url(r'^reptile/$', reptile_views.index),
+    url(r'^reptile/infoform/$', reptile_views.infoform),
+
+    url(r'^initreptile/$', initReptileCtrl),
+    url(r'^reptile/resume', reptilectrl.sendResume),
+    url(r'^reptile/stop', reptilectrl.sendStop),
+    url(r'^reptile/init', reptilectrl.sendInit),
+    url(r'^reptile/halt', reptilectrl.sendHalt),
+    url(r'^reptile/run', reptilectrl.sendRun),
+    (r'^media/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': '/home/chunwei/swin2/media/'}),
 
 
 )

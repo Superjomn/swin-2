@@ -39,7 +39,7 @@ cdef class InitThes:
         ph = config.get("parser", "thes_path")
 
         f=open(ph)
-        self.words=f.read().split()
+        self.words = f.read().split()
         f.close()
 
         #词的数量 

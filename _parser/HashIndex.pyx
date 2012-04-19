@@ -1,4 +1,10 @@
 from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
+import os
+
+import ConfigParser
+config = ConfigParser.ConfigParser()
+path = 
+config.read("../swin2.ini")
 
 DEF STEP = 20
 

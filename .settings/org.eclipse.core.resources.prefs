@@ -1,4 +1,4 @@
-#Mon Apr 16 22:12:20 CST 2012
+#Thu Apr 19 17:20:01 CST 2012
 eclipse.preferences.version=1
 encoding//reptile/_reptile.py=utf-8
 encoding//reptile/datalayer/htmldb.py=utf-8
@@ -14,3 +14,4 @@ encoding//reptile/sourceparser/htmlparser.py=utf-8
 encoding//reptile/sourceparser/urlparser.py=utf-8
 encoding//reptile/views.py=utf-8
 encoding/debug.py=utf-8
+encoding/urls.py=utf-8
