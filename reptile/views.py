@@ -2,33 +2,50 @@
 from reptile._reptile import ReptileLib
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-import Queue as Q
+from pyquery import PyQuery as pq
+import xml.dom.minidom as dom
+import socket
 
-def hello(request):
-    return HttpResponse("welcome to the page at %s"%request.path)
 
-def index(self):
-    return render_to_response('index.html', {})    
+class ReptileFrame:
+    def hello(self, request):
+        return HttpResponse("welcome to the page at %s"%request.path)
 
-def infoform(self):
-    return render_to_response('initform.html', {})    
+    def index(self, request):
+        return render_to_response('index.html', {})    
+
+    def infoform(self, request):
+        return render_to_response('initform.html', {})    
+
 
 
 class ReptileCtrl:
     '''
     爬虫控制程序 人机界面后台程序
-    主要通过 信号 传递到爬虫核心程序
+    主要通过 TCP XML 信号 传递到爬虫核心程序
     此为信号外壳
     '''
     def __init__(self):
         #限制 一次的信号只能有一个
-        self.inSignalQueue = Q.Queue(maxsize=1)
-        self.outSignalQueue = Q.Queue
-        self.reptilelib = ReptileLib( self.inSignalQueue ,self.outSignalQueue )
-        self.reptilelib.run()
+        #self.inSignalQueue = Q.Queue(maxsize=1)
+        #self.outSignalQueue = Q.Queue
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.reptilelib = ReptileLib( self.inSignalQueue ,self.outSignalQueue )
+        #self.reptilelib.run()
         self.homeUrls = None
         self.threadNum = None
         self.maxPages = None
+
+    def sendMessage(self, signal):
+        '''
+        base
+        '''
+        self.sock.connect("", 8881)
+        print "..Connected to server .."
+        self.sock.sendall(signal)
+        print ".. Succeed send signal .."
+        self.sock.close()
+        
 
     def initInfo(self, request):
         '''
@@ -42,8 +59,7 @@ class ReptileCtrl:
         初始化信息
         '''
         self.homeUrls = [
-            ['开放的中国农业大学欢迎您', 'http://www.cau.edu.cn'],
-            ['百度', 'http://www.baidu.com'],
+            {'title':'开放的中国农业大学欢迎您', 'url':'http://www.cau.edu.cn','maxpage':2000},
         ]
         self.threadNum = 1
         self.maxPages = 200
@@ -54,30 +70,41 @@ class ReptileCtrl:
         after info method 
         and homeUrls data 
         '''
-        #debug
         self.getInfo()
-        _signal = {'type': 'resume'}
-        _signal['homeUrls'] = self.homeUrls
-        _signal['threadNum'] = self.threadNum
-        _signal['maxPages'] = self.maxPages
-        self.inSignalQueue.put(_signal)
+        dd = dom.parseString('<signal></signal>')
+        signal = dd.firstChild
+        signal.setAttribute('type', 'init')
+        homeurl = dd.createElement('homeurl')
+        signal.appendChild(homeurl)
+        for _homeurl in self.homeUrls:
+            item = dd.createElement('item')
+            item.setAttribute('title', _homeurl['title'])
+            item.setAttribute('url', _homeurl['url'])
+            item.setAttribute('maxpage', _homeurl['maxpage'])
+            homeurl.appendChild(item)
+        self.sendMessage(signal.toxml())
+        
         return HttpResponse("welcome to the page at %s"%request.path)
 
     def sendResume(self, request):
-        _signal = {'type': 'resume'}
-        self.inSignalQueue.put(_signal)
+        signal = "<signal type='resume'/>"
+        self.sendMessage(signal)
+        return HttpResponse("Successfully send resume signal")
     
     def sendStop(self, request):
-        _signal = {'type': 'stop'}
-        self.inSignalQueue.put(_signal)
+        signal = "<signal type='stop'/>"
+        self.sendMessage(signal)
+        return HttpResponse("Successfully send stop signal")
     
     def sendHalt(self, request):
-        _signal = {'type': 'halt'}
-        self.inSignalQueue.put(_signal)
+        signal = "<signal type='halt'/>"
+        self.sendMessage(signal)
+        return HttpResponse("Successfully send halt signal")
 
     def sendRun(self, request):
-        _signal = {'type': 'run'}
-        self.inSignalQueue.put(_signal)
+        signal = "<signal type='run'/>"
+        self.sendMessage(signal)
+        return HttpResponse("Successfully send run signal")
 
 
 

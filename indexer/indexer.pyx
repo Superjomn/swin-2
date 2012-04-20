@@ -4,14 +4,10 @@ from libc.stdio cimport fopen, fwrite, fread,fclose,FILE
 from ICTCLAS50.Ictclas import Ictclas
 import sqlite3 as sq
 
+Cimport ../_parser/HashIndex.pyx swin2/_parser/HashIndex.pyx
+Cimport ../_parser/Thesaurus.pyx swin2/_parser/Thesaurus.pyx
+
 from parser.Init_Thes import Init_thesaurus , init_hashIndex
-
-DEF STEP=20
-
-#定义 hashIndex 结构
-cdef struct HI: #hashIndex 结构
-    long left    #左侧范围
-    long right   #右侧范围
 
 DEF List_init_size = 100  #定义List初始化长度
 DEF List_num = 20         #hit_lists中划分 块 数目
@@ -25,103 +21,15 @@ cdef struct Hit:
     long pos
 
 
-#单个list结构
+#单个list结构 Hit的list
 cdef struct List:
     Hit *start
     long length
     long top
     long size        #此记录中的总hit数目  初始化时需要使用
 
-
-cdef class Hit_lists:
-    '''
-    hit存储队列
-    每个list对应于一个存储文件
-    '''
-    cdef:
-        long length
-        long top
-        List hit_list[List_num]
-        object ict
-        #路径管理
-        object path
-
-    def __cinit__(self,long site_id, object path):
-        '''
-        初始化数据空间
-        '''
-        print '>begin init List space'
-        self.path = path
-        self.ict = Ictclas('ICTCLAS50/')
-
-        cdef:
-            long i
-
-        #初始化每个list节点
-        for i in range(List_num):
-            self.hit_list[i].start=<Hit *>malloc( sizeof(Hit) * List_init_size )
-            self.hit_list[i].length=List_init_size
-            self.hit_list[i].top=-1
-            self.hit_list[i].size=0
-
-            if self.hit_list[i].start!= NULL:
-                print '>>init list ok!'
-
-    cdef __delloc__(self):
-        '''
-        消去内存
-        '''
-        cdef long i
-        print 'begin to delete the space'
-
-        for i in range(List_num):
-            free(self.hit_list[i].start)
-
-
-    cdef void eq(self,long hit_id,int idx,int wordID,int docID,short score,int pos):
-        '''
-        赋值处理
-        '''
-        self.hit_list[hit_id].start[idx].wordID=wordID
-        self.hit_list[hit_id].start[idx].docID=docID
-        self.hit_list[hit_id].start[idx].score=score
-        self.hit_list[hit_id].start[idx].pos=pos
-
-
-    def ap(self, long hit_id ,int wordID ,int docID ,short score ,int pos):
-
-        '''
-        向list中添加数据
-        如果list溢出 则返回False
-        添加成功 返回True
-        '''
-        #print 'begin append the word hit >>>>>'
-        self.hit_list[hit_id].top += 1
-        self.hit_list[hit_id].size += 1
-        #print '+ hit.top+1'
-        #print '+ begin eq'
-        self.eq( hit_id, self.hit_list[hit_id].top ,wordID,docID,score,pos)
-        #print '> succed eq'
-
-        if (self.hit_list[hit_id].top > self.hit_list[hit_id].length-2):
-            #如果 分配长度快到最大长度 则返回false
-            #如果 lenth还有空间 继续分配空间
-           return False
-        else:
-            #空间和其他都不缺少
-            #正常情况
-            return True
-
-    cdef void empty(self, long hit_id):
-        '''
-        将List清空
-        释放空间
-        再重新分配基本空间
-        '''
-        print 'begin to free the list'
-        print 'begin to relloc it'
-        self.hit_list[hit_id].top=-1
-
+#导入 HitList.pyx
+Cimport HitList.pyx swin2/indexer/HitList.pyx
 
 cdef class Indexer:
 ######################################
@@ -167,9 +75,11 @@ cdef class Indexer:
         #初始化 Hit_list
         self.hit_list = Hit_lists(site_id)
         #词库
-        self.thes = Init_thesaurus(site_id,self.path.g_wordbar())
-        self.hash_index = init_hashIndex(self.path.g_hash_index(),self.path.g_word_wide())
-
+        self.thes = InitThes()
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        cdef char* ph = "path_to_hashindex"
+        self.hash_index = InitHashIndex(ph)
+        #database to get title and link description 
         self.cx = sq.connect(self.path.g_chun_sqlite())
         self.cu = self.cx.cursor()
 
@@ -181,7 +91,6 @@ cdef class Indexer:
         可以继承 词库 
         '''
         return self.hash_index.pos(hash(hashvalue))
-
 
     cdef void __save_hit_size(self,char *ph):
         '''

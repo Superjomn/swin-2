@@ -32,13 +32,14 @@ urlpatterns = patterns('',
     #界面
     url(r'^reptile/$', reptile_views.index),
     url(r'^reptile/infoform/$', reptile_views.infoform),
-
+    #control
     url(r'^initreptile/$', initReptileCtrl),
     url(r'^reptile/resume', reptilectrl.sendResume),
     url(r'^reptile/stop', reptilectrl.sendStop),
     url(r'^reptile/init', reptilectrl.sendInit),
     url(r'^reptile/halt', reptilectrl.sendHalt),
     url(r'^reptile/run', reptilectrl.sendRun),
+
     (r'^media/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': '/home/chunwei/swin2/media/'}),
 

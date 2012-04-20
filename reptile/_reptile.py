@@ -19,6 +19,8 @@ from datalist.urlist import Urlist
 
 from reptilectrl import ReptileCtrl
 
+from control_center_server import ControlServer
+
 sys.path.append('../../')
 from debug import *
 
@@ -51,6 +53,8 @@ class Reptile(threading.Thread):
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
         self.htmldb = HtmlDB(self.htmlparser)
+        
+        
 
     def conn(self):
         '''
@@ -206,6 +210,16 @@ class ReptileLib(threading.Thread):
             pages = self.pages,
             outSignalQueue = self.outSignalQueue
         )
+        self.controlserver = ControlServer(self.inSignalQueue, self.outSignalQueue)
+        #run init thread
+        self.runInit()
+    
+    def runInit(self):
+        '''
+        run init thread 
+        '''
+        self.controlserver.run()
+        self.run()
 
     def run(self):
         '''
