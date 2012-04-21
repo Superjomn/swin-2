@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
-
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
+import time
+sys.path.append('../')
+from Config import Config
+from sourceparser.urlparser import UrlParser
+from htmldb import HtmlDB
+from sourceparser.htmlparser import HtmlParser
+
+config = Config()
+halt_wait_time = config.getint('reptilelib', 'halt_wait_time')
 
 class ReptileCtrl:
     '''
@@ -29,6 +37,10 @@ class ReptileCtrl:
         #向控制端陈需传递消息
         self.outSignalQueue = outSignalQueue
 
+        self.urlparser = UrlParser(homeUrls)
+        self.htmlparser = HtmlParser(self.urlparser)
+        self.htmldb = HtmlDB(self.htmlparser)
+
     def stop(self):
         '''
         直接停止运行
@@ -48,7 +60,9 @@ class ReptileCtrl:
         print '.. halt ..'
         
         self.continueRun[0] = False
-        
+        #should use timer to sleep for some seconds 
+        time.sleep(halt_wait_time)
+
         self.htmldb.saveHomeUrls(self.homeUrls, self.maxPages, self.pages)
         #开始保存
         urlist = self.urlist.getAll()
@@ -58,8 +72,6 @@ class ReptileCtrl:
         urlqueue = self.urlQueue.getAll()
         #保存
         self.htmldb.saveQueue(urlqueue)
-
-        self.htmldb.savePages(self.pages)
 
     def resume(self):
         '''
@@ -74,6 +86,7 @@ class ReptileCtrl:
             self.homeUrls.append(homeurl)
             self.maxPages.append( site['maxpages'] )
             self.pages.append( site['pages'] )
+
         #resume urlqueue
         _queue = status['queue']
         
@@ -100,8 +113,4 @@ class ReptileCtrl:
             'list_num': self.urlist.getNums(),
          }
         self.outSignalQueue.append( signal )
-            
-            
-
-
             

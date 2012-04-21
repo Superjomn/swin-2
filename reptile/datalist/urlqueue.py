@@ -27,9 +27,15 @@ class UrlQueue:
             self.homeUrls.append(url['title'])
         self.__siteNum = len(self.homeUrls)
         '''
+        def clearList(_List):
+            _size = len(_List)
+            for i in range(_size):
+                _List.pop()
+
         self.homeUrls = homeUrls
         self.__siteNum = len(self.homeUrls)
 
+        clearList(self.__queue)
         for i in range(self.__siteNum):
             self.__queue.append(Q.Queue())
 

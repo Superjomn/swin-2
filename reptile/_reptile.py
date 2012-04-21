@@ -41,7 +41,6 @@ class Reptile(threading.Thread):
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
-
         self.__Flock = Flock
         self.__curSiteID = curSiteID
         self.__temSiteID = -1
@@ -226,7 +225,12 @@ class ReptileLib(threading.Thread):
         #信号队列 由人机界面控制程序运行
         self.inSignalQueue = Q.Queue()
         self.outSignalQueue = Q.Queue()
+
+        #控制reptile线程是否运行
         self.continueRun = [True]
+        #控制reptilelib 主程序及服务器是否运行 是否完全关闭
+        self.reptileLibRun = [True]
+
         self.curSiteID = [0]
         #urlQueue and init in lib
         self.urlQueue = UrlQueue()
@@ -242,7 +246,7 @@ class ReptileLib(threading.Thread):
             urlQueue = self.urlQueue,
             maxPages = self.maxPages,
             pages = self.pages,
-            outSignalQueue = self.outSignalQueue
+            outSignalQueue = self.outSignalQueue,
         )
         self.controlserver = ControlServer(self.inSignalQueue, self.outSignalQueue)
         #run init thread
@@ -314,17 +318,32 @@ class ReptileLib(threading.Thread):
                 self.initThreads()
                 self.threadsRun()
 
+        print 'ReptileLib core stopped!'
+        print 'Reptile stopped'
+
     @dec
     def init(self, homeUrls, maxPages, threadNum):
         '''
         完全初始化
         首次运行
+        注意： 重复init时，为了list的共享数据特性
+        每次需要清空[] 然后再重新赋值
         '''
-        self.homeUrls = homeUrls
+        def clearList(_List):
+            _size = len(_List)
+            for i in range(_size):
+                _List.pop()
+
+        def initList(_List, List):
+            #first clear list
+            clearList(_List)
+            for l in List:
+                _List.append(l)
+
+        initList(self.homeUrls ,homeUrls)
+        initList(self.maxPages, maxPages)
         self.threadNum = threadNum
         self.maxPages = maxPages
-        #pages
-        self.pages = []
         
         #self.htmldb = HtmlDB(self.htmlparser)
         #init self.pages 

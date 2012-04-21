@@ -2,18 +2,16 @@
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
+sys.path.append('../')
 from datetime import date
 
 #使用django的模型
 from django.core.management import setup_environ
 sys.path.append('../../')
-import swin2.settings as settings
+from swin2 import settings 
 setup_environ(settings)
-sys.path.append('../')
 from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
-
-#sys.path.append('../../')
-#from debug import *
+from debug import *
 
 class HtmlDB:
     '''
@@ -23,7 +21,14 @@ class HtmlDB:
         #此处urlparser 和 htmlparser都已经在外界更新过
         self.htmlparser = htmlparser
 
+    @dec
     def saveHomeUrls(self, homeUrls, maxPages, pages):
+        print '.. homeUrl', homeUrls
+        print '.. maxPages', maxPages
+        print '.. pages', pages
+        print '.. clear all homeurls from database'
+        HomeUrl.objects.all().delete()
+
         for i,homeurl in enumerate(homeUrls) :
             homeurl = HomeUrl(
                 title = homeurl[0],
@@ -46,27 +51,46 @@ class HtmlDB:
         htmlsource = HtmlSource(parsed_source=xmltext, info=htmlinfo)
         htmlsource.save()
 
+    @dec
     def saveList(self, urlist):
         '''
         save  urlist
         urlist = [ [] [] ]
         '''
+        print 'len of urlist', len(urlist)
+        print '.. clear former lists'
+        Urlist.objects.all().delete()
+
         for i,_list in enumerate(urlist):
+            print 'i',i
+            site = HomeUrl.objects.all()[i]
             for path in _list:
-                u = Urlist(i, path)
+                u = Urlist(site=site, path=path)
                 u.save()
 
+    @dec
     def saveQueue(self, urlqueue):
         '''
         urlqueue = [Queue, Queue]
         '''
+        print 'urlqueue', urlqueue
+        print '.. clear former urlqueues'
+        UrlQueue.objects.all().delete()
         for i,queue in enumerate(urlqueue):
             size = queue.qsize()
+            print 'size',size
+            site = HomeUrl.objects.all()[i]
 
             for j in range(size):
-                u = UrlQueue( i, queue.get() )
+                url = queue.get()
+                print url
+                u = UrlQueue(
+                    site=site, 
+                    title=url[0], 
+                    path=url[1]
+                )
                 u.save()
-
+    @dec
     def saveStatus(self, urlist, urlqueue, pages):
         '''
         save:
@@ -78,12 +102,14 @@ class HtmlDB:
         self.saveQueue(urlqueue)
         self.savePages(pages)
 
+    @dec
     def getHomeUrls(self):
         '''
         get homeurls
         '''
         return HomeUrl.objects.all()
 
+    @dec
     def getList(self):
         '''
         get urlist

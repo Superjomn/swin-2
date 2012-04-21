@@ -37,5 +37,10 @@ class UrlQueue(models.Model):
     path = models.CharField(max_length=120)
 
 
-#admin.site.register(HtmlInfo)
-#admin.site.register(HtmlSource)
+'''
+admin.site.register(HtmlInfo)
+admin.site.register(HtmlSource)
+admin.site.register(HomeUrl)
+admin.site.register(Urlist)
+admin.site.register(UrlQueue)
+'''

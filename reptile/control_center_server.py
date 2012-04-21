@@ -94,6 +94,16 @@ class ReptileSignal:
         res['type'] = 'stop'
         self.inQueue.put(res)
 
+    @dec
+    def sendHalt(self):
+        '''
+        send halt signal to reptile lib
+        '''
+        res = {}
+        res['type'] = 'halt'
+        self.inQueue.put(res)
+
+
     
 class ControlServer(threading.Thread):
     '''
@@ -170,4 +180,7 @@ class ControlServer(threading.Thread):
         elif _type == 'stop':
             self.queueStatus()
             self.reptilesignal.sendStop()
+        
+        elif _type == 'halt':
+            self.reptilesignal.sendHalt()
     

@@ -60,7 +60,14 @@ class Urlist:
         self.list = []
     
     def init(self, siteNum):
+        ''' clear list to empty '''
+        def clearList(_List):
+            _size = len(_List)
+            for i in range(_size):
+                _List.pop()
+
         self.siteNum = siteNum
+        clearList(self.list)
         for i in range(siteNum):
             self.list.append(List())
 
