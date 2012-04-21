@@ -82,6 +82,7 @@ class ReptileCtrl:
             item.setAttribute('url', _homeurl['url'])
             item.setAttribute('maxpage', _homeurl['maxpage'])
             homeurl.appendChild(item)
+            print signal.toxml()
         self.sendMessage(signal.toxml())
         
         return HttpResponse("welcome to the page at %s"%request.path)
@@ -101,10 +102,10 @@ class ReptileCtrl:
         self.sendMessage(signal)
         return HttpResponse("Successfully send halt signal")
 
-    def sendRun(self, request):
-        signal = "<signal type='run'/>"
+    def sendStart(self, request):
+        signal = "<signal type='start'/>"
         self.sendMessage(signal)
-        return HttpResponse("Successfully send run signal")
+        return HttpResponse("Successfully send start signal")
 
 
 

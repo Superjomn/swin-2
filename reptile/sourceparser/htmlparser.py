@@ -6,8 +6,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import xml.dom.minidom as dom
-sys.path.append('../../')
-from debug import *
+
+#sys.path.append('../../')
+#from debug import *
 
 class HtmlParser:
     def __init__(self, urlparser):

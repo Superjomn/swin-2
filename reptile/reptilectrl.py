@@ -10,7 +10,7 @@ class ReptileCtrl:
     将以一个控制线程的方式运行
     接受 人机界面的控制
     '''
-    def __init__(self, homeUrls, urlist, urlQueue, maxPages, pages, outSignalQueue):
+    def __init__(self, homeUrls, continueRun, urlist, urlQueue, maxPages, pages, outSignalQueue):
         '''
         需要掌握的数据:
             homeUrls
@@ -20,6 +20,8 @@ class ReptileCtrl:
             maxpages 
         '''
         self.homeUrls = homeUrls
+        #continue weather reptils continue run
+        self.continueRun = continueRun
         self.urlist = urlist
         self.urlQueue = urlQueue
         self.pages = pages

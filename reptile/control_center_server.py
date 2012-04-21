@@ -55,9 +55,9 @@ class ReptileSignal:
         res['maxpages'] = []
         for i in range(len(items)):
             item = items.eq(i)
-            sg = {}
-            sg['title'] = item.attr('title')
-            sg['url'] = item.attr('url')
+            sg = []
+            sg.append(item.attr('title'))
+            sg.append(item.attr('url'))
             res['maxpages'].append( int(item.attr('maxpage')) )
             res['homeurls'].append(sg)
         self.inQueue.put(res)

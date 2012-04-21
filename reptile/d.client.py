@@ -19,9 +19,8 @@ def sendMessage(signal):
 def sendInit():
     signal = '''
         <signal type='init'>
-            <homeurl reptilenum=20>
+            <homeurl reptilenum=2>
                 <item title='CAU'  url='http://www.cau.edu.cn' maxpage=200 />
-                <item title='baidu'  url='http://www.baidu.com' maxpage=200 />
             </homeurl>
         </signal>
     '''
@@ -32,6 +31,13 @@ def sendRun():
         <signal type='start'/>
     '''
     sendMessage(signal)
+
+def sendStop():
+    signal = '''
+        <signal type='stop'/>
+    '''
+    sendMessage(signal)
+
 
 
 if __name__ == '__main__':
@@ -44,4 +50,6 @@ if __name__ == '__main__':
             sendInit()
         elif data == 'run':
             sendRun()
+        elif data == 'stop':
+            sendStop()
 

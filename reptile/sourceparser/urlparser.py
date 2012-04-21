@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('../../')
-from debug import *
+#sys.path.append('../../')
+#from debug import *
 import urlparse
-sys.path.append('../../')
+sys.path.append('../')
 from debug import *
 
 class UrlParser:
@@ -11,14 +11,20 @@ class UrlParser:
     对url的一系列操作
     '''
     def __init__(self, homeUrls):
-        ''' ok '''
+        '''
+        [
+            [title, url]
+        ]
+        '''
         self.__homeUrls = homeUrls
     
+    @dec
     def transToStdUrl(self, homeUrl, newUrl):
         ''' ok '''
         '''
         将任意一个url转化为绝对地址
         '''
+        assert(type(homeUrl) != type([]))
         if not newUrl:
             return homeUrl
 
@@ -36,12 +42,13 @@ class UrlParser:
         '''
         length = 0
         for i,u in enumerate(self.__homeUrls):
+            u = u[1]
+            assert( type(u) != type([]) )
             length = len(u)
             if len(stdUrl) > length and stdUrl[:length] == u:
                 return i
         return -1
 
-    @dec
     def transPathByStd(self, stdUrl):
         ''' ok '''
         '''
@@ -63,7 +70,6 @@ class UrlParser:
         else:
             return '/'+path
 
-    @dec
     def transPath(self, pageStdUrl, url):
         ''' ok '''
         '''
@@ -77,6 +83,7 @@ class UrlParser:
         ''' ok '''
         return urlparse.urlsplit(stdurl).netloc
 
+    @dec
     def judgeUrl(self, stdPageUrl, newUrl):
         ''' ok '''
         '''
@@ -85,7 +92,6 @@ class UrlParser:
         '''
         url = self.transToStdUrl(stdPageUrl, newUrl)
         print 'trans to stdurl >> ', url
-
         return self.transSiteID(url)
 
 if __name__ == '__main__':
@@ -94,23 +100,3 @@ if __name__ == '__main__':
     pageStdUrl = "http://www.cau.edu.cn"
     url = "http://www.cau.edu.cn/index.php?name=hello&site=ttgo"
     print u.transPath(pageStdUrl, url)
-
-
-    
-
-
-
-
-
-
-
-        
-        
-
-        
-        
-
-        
-
-
-    

@@ -39,7 +39,3 @@ class UrlQueue(models.Model):
 
 #admin.site.register(HtmlInfo)
 #admin.site.register(HtmlSource)
-
-
-
-

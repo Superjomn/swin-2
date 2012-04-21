@@ -4,7 +4,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 import Queue as Q
 
-sys.path.append('../../')
+sys.path.append('../')
 from debug import *
 
 TIMEOUT = 3
@@ -15,11 +15,34 @@ class UrlQueue:
     '''
     def __init__(self):
         self.__queue = []
+        self.__siteNum = None
 
-    def init(self, siteNum):
-        self.__siteNum = siteNum
-        for i in range(siteNum):
+    @dec
+    def init(self, homeUrls):
+        '''
+        homeUrls is a [title, url]
+        '''
+        '''
+        for url in homeUrls:
+            self.homeUrls.append(url['title'])
+        self.__siteNum = len(self.homeUrls)
+        '''
+        self.homeUrls = homeUrls
+        self.__siteNum = len(self.homeUrls)
+
+        for i in range(self.__siteNum):
             self.__queue.append(Q.Queue())
+
+    @dec 
+    def initFrontPage(self):
+        '''
+        put homeUrl as front page to queue
+        and start to run
+        default: reptile get homeurl as first page to download
+        '''
+        for i,url in enumerate(self.homeUrls):
+            print i,url
+            self.__queue[i].put([url[0], ""])
 
     def append(self, siteID, path):
         self.__queue[siteID].put(path)
@@ -77,9 +100,3 @@ class UrlQueue:
 
     def getAll(self):
         return self.__queue
-
-            
-        
-        
-    
-    
