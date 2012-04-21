@@ -103,51 +103,67 @@ class HtmlDB:
         self.savePages(pages)
 
     @dec
-    def getHomeUrls(self):
+    def getStatus(self):
         '''
         get homeurls
         '''
-        return HomeUrl.objects.all()
+        homeurls = HomeUrl.objects.all()
+        res = {}
+        #homeurls
+        _homeurls = []
+        _maxpages = []
+        _pages = []
+        for u in homeurls:
+            item = [ u.title, u.url ]
+            _homeurls.append(item)
+            _maxpages.append( u.maxpages )
+            _pages.append( u.pages )
+
+        res['homeurls'] = _homeurls
+        res['maxpages'] = _maxpages
+        res['pages'] = _pages
+        res['urlist'] = self.getList()
+        print res['urlist']
+        res['urlqueue'] = self.getQueue()
+
+        return res
+
 
     @dec
     def getList(self):
         '''
         get urlist
         '''
-        homeurls = self.getHomeUrls()
-        _list = []
+        homeurls = HomeUrl.objects.all()
+        lists = []
 
         for homeurl in homeurls:
+            _list = homeurl.urlist_set.all()
+            _res = []
+            for l in _list:
+                _res.append(l.path)
+            lists.append(_res)
 
-            _list.append(homeurl.urlist_set())
-
-        return _list
+        return lists
             
-    def getPages(self):
-        homeurls = self.getHomeUrls()
-        pages = []
-
-        for homeurl in homeurls:
-            pages.append( homeurl['pages'] )
-        return pages
 
     def getQueue(self):
         '''
         get urlqueue
         '''
-        homeurls = self.getHomeUrls()
-        _queue = []
+        homeurls = HomeUrl.objects.all()
+        queues = []
 
         for homeurl in homeurls:
-            _queue.append(homeurl.urlqueue_set())
+            _queue = homeurl.urlqueue_set.all()
+            _res = []
+            for q in _queue:
+                _res.append( [q.title, q.path] )
+            queues.append(_res)
 
-    def getStatus(self):
-        status = {}
-        status['homeurls'] = self.getHomeUrls()
-        status['list'] = self.getList()
-        status['queue'] = self.getQueue()
-        status['pages'] = self.getPages()
-        return status
+        return queues
+
+
 
     
 if __name__ == '__main__':

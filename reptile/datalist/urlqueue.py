@@ -27,15 +27,9 @@ class UrlQueue:
             self.homeUrls.append(url['title'])
         self.__siteNum = len(self.homeUrls)
         '''
-        def clearList(_List):
-            _size = len(_List)
-            for i in range(_size):
-                _List.pop()
-
         self.homeUrls = homeUrls
         self.__siteNum = len(self.homeUrls)
-
-        clearList(self.__queue)
+        self.__queue = []
         for i in range(self.__siteNum):
             self.__queue.append(Q.Queue())
 
@@ -106,3 +100,17 @@ class UrlQueue:
 
     def getAll(self):
         return self.__queue
+
+    def resume(self, homeurls, queues):
+        '''
+        queues = [
+            [
+                [title, path],
+            ],
+        ]
+        '''
+        _size = len(queues)
+        self.init(homeurls)
+        for i,queue in enumerate(queues):
+            for u in queue:
+                self.__queue[i].put(u)

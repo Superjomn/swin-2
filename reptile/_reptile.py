@@ -236,6 +236,7 @@ class ReptileLib(threading.Thread):
         self.urlQueue = UrlQueue()
         
         self.urlist = Urlist()
+        #为了列表的共享性 初始的数据初始化[] 之后不能随意改变
         self.homeUrls = []
         self.pages = []
         self.maxPages = []

@@ -61,13 +61,8 @@ class Urlist:
     
     def init(self, siteNum):
         ''' clear list to empty '''
-        def clearList(_List):
-            _size = len(_List)
-            for i in range(_size):
-                _List.pop()
-
+        self.list = []
         self.siteNum = siteNum
-        clearList(self.list)
         for i in range(siteNum):
             self.list.append(List())
 
@@ -92,5 +87,18 @@ class Urlist:
         for l in self.list:
             nums.append(len(l))
         return nums
+
+    def resume(self, lists):
+        '''
+        resume urlist from database
+        lists = [
+            [path, path,],
+        ]
+        '''
+        _size = len(lists)
+        self.init(_size)
+        for i,_list in enumerate(lists):
+            for p in _list:
+                self.list[i].find(p)
 
 

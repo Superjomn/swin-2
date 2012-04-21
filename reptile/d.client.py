@@ -33,9 +33,21 @@ def sendRun():
     '''
     sendMessage(signal)
 
+def sendResume():
+    signal = '''
+        <signal type='resume'/>
+    '''
+    sendMessage(signal)
+
 def sendStop():
     signal = '''
         <signal type='stop'/>
+    '''
+    sendMessage(signal)
+
+def sendStatus():
+    signal = '''
+        <signal type='status'/>
     '''
     sendMessage(signal)
 
@@ -60,4 +72,8 @@ if __name__ == '__main__':
             sendStop()
         elif data == 'halt':
             sendHalt()
+        elif data == 'resume':
+            sendResume()
+        elif data == 'status':
+            sendStatus()
 

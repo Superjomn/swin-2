@@ -78,28 +78,47 @@ class ReptileCtrl:
         resume from database
         init urlqueue and urlist
         '''
+        def clearList(_List):
+            _size = len(_List)
+            for i in range(_size):
+                _List.pop()
+
+        def resumeHomeurl(homeurls):
+            '''
+            homeurls=
+                [
+                    [title, url],
+                ]
+            '''
+            #clear [] to empty
+            clearList(self.homeUrls)
+            for u in homeurls:
+                self.homeUrls.append(u)
+
+        def resumePages(localpages, pages):
+            '''
+            resume pages or maxpages
+            maxpages = [
+                1,2,3,
+            ]
+            '''
+            clearList(localpages)
+            for i in pages:
+                localpages.append(i)
+
         status = self.htmldb.getStatus()
         _homeurls = status['homeurls']
-        # resume homeurls, maxpages, pages
-        for site in _homeurls:
-            homeurl = [ site['title'], site['url'] ]
-            self.homeUrls.append(homeurl)
-            self.maxPages.append( site['maxpages'] )
-            self.pages.append( site['pages'] )
-
-        #resume urlqueue
-        _queue = status['queue']
-        
-        for i,queue in enumerate(_queue):
-            for q in queue:
-                self.urlQueue.append(i, [ q['title'], q['path'] ] )
+        resumeHomeurl(_homeurls)
+        #resume maxpages
+        resumePages(self.maxPages, status['maxpages'])
+        #resume pages
+        resumePages(self.pages, status['pages'])
         #resume urlist
-        _list = status['list']
+        self.urlist.resume(status['urlist'])
+        #resume urlqueue
+        self.urlQueue.resume(status['homeurls'], status['urlqueue'])
         
-        for i,list in enumerate(_list):
-            for l in list:
-                self.urlist.find(i, l['path'])
-                
+               
     def status(self):
         '''
         return status
@@ -112,5 +131,6 @@ class ReptileCtrl:
             'queue_num': self.urlQueue.getNums(),
             'list_num': self.urlist.getNums(),
          }
-        self.outSignalQueue.append( signal )
+        print signal
+        #self.outSignalQueue.append( signal )
             

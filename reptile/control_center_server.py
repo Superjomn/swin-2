@@ -73,6 +73,12 @@ class ReptileSignal:
         res['type'] = 'start'
         self.inQueue.put(res)
 
+    def sendStatus(self):
+        res = {}
+        res['type'] = 'status'
+        self.inQueue.put(res)
+        
+
     @dec
     def sendResume(self):
         '''
@@ -102,6 +108,8 @@ class ReptileSignal:
         res = {}
         res['type'] = 'halt'
         self.inQueue.put(res)
+
+        
 
 
     
@@ -183,4 +191,7 @@ class ControlServer(threading.Thread):
         
         elif _type == 'halt':
             self.reptilesignal.sendHalt()
+
+        elif _type == 'status':
+            self.reptilesignal.sendStatus()
     
