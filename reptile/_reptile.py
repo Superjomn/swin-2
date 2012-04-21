@@ -9,20 +9,22 @@ sys.setdefaultencoding('utf-8')
 from pyquery import PyQuery as pq
 import xml.dom.minidom as dom
 import socket
+import Queue as Q
 
 #self
+sys.path.append('../')
+from Config import Config
 from sourceparser.htmlparser import HtmlParser
 from sourceparser.urlparser import UrlParser
-from datalayer.htmldb import HtmlDB
+from htmldb import HtmlDB
 from datalist.urlqueue import UrlQueue
 from datalist.urlist import Urlist
 
 from reptilectrl import ReptileCtrl
-
 from control_center_server import ControlServer
 
-sys.path.append('../../')
 from debug import *
+_config = Config()
 
 class Reptile(threading.Thread):
     '''
@@ -38,6 +40,7 @@ class Reptile(threading.Thread):
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
+        self.__urlQueue.init( len(self.__homeUrls) )
         self.__Flock = Flock
         self.__curSiteID = curSiteID
         self.__temSiteID = -1
@@ -100,6 +103,7 @@ class Reptile(threading.Thread):
 
         return r
 
+    @dec
     def run(self):
 
         while True :
@@ -186,15 +190,15 @@ class ReptileLib(threading.Thread):
     '''
     爬虫线程库
     '''
-    def __init__(self, inSignalQueue, outSignalQueue):
+    def __init__(self):
         '''
         全局数据控制
         '''
         threading.Thread.__init__(self, name = "reptilelib" )  
         print "... init ReptileLib ..."
         #信号队列 由人机界面控制程序运行
-        self.inSignalQueue = inSignalQueue
-        self.outSignalQueue = outSignalQueue
+        self.inSignalQueue = Q.Queue()
+        self.outSignalQueue = Q.Queue()
         self.continueRun = [True]
         self.curSiteID = [0]
         self.urlQueue = UrlQueue()
@@ -214,13 +218,15 @@ class ReptileLib(threading.Thread):
         #run init thread
         self.runInit()
     
+    @dec
     def runInit(self):
         '''
         run init thread 
         '''
-        self.controlserver.run()
-        self.run()
+        self.controlserver.start()
+        self.start()
 
+    @dec
     def run(self):
         '''
         运行主程序
@@ -231,10 +237,12 @@ class ReptileLib(threading.Thread):
         '''
         print "... run while ..."
 
-        while(True):
+        while True:
+            print '.. while ReptileLib running ..'
             signal = self.inSignalQueue.get()
-
+            print 'get signal', signal
             _type = signal['type']
+            print 'get type', _type
 
             if _type is 'init':
                 '''
@@ -242,9 +250,9 @@ class ReptileLib(threading.Thread):
                 '''
                 print '.. init from empty project ..'
                 self.init(
-                    homeUrls = signal['homeUrls'] ,
-                    maxPages = signal['maxPages'] ,
-                    threadNum = signal['reptileNum']
+                    homeUrls = signal['homeurls'] ,
+                    maxPages = signal['maxpages'] ,
+                    threadNum = signal['reptilenum']
                     )
 
             elif _type is 'resume':
@@ -252,21 +260,26 @@ class ReptileLib(threading.Thread):
                 self.reptilectrl.resume()
             
             elif _type is 'stop':
+                print '.. stop ..'
                 self.reptilectrl.stop()
             
             elif _type is 'halt':
+                print '.. halt ..'
                 self.reptilectrl.halt()
             
             elif _type is 'status':
                 '''
                 ask for status
                 '''
+                print '.. status ..'
                 self.reptilectrl.status()
                 
-            elif _type is 'run':
+            elif _type is 'start':
                 '''
                 run reptiles
                 '''
+                print '.. run reptile threads ..'
+                print 'It works!'
                 self.initThreads()
                 self.threadsRun()
 
@@ -281,8 +294,8 @@ class ReptileLib(threading.Thread):
         self.maxPages = maxPages
         #pages
         self.pages = []
-
-        self.htmldb = HtmlDB(self.htmlparser)
+        
+        #self.htmldb = HtmlDB(self.htmlparser)
 
         for i in range(len(homeUrls)):
             self.pages.append(0)
@@ -307,9 +320,13 @@ class ReptileLib(threading.Thread):
             )
             self.thlist.append(th)  
 
+
     @dec
     def threadsRun(self):
         for th in self.thlist:
             th.start()
 
+if __name__ == '__main__':
+    reptilelib = ReptileLib()
+    
 

@@ -1,15 +1,38 @@
 # -*- coding: utf-8 -*-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 import threading  
 import socket
 from pyquery import PyQuery as pq
 
+#self
+sys.path.append('../')
+from Config import Config
+_config = Config()
+from debug import *
+
+
 class ReptileSignal:
-    def __init__(self):
+    '''
+    send dic signal through inQueue to core reptile lib
+    '''
+    def __init__(self, inQueue, outQueue):
         '''
         inQueue:    signal Queue to connect reptile lib
         '''
-        pass
+        self.inQueue = inQueue
+        self.outQueue = outQueue
+
+    @dec
+    def queueStatus(self):
+        '''
+        detect signal queue status
+        '''
+        print 'inQueue size:', self.inQueue.qsize()
+        print 'outQueue size', self.outQueue.qsize()
         
+    @dec
     def sendInit(self, signal_parser):
         '''
         send init info to reptilelib
@@ -27,17 +50,30 @@ class ReptileSignal:
         items = htmlurl('item')
         res = {}
         res['type'] = 'init'
-        res['reptilenum'] = htmlurl.attr('reptilenum')
+        res['reptilenum'] = int( htmlurl.attr('reptilenum') )
         res['homeurls'] = []
+        res['maxpages'] = []
         for i in range(len(items)):
             item = items.eq(i)
             sg = {}
             sg['title'] = item.attr('title')
             sg['url'] = item.attr('url')
-            sg['maxpage'] = item.attr('maxpage')
+            res['maxpages'].append( int(item.attr('maxpage')) )
             res['homeurls'].append(sg)
         self.inQueue.put(res)
 
+    @dec
+    def sendStart(self):
+        '''
+        preparation is done and start reptile threads
+        get signal:
+        <signal type='start'/>
+        '''
+        res = {}
+        res['type'] = 'start'
+        self.inQueue.put(res)
+
+    @dec
     def sendResume(self):
         '''
         send Resume signal to reptile lib
@@ -49,6 +85,7 @@ class ReptileSignal:
         res['type'] = 'resume'
         self.inQueue.put(res)
 
+    @dec
     def sendStop(self):
         '''
         send Stop signal to reptile lib
@@ -61,17 +98,29 @@ class ReptileSignal:
 class ControlServer(threading.Thread):
     '''
     receive TCP XML signal from UserFrame and send 
-    signal to reptilectrl lib by Queue
+    signal to reptilectrl lib by inQueue
     '''
     def __init__(self, inQueue, outQueue):
         threading.Thread.__init__(self, name = "reptilelib" )  
-        self.reptilesignal = ReptileSignal()
+        self.reptilesignal = ReptileSignal(inQueue, outQueue)
         self.inQueue = inQueue
         self.outQueue = outQueue
 
+    @dec
+    def queueStatus(self):
+        '''
+        detect signal queue status
+        '''
+        print 'inQueue size:', self.inQueue.qsize()
+        print 'outQueue size', self.outQueue.qsize()
+
+    @dec
     def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind('', 8881)
+        #get value from config file 'swin2.ini'
+        _address = _config.get("server", "server_address")
+        _port = _config.getint("server", "server_port")
+        self.sock.bind((_address, _port))
         self.sock.listen(5)
         
         try:
@@ -81,36 +130,44 @@ class ControlServer(threading.Thread):
                 while True:
                     receivedData = newSocket.recv(8192)
                     if not receivedData:
-                        print '.. no data received ..'
-                        print '.. stop reptile Control Server ..'
                         break
+                    print '.. get Signal', receivedData
                     self.handle_signal(receivedData)
                 newSocket.close()
-                print "Disconnected from", self.client_address
+                print "Disconnected from", address
         finally:
             self.sock.close()
     
+    @dec
     def handle_signal(self, signal):
         print '.. get signal',signal
-        _signal_parser = pq(signal)('signal')
+        _signal_parser = pq(signal)
+        _signal_parser = _signal_parser('signal')
         _type = _signal_parser.attr('type')
 
         if _type == 'init':
             '''
             init reptilelib by following info
             '''
+            self.queueStatus()
             self.reptilesignal.sendInit(_signal_parser)
+
+        elif _type == 'start':
+            '''
+            preparation is done
+            start reptile threads and work
+            '''
+            self.queueStatus()
+            self.reptilesignal.sendStart()
             
         elif _type == 'resume':
             '''
             resume repitle lib from database
             '''
+            self.queueStatus()
             self.reptilesignal.sendResume()
 
         elif _type == 'stop':
+            self.queueStatus()
             self.reptilesignal.sendStop()
     
-    
-        
-
-

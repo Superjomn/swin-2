@@ -1,5 +1,4 @@
 import socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #self
 from debug import *
@@ -9,6 +8,7 @@ def sendMessage(signal):
     '''
     base
     '''
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(("", 8881))
     print "..Connected to server .."
     sock.sendall(signal)
@@ -27,6 +27,12 @@ def sendInit():
     '''
     sendMessage(signal)
 
+def sendRun():
+    signal = '''
+        <signal type='start'/>
+    '''
+    sendMessage(signal)
+
 
 if __name__ == '__main__':
     while True:
@@ -34,7 +40,8 @@ if __name__ == '__main__':
         if not data:
             break
         print '.. send Message:', data
-        sendInit()
         if data == 'init':
             sendInit()
+        elif data == 'run':
+            sendRun()
 
