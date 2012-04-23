@@ -12,6 +12,7 @@ from sourceparser.htmlparser import HtmlParser
 config = Config()
 halt_wait_time = config.getint('reptilelib', 'halt_wait_time')
 
+
 class ReptileCtrl:
     '''
     Reptile 控制程序
@@ -36,7 +37,6 @@ class ReptileCtrl:
         self.maxPages = maxPages
         #向控制端陈需传递消息
         self.outSignalQueue = outSignalQueue
-
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
         self.htmldb = HtmlDB(self.htmlparser)
@@ -132,5 +132,6 @@ class ReptileCtrl:
             'list_num': self.urlist.getNums(),
          }
         print signal
-        #self.outSignalQueue.append( signal )
+        self.outSignalQueue.put(signal)
+
             

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import patterns, include, url
 # Uncomment the next two lines to enable the admin:
-
 import os
 from django.contrib import admin
 from django.conf import settings
 
-from reptile.views import hello
 import reptile.views as reptile_views
 
+reptileframe = reptile_views.ReptileFrame()
 reptilectrl = reptile_views.ReptileCtrl()
-reptilectrl.run()
 
 print 'init ok reptile run'
 
@@ -28,17 +26,17 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^hello/', reptile_views.hello),
+    url(r'^hello/', reptileframe.hello),
     #界面
-    url(r'^reptile/$', reptile_views.index),
-    url(r'^reptile/infoform/$', reptile_views.infoform),
-    #control
-    url(r'^initreptile/$', initReptileCtrl),
-    url(r'^reptile/resume', reptilectrl.sendResume),
-    url(r'^reptile/stop', reptilectrl.sendStop),
-    url(r'^reptile/init', reptilectrl.sendInit),
-    url(r'^reptile/halt', reptilectrl.sendHalt),
-    url(r'^reptile/run', reptilectrl.sendRun),
+    #url(r'^reptile/$', reptileframe.index),
+    #url(r'^reptile/infoform/$', reptileframe.infoform),
+    ##control
+    #url(r'^initreptile/$', initReptileCtrl),
+    #url(r'^reptile/resume', reptilectrl.sendResume),
+    #url(r'^reptile/stop', reptilectrl.sendStop),
+    #url(r'^reptile/init', reptilectrl.sendInit),
+    #url(r'^reptile/halt', reptilectrl.sendHalt),
+    #url(r'^reptile/run', reptilectrl.sendRun),
 
     (r'^media/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': '/home/chunwei/swin2/media/'}),

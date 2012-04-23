@@ -307,6 +307,7 @@ class ReptileLib(threading.Thread):
                 ask for status
                 '''
                 print '.. status ..'
+                #put status in queue
                 self.reptilectrl.status()
                 
             elif _type is 'start':

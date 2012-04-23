@@ -5,13 +5,12 @@ sys.setdefaultencoding('utf-8')
 import threading  
 import socket
 from pyquery import PyQuery as pq
-
+import xml.dom.minidom as dom
 #self
 sys.path.append('../')
 from Config import Config
 _config = Config()
 from debug import *
-
 
 class ReptileSignal:
     '''
@@ -72,12 +71,75 @@ class ReptileSignal:
         res = {}
         res['type'] = 'start'
         self.inQueue.put(res)
+        #get status from queue
+        #status = self.outQueue.get()
 
-    def sendStatus(self):
+    def sendStatus(self, newSocket):
+        '''
+        send Status to client
+        '''
+        def sendStatusSignal(_signal):
+            '''
+            send status to client
+            xml:
+            <signal type='status'>
+                <pages>
+                    <item attr="2"/>
+                    <item attr="2"/>
+                </pages>
+                <queues>
+                    <item attr="2"/>
+                </queues>
+                <lists>
+                    <item attr="2"/>
+                </lists>
+            </signal>
+            '''
+            pages = _signal['pages']
+            queue_num = _signal['queue_num']
+            list_num = _signal['list_num']
+
+            dd = dom.parseString('<signal></signal>')
+            signal = dd.firstChild
+            signal.setAttribute('type', 'status')
+            pages_node = dd.createElement('pages')
+            signal.appendChild(pages_node)
+
+            for page in pages:
+                item = dd.createElement('item')
+                item.setAttribute('attr', str(page))
+                pages_node.appendChild(item)
+
+            queue_node = dd.createElement('queues')
+            signal.appendChild(queue_node)
+
+            for _queue in queue_num:
+                item = dd.createElement('item')
+                item.setAttribute('attr', str(_queue))
+                queue_node.appendChild(item)
+
+            list_node = dd.createElement('lists')
+            signal.appendChild(list_node)
+            for _list in list_num:
+                item = dd.createElement('item')
+                item.setAttribute('attr', str(_list))
+                list_node.appendChild(item)
+
+            return signal.toxml()
+
         res = {}
         res['type'] = 'status'
         self.inQueue.put(res)
-        
+        #get status and send them
+        try:
+            signal = self.outQueue.get(timeout=3)
+        except:
+            return
+
+        _signal = sendStatusSignal(signal)
+        print _signal
+        newSocket.sendall(_signal)
+        #newSocket.close()
 
     @dec
     def sendResume(self):
@@ -108,10 +170,7 @@ class ReptileSignal:
         res = {}
         res['type'] = 'halt'
         self.inQueue.put(res)
-
         
-
-
     
 class ControlServer(threading.Thread):
     '''
@@ -150,14 +209,15 @@ class ControlServer(threading.Thread):
                     if not receivedData:
                         break
                     print '.. get Signal', receivedData
-                    self.handle_signal(receivedData)
+                    self.handle_signal(newSocket, receivedData)
+
                 newSocket.close()
                 print "Disconnected from", address
         finally:
             self.sock.close()
     
     @dec
-    def handle_signal(self, signal):
+    def handle_signal(self, newSocket, signal):
         print '.. get signal',signal
         _signal_parser = pq(signal)
         _signal_parser = _signal_parser('signal')
@@ -193,5 +253,5 @@ class ControlServer(threading.Thread):
             self.reptilesignal.sendHalt()
 
         elif _type == 'status':
-            self.reptilesignal.sendStatus()
+            self.reptilesignal.sendStatus(newSocket)
     

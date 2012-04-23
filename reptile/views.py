@@ -76,13 +76,14 @@ class ReptileCtrl:
         signal.setAttribute('type', 'init')
         homeurl = dd.createElement('homeurl')
         signal.appendChild(homeurl)
+
         for _homeurl in self.homeUrls:
             item = dd.createElement('item')
             item.setAttribute('title', _homeurl['title'])
             item.setAttribute('url', _homeurl['url'])
             item.setAttribute('maxpage', _homeurl['maxpage'])
             homeurl.appendChild(item)
-            print signal.toxml()
+        print signal.toxml()
         self.sendMessage(signal.toxml())
         
         return HttpResponse("welcome to the page at %s"%request.path)
