@@ -4,91 +4,46 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Swin2 爬虫系统</title>
 <link type="text/css" rel="stylesheet" href="/media/script/development-bundle/themes/start/jquery.ui.all.css" />
-<style>
-	body{
-		background-color:#eee;
-		}
-div#content
-	{
-		border:2px solid;
-		border-radius:15px;
-		-moz-border-radius:15px; /* Firefox 3.6 and earlier */
-		background-color:#fff;
-		padding:18px;
-	} 	
-iframe#baright{
-		border:1px solid #999;
-		border-radius:15px;
-		-moz-border-radius:15px;
-		padding:18px;
-}
-iframe#baright{
-		height:400px;
-		width:400px;
-		float:left;
-		margin-left:10px;
-		
-		}
-iframe#info{
-		height:500px;
-		width:100%;
-		border:1px solid #eee;
-		}
-.clear{
-		clear:both;
-		width:100%;
-		}
-	#mode_select select{
-		font-size:20px;
-		font-family:"微软雅黑", "黑体";
-		}
-		#content{
-		width:800px;
-		border:2px solid #999;
-		margin-left:auto;
-		margin-right:auto;
-		}
-		#content span.title{
-		font-size:18px;
-		font-family:"微软雅黑", "黑体";
-		}
-		#content form#mode_select{
-		border-bottom:2px solid #999;
-		width:300px;
-		float:left;
-		}
-		
-</style>
+<link type="text/css" rel="stylesheet" href="/media/style/reptile-index.css"/>
+
 </head>
 <body>
 <div id="content">
-	<form id="init_sel">
-		<div id="bar1">
+    <span id = "header">Swin2爬虫控制系统</span>
+
+	<div id="init_sel">
+		<div id="bar1" class="bar">
 			<span class="title">选择开始模式</span> <br />
-			<select id="start_sel">
-				<option name='init'>Init</option>
-				<option name='resume'>Resume</option>
+			<select class='sel' id="start_sel">
+                <option value='none'></option>
+				<option value='init'>Init</option>
+				<option value='resume'>Resume</option>
 			</select>
 			<button type="mode" id="init_sel_button" >确定</button>
 		</div><!-- end bar1 -->
-		<div id="bar2">
+        <div id-"bar2" class="bar">
+            <span class="title">开始运行</span> <br/>
+            <button id="start" type="button">Start</button>
+        </div>
+		<div id="bar3" class="bar">
 			<span class="title">选择结束模式</span> <br />
-			<select id="end_sel">
-				<option name='stop'>stop</option>
-				<option name='halt'>halt</option>
+			<select class='sel' id="end_sel">
+                <option value='none'></option>
+				<option value='stop'>stop</option>
+				<option value='halt'>halt</option>
 			</select>
 			<button type="button" id="end_sel_button">确定</button>
 		</div><!-- end bar1 -->
-		<iframe id="info">
-	
-		</iframe><!-- info -->
-	</form><!-- form -->
-	<iframe id="baright">
-	</iframe><!-- baright --><div class="clear"></div>
+
+		<iframe id="info"> </iframe><!-- info -->
+
+	</div><!-- form -->
+
+	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/reptile/init/"> </iframe><!-- baright --><div class="clear"></div>
+
 	<div class="clear"	></div>
 </div><!-- end content -->
 
-<button type="button" id="bu">Change</button>
 
 </body>
 <script type="text/javascript" src="/media/script/development-bundle/jquery-1.7.1.js"></script>
@@ -99,9 +54,18 @@ iframe#info{
 <script type="text/javascript">
 $(function() {
 	$("button").button();
-	$("#bu").click(function(){
-		$("#theifra").attr("src","http://www.baidu.com");
-	});
+    $("button#start").click(function(){
+        $("#baright").attr("src", "/reptile/start/");
+    });
+    $(".sel").change(function(){
+        var p1=$(this).children('option:selected').val();
+        if(p1 != 'none')
+        {
+            //reptile/resume-info/
+            path='/reptile/'+p1+'-info/';
+            $("#baright").attr('src', path);
+        }
+    });
 
 });
 

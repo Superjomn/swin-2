@@ -1,0 +1,82 @@
+{% include 'info-head.html' %}
+<style>
+    .chart{
+        height:200;
+        width:500px;
+    }
+</style>
+<div id="status">
+    <span class="title">Status 爬虫工作动态信息 </span>
+    <div id="speed">
+        <span class="subtitle">处理速度</span>
+        <div id="speed-chart" class='chart'></div>
+    </div><!-- end speed -->
+    <div id="queue">
+        <span class="subtitle">内存中载入链接数</span>
+        <div id="queue-chart" class='chart'></div>
+    </div><!-- end queue -->
+    <div id="pages">
+        <span class="subtitle">处理情况</span>
+        <p>已下载页面数: {{ total }}
+        <div id="page-chart" class='chart'></div>
+    </div><!-- end pages -->
+
+</div>
+
+{% include 'info-script.html' %}
+<link rel="stylesheet" type="text/css" hrf="/media/script/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="/media/script/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.pieRenderer.min.js"></script>
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.pieRenderer.min.js"></script>
+<script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.donutRenderer.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    //speed 
+    var plot1 = $.jqplot ('speed-chart', [ {{ vs }} ]);
+    //queue
+    $.jqplot.config.enablePlugins = true;
+    var s1 = {{ queues }};
+    var ticks = {{ ticks }};
+         
+    plot1 = $.jqplot('queue-chart', [s1], {
+        seriesDefaults:{
+            renderer:$.jqplot.BarRenderer,
+            pointLabels: { show: true }
+        },
+        axes: {
+            xaxis: {
+                renderer: $.jqplot.CategoryAxisRenderer,
+                ticks: ticks
+            }
+        },
+        highlighter: { show: false }
+    });
+
+    //pages
+    var data = {{ pages }};
+    var plot1 = jQuery.jqplot ('page-chart', [data], 
+    { 
+      seriesDefaults: {
+        // Make this a pie chart.
+        renderer: jQuery.jqplot.PieRenderer, 
+        rendererOptions: {
+          // Put data labels on the pie slices.
+          // By default, labels show the percentage of the slice.
+          showDataLabels: true
+        }
+      }, 
+      legend: { show:true, location: 'e' }
+    }
+  );
+     
+  
+});
+</script>
+{% include 'info-footer.html' %}
+
+

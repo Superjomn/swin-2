@@ -1,0 +1,18 @@
+{% include 'info-head.html' %}
+    <div id='info'>
+        <span class="title">初始信息</span>
+        <p>无误之后，可以点按"Start"，运行爬虫系统。</p>
+        <span class="subtitle">主站地址列表</span>
+        <table>
+            <tr><td>站点名称</td><td>地址</td><td>pages</td></tr>
+        {% for site in homeurls %}
+            <tr><td>{{ site.title }}</td><td>{{ site.url }}</td> <td>{{ site.maxpage }}</td></tr>
+        {% endfor %}
+        </ul>
+        <p>爬虫线程设定为 <span class='value'>{{ reptilenum }} </span></p>
+
+        <button type="button">Start</button>
+        
+    </div>
+
+{% include 'info-footer.html' %}

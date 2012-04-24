@@ -5,10 +5,11 @@ import os
 from django.contrib import admin
 from django.conf import settings
 
-import reptile.views as reptile_views
+from userframe.reptileframe import ReptileFrame
 
-reptileframe = reptile_views.ReptileFrame()
-reptilectrl = reptile_views.ReptileCtrl()
+#import reptile.views as reptile_views
+
+reptileframe = ReptileFrame()
 
 print 'init ok reptile run'
 
@@ -26,10 +27,14 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^hello/', reptileframe.hello),
     #界面
-    #url(r'^reptile/$', reptileframe.index),
-    #url(r'^reptile/infoform/$', reptileframe.infoform),
+    url(r'^reptile/$', reptileframe.index),
+    url(r'^reptile/init/$', reptileframe.init),
+    url(r'^reptile/init-info/$', reptileframe.init_info),
+    url(r'^reptile/init-form/', reptileframe.init_form),
+    url(r'^reptile/init-form-info/', reptileframe.init_form_info),
+    url(r'^reptile/resume-info/', reptileframe.resume_info),
+    url(r'^reptile/start/$', reptileframe.start),
     ##control
     #url(r'^initreptile/$', initReptileCtrl),
     #url(r'^reptile/resume', reptilectrl.sendResume),

@@ -18,17 +18,19 @@ span.title{
 </head>
 
 <body>
-	<form id="init_form" method="post" target="/reptile/initinfo/">
+	<form id="init_form" method="get" action="/reptile/init-form-info/" target="info">
 		<span class="title">爬取地址</span>
         <input id="homeurl_num" name="homeurl_num" type="hidden"/>
 
 		<table id="homeUrl_table">
-            <tr> <td><span>首页地址</span></td> <td><span>下载页数</span></td> </tr>
-			<tr> <td class="homeurl"><input type="text" name="homeUrl_1" value="http://" /></td> <td class="num_1"><input type="text" name="num" /></td> <td><button type="button">-</button></td> </tr>
-			<tr> <td class="homeurl"><input type="text" name="homeUrl_2" value="http://"/></td> <td class="num_2"><input type="text" name="num" /></td> <td><button type="button">-</button></td></tr>
-			<tr> <td class="homeurl"><input type="text" name="homeUrl_3" value="http://"/></td> <td class="num_3"><input type="text" name="num" /></td> <td><button type="button">-</button></td></tr>
+            <tr> <td><span>站点名称</span></td><td><span>首页地址</span></td> <td><span>下载页数</span></td> </tr>
+            {% if homeurls %}
+                {% for site in homeurls %}
+			<tr> <td class="homeurl"><input type="text" name="titles[]" size="10" /></td><td><input type="text" size="20" name="urls[]" value="http://" /></td> <td class="num"><input type="text" name="maxpages[]" /></td> </tr>
+                {% endfor %}
+            {% endif %}
+
 		</table>
-		<button id="add_homeurl" type="button">Add</button>
         <br/>
 		
 		<span class="title">爬虫线程个数</span>
