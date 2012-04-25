@@ -41,8 +41,8 @@ class Reptile(threading.Thread):
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
-        self.__Flock = Flock
-        self.__curSiteID = curSiteID
+        self.Flock = Flock
+        self.__curSiteID = [0]#curSiteID
         self.__temSiteID = -1
         self.__conn = None
         self.__homeurl = None
@@ -56,7 +56,6 @@ class Reptile(threading.Thread):
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
         self.htmldb = HtmlDB(self.htmlparser)
-        
         
 
     def conn(self):
@@ -138,6 +137,8 @@ class Reptile(threading.Thread):
                 break
 
             self.__curSiteID[0] = pathinfo[0]
+            print '.. curSite', self.__curSiteID[0] 
+            print '.. homeurls', self.__homeUrls
             self.__temHomeUrl = self.__homeUrls[self.__curSiteID[0]][1]
             #print '.. get cursiteid', self.__curSiteID
 
@@ -166,7 +167,11 @@ class Reptile(threading.Thread):
             #处理源码为xml文件 存储到数据库
             print '.. start to save html'
             self.__pages[self.__temSiteID] += 1
+
+            self.Flock.acquire()
             self.htmldb.saveHtml(pathinfo[1][0], pageStdUrl, htmlsource)
+            self.Flock.release()
+
             if self.__pages[self.__temSiteID] == self.__maxPageNums[self.__temSiteID] :
                 '''
                 达到最大数量
@@ -187,13 +192,13 @@ class Reptile(threading.Thread):
 
         for urlInfor in urlist:
             #[title, path]
-            print 'pageStdUrl', pageStdUrl
+            #print 'pageStdUrl', pageStdUrl
             stdUrl = self.urlparser.transToStdUrl(pageStdUrl, urlInfor[1])
-            print '.. get STDURL', stdUrl
+            #print '.. get STDURL', stdUrl
             siteId = self.urlparser.judgeUrl(pageStdUrl, urlInfor[1])
-            print '.. get SITEID', siteId
+            #print '.. get SITEID', siteId
             path = self.urlparser.transPathByStd(stdUrl)
-            print '.. get PATH', path
+            #print '.. get PATH', path
             
             if siteId != -1 :
                 '''
@@ -204,7 +209,9 @@ class Reptile(threading.Thread):
                     urlist 中不重复
                     '''
                     print '.. Add in Queue', path
-                    self.__urlQueue.append(siteId, (urlInfor[0],path))
+                    self.Flock.acquire()
+                    self.__urlQueue.append(siteId, (urlInfor[0] ,path))
+                    self.Flock.release()
 
 
 class ReptileLib(threading.Thread):
@@ -220,6 +227,7 @@ class ReptileLib(threading.Thread):
         #信号队列 由人机界面控制程序运行
         self.inSignalQueue = Q.Queue()
         self.outSignalQueue = Q.Queue()
+        self.Flock = threading.RLock()  
 
         #控制reptile线程是否运行
         self.continueRun = [True]
@@ -364,7 +372,7 @@ class ReptileLib(threading.Thread):
                 name = "reptile%d"%i, 
                 urlQueue = self.urlQueue,
                 urlist = self.urlist,
-                Flock = None,
+                Flock = self.Flock,
                 homeUrls = self.homeUrls,
                 maxPageNums = self.maxPages,
                 pages = self.pages,

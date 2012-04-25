@@ -17,6 +17,10 @@ cdef class List:
         self.size = 0
         self.initSpace()
 
+    def __delloc__(self):
+        print 'del all C space'
+        free(self.__list)
+
     cdef void initSpace(self):
         self.space = INIT_SPACE
         self.__list = <long *>malloc( sizeof(long) * (self.space) )
@@ -83,6 +87,9 @@ cdef class List:
         else:  
             return True  
 
+    def getSize(self):
+        return self.size
+
     def show(self):
         print '-'*50
         print 'list-'*10
@@ -137,7 +144,7 @@ class Urlist:
     def getNums(self):
         nums = []
         for l in self.list:
-            nums.append(len(l))
+            nums.append(l.getSize())
         return nums
 
     def resume(self, lists):

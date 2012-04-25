@@ -29,12 +29,12 @@ class Urlist(models.Model):
     site = models.ForeignKey(HomeUrl)
     hashvalue = models.IntegerField()
 
- 
+
 class UrlQueue(models.Model):
     '''
     数据库中的url记录
     '''
-    site = models.ForeignKey(HomeUrl)
+    siteID = models.IntegerField()
     title = models.CharField(max_length=100)
     path = models.CharField(max_length=120)
 

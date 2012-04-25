@@ -24,16 +24,32 @@ class HtmlDB:
     #---------------------------------------------------------------------
     #   缓存操作
     #---------------------------------------------------------------------
-    def saveCacheUrl(self, url, siteID):
+
+    def saveUrlQueue(self, url, siteID):
+
         '''
         内存中的url存储到数据库中
         '''
+        u = UrlQueue(
+            siteID = siteID,
+            title = url[0],
+            path = url[1]
+        )
+        u.save()
+        return u.id
 
-    def getCacheUrl(self, urlID):
-        
-        
-        
-        
+    def getCacheUrl(self, _id):
+        '''
+        取回urlqueue
+        并且删除记录
+        '''
+        u = UrlQueue.objects.filter(id=_id)[0]
+        res = []
+        res.append( u.title )
+        res.append( u.path )
+        #删除记录
+        u.delete()
+        return res
 
     #---------------------------------------------------------------------
     #   resume 操作
@@ -189,16 +205,9 @@ class HtmlDB:
 
     
 if __name__ == '__main__':
-    htmlinfo = HtmlInfo(title="try:中国农业大学", url="http://www.cau.edu.cn", date="2012-4-17")
-    print "html source save"
-    htmlinfo.save()
-
-    xmlsource = "<html></html>"
-    htmlsource = HtmlSource(parsed_source = xmlsource, info=htmlinfo)
-    print "htmlsource save"
-    htmlsource.save()
-
-
-        
+    htmldb = HtmlDB(None)
+    url = ['cau','./index.php']
+    id = htmldb.saveUrlQueue(url, 3)
+    print 'id',id
 
 
