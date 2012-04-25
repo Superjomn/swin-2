@@ -110,9 +110,6 @@ class ReptileStatus:
         else:
             v = round(total/span, 3)
 
-        print '.. total', total
-        print '.. span', span
-        print '.. v', v
         self.listAppendData(self.downloadSpeed, v)
 
 
@@ -141,7 +138,8 @@ class ReptileCtrl:
         signal = '''
             <signal type='init'>
                 <homeurl reptilenum=10>
-                    <item title='CAU'  url='http://news.cau.edu.cn' maxpage=200 />
+                    <item title='CAU'  url='http://www.cau.edu.cn' maxpage=200 />
+                    <item title='news'  url='http://news.cau.edu.cn' maxpage=200 />
                     <item title='hsz'  url='http://org.wusetu.cn/hsz/' maxpage=200 />
                 </homeurl>
             </signal>
@@ -149,7 +147,7 @@ class ReptileCtrl:
         self.sendMessage(signal)
 
     @dec
-    def sendRun(self):
+    def sendStart(self):
         signal = '''
             <signal type='start'/>
         '''
@@ -204,7 +202,7 @@ class ReptileCtrl:
             if data == 'init':
                 self.sendInit()
             elif data == 'run':
-                self.sendRun()
+                self.sendStart()
             elif data == 'stop':
                 self.sendStop()
             elif data == 'halt':

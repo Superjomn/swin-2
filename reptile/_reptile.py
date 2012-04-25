@@ -82,20 +82,18 @@ class Reptile(threading.Thread):
             self.__temSiteID = self.__curSiteID[0]
             self.__homeurl = self.__homeUrls[self.__temSiteID][1]
             self.__netloc = self.urlparser.transNetloc(self.__homeurl)
+            '''
             print '@'*50
             print '更新path'
             print 'homeurl', self.__homeurl
             print 'temSiteID', self.__temSiteID
             print 'netloc> ',self.__netloc
+            '''
             self.__conn = httplib.HTTPConnection(self.__netloc, 80, timeout = 10)
-
         else:
-
             self.__conn = httplib.HTTPConnection(self.__netloc, 80, timeout = 10)
-
         return self.__conn
 
-    @dec
     def requestSource(self, path):
         conn = self.conn()
         print '.. conn',conn
@@ -105,7 +103,6 @@ class Reptile(threading.Thread):
         #需要对data的返回转台进行解析
         return data
 
-    @dec
     def getPage(self, path):
         print '>>path to load', path
 
@@ -116,7 +113,6 @@ class Reptile(threading.Thread):
 
         return r
 
-    @dec
     def run(self):
 
         while True :
@@ -179,7 +175,6 @@ class Reptile(threading.Thread):
 
         print '.. ',self.__name, 'quit!'
 
-    @dec
     def addNewInQueue(self, pageStdUrl):
         '''
         直接从html source中提取出path列表
@@ -253,7 +248,6 @@ class ReptileLib(threading.Thread):
         #run init thread
         self.runInit()
     
-    @dec
     def runInit(self):
         '''
         run init thread 
@@ -261,7 +255,6 @@ class ReptileLib(threading.Thread):
         self.controlserver.start()
         self.start()
 
-    @dec
     def run(self):
         '''
         运行主程序
@@ -323,7 +316,6 @@ class ReptileLib(threading.Thread):
         print 'ReptileLib core stopped!'
         print 'Reptile stopped'
 
-    @dec
     def init(self, homeUrls, maxPages, threadNum):
         '''
         完全初始化
@@ -332,6 +324,7 @@ class ReptileLib(threading.Thread):
         每次需要清空[] 然后再重新赋值
         '''
         def clearList(_List):
+            if not _List: return
             _size = len(_List)
             for i in range(_size):
                 _List.pop()
@@ -350,6 +343,7 @@ class ReptileLib(threading.Thread):
         #self.htmldb = HtmlDB(self.htmlparser)
         #init self.pages 
         #self.pages used to calculate num of pages downloaded
+        clearList(self.pages)
         for i in range(len(homeUrls)):
             self.pages.append(0)
 
@@ -358,7 +352,6 @@ class ReptileLib(threading.Thread):
         self.urlQueue.initFrontPage()
         self.urlist.init(len(self.homeUrls))
 
-    @dec
     def initThreads(self):
         self.thlist = []
         #default: from site 0
@@ -381,7 +374,6 @@ class ReptileLib(threading.Thread):
             self.thlist.append(th)  
 
 
-    @dec
     def threadsRun(self):
         for th in self.thlist:
             th.start()

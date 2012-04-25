@@ -21,6 +21,24 @@ class HtmlDB:
         #此处urlparser 和 htmlparser都已经在外界更新过
         self.htmlparser = htmlparser
 
+    #---------------------------------------------------------------------
+    #   缓存操作
+    #---------------------------------------------------------------------
+    def saveCacheUrl(self, url, siteID):
+        '''
+        内存中的url存储到数据库中
+        '''
+
+    def getCacheUrl(self, urlID):
+        
+        
+        
+        
+
+    #---------------------------------------------------------------------
+    #   resume 操作
+    #---------------------------------------------------------------------
+
     @dec
     def saveHomeUrls(self, homeUrls, maxPages, pages):
         print '.. homeUrl', homeUrls
@@ -54,27 +72,32 @@ class HtmlDB:
     @dec
     def saveList(self, urlist):
         '''
+        resume操作 将内存中的记录存储到数据库中
         save  urlist
         urlist = [ [] [] ]
         '''
-        print 'len of urlist', len(urlist)
-        print '.. clear former lists'
+        #print 'len of urlist', len(urlist)
+        #print '.. clear former lists'
         Urlist.objects.all().delete()
 
-        for i,_list in enumerate(urlist):
-            print 'i',i
+        for i,_list in enumerate(urlist.getAll()):
+            '''
+            [ [] ]
+            '''
+            #print 'i',i
             site = HomeUrl.objects.all()[i]
-            for path in _list:
-                u = Urlist(site=site, path=path)
+            for hv in _list:
+                u = Urlist(site=site, hashvalue=hv)
                 u.save()
 
     @dec
     def saveQueue(self, urlqueue):
         '''
         urlqueue = [Queue, Queue]
+        resume操作 将内存中的记录存储到数据库中
         '''
-        print 'urlqueue', urlqueue
-        print '.. clear former urlqueues'
+        #print 'urlqueue', urlqueue
+        #print '.. clear former urlqueues'
         UrlQueue.objects.all().delete()
         for i,queue in enumerate(urlqueue):
             size = queue.qsize()
@@ -82,12 +105,11 @@ class HtmlDB:
             site = HomeUrl.objects.all()[i]
 
             for j in range(size):
-                url = queue.get()
+                urlid = queue.get()
                 print url
                 u = UrlQueue(
                     site=site, 
-                    title=url[0], 
-                    path=url[1]
+                    urlid=urlid
                 )
                 u.save()
     @dec

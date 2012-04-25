@@ -33,13 +33,20 @@
 
 <script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.pieRenderer.min.js"></script>
 <script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.donutRenderer.min.js"></script>
+<script type="text/javascript" src="/media/script/jQuery.timers.js"></script>
 
 <script type="text/javascript">
+{% autoescape off %}
 $(document).ready(function(){
     //speed 
-    var plot1 = $.jqplot ('speed-chart', [ {{ vs }} ]);
+    //var s1 = [2, 6, 7, 10];
+    var s1 = {{ vs }};
+    var plot1 = $.jqplot ('speed-chart', [s1]);
+    //var plot1 = $.jqplot ('speed-chart', [ {{ vs }} ]);
     //queue
     $.jqplot.config.enablePlugins = true;
+    //var s1 = [2, 6, 7, 10];
+    //var ticks = ['a', 'b', 'c', 'd'];
     var s1 = {{ queues }};
     var ticks = {{ ticks }};
          
@@ -73,9 +80,15 @@ $(document).ready(function(){
       legend: { show:true, location: 'e' }
     }
   );
-     
   
 });
+function refresh()
+{ 
+    window.location.href=window.location.href;
+}
+$('body').everyTime('6s',refresh);
+
+{% endautoescape %}
 </script>
 {% include 'info-footer.html' %}
 

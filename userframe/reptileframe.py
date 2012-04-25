@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from reptile._reptile import ReptileLib
+#from reptile._reptile import ReptileLib
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from pyquery import PyQuery as pq
@@ -17,20 +17,30 @@ class ReptileFrame:
         self.maxpages = []
         self.reptilenum = None
         self.reptilectrl = ReptileCtrl()
-
-    def hello(self, request):
-        return HttpResponse("welcome to the page at %s"%request.path)
-
-    def start(self, request):
-        return render_to_response('status.html', {})    
+        '''
+        def hello(self, request):
+            return HttpResponse("welcome to the page at %s"%request.path)
+        '''
 
     def index(self, request):
         return render_to_response('index.html', {})    
 
+    def start(self, request):
+        self.reptilectrl.sendStart()
+        return self.status(request)
+
     def init(self, request):
         self.reptilectrl.sendInit()
-        return render_to_response('init-ok.html', {})    
+        return render_to_response('returnok-info.html', {'type':'Init'})    
 
+    def resume(self, request):
+        self.reptilectrl.sendResume()
+        return render_to_response('returnok-info.html', {'type':'Resume'})    
+
+    def stop(self, request):
+        self.reptilectrl.sendStop()
+        return render_to_response('returnok-info.html', {'type':'Stop'})    
+        
     def status(self, request):
         def listStr(_list):
             '''
@@ -39,7 +49,7 @@ class ReptileFrame:
             res = "["
             l = len(_list)
             for i,d in enumerate(_list):
-                res += d
+                res += str(d)
                 if i != l-1:
                     res += ','
             res += "]"
@@ -47,27 +57,42 @@ class ReptileFrame:
 
 
         self.reptilectrl.sendStatus()
-        titles = [ str(i) for i in range(len(self.pages)) ]
+        #reptilestatus
+        rs = self.reptilectrl.reptilestatus
+        titles = [ '\'site'+str(i)+'\'' for i in range(len(rs.pages)) ]
 
-        vs = listStr(self.reptilectrl.downloadSpeed)
+        vs = listStr(rs.downloadSpeed)
+        #vs = "[2,3,45,3,2,4]"
+        #ticks = "[2,3,4,5,6,7]"
         ticks = listStr(titles)
-        queues = listStr(self.reptilectrl.queue_nums)
+        queues = listStr(rs.queue_nums)
         #pages
-        pages = [ '['+str(j)+','+ticks(i)+']' for i,j in enumerate(self.reptilectrl.pages ]
+        #print '.. pagelist', rs.pages
+        pages = [ '['+titles[i]+','+str(j)+']' for i,j in enumerate(rs.pages) ]
         pages = listStr(pages)
+        #print 'pagelist', pages
+        #pages = "[ [2,43], [34,23] ]"
 
+        '''
         print '.. vs', vs
         print '.. ticks', ticks
         print '.. pages', pages
-
+        '''
         res = {}
         res['vs'] = vs
         res['ticks'] = ticks
+        res['queues'] = queues
         res['pages'] = pages
+        res['total'] = sum(rs.pages)
 
         return render_to_response('status.html', res)    
 
+    #-------------------------------------------------------------
+    #   default info
+    #-------------------------------------------------------------
 
+    def default_info(self, request):
+        return render_to_response('default-info.html', {})    
 
     def init_info(self, request):
         return render_to_response('init-info.html', {})    
@@ -110,6 +135,12 @@ class ReptileFrame:
 
     def resume_info(self, request):
         return render_to_response('resume-info.html', {} )    
+
+    def halt_info(self, request):
+        return render_to_response('halt-info.html', {} )    
+
+    def stop_info(self, request):
+        return render_to_response('stop-info.html', {} )    
         
 
 

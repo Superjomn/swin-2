@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib import admin
 
@@ -23,19 +24,19 @@ class HtmlSource(models.Model):
 class Urlist(models.Model):
     '''
     save urlist
+    urlist:  long hashvalue
     '''
     site = models.ForeignKey(HomeUrl)
-    path = models.CharField(max_length=120)
+    hashvalue = models.IntegerField()
 
-
+ 
 class UrlQueue(models.Model):
     '''
-    save urlqueue
+    数据库中的url记录
     '''
     site = models.ForeignKey(HomeUrl)
     title = models.CharField(max_length=100)
     path = models.CharField(max_length=120)
-
 
 '''
 admin.site.register(HtmlInfo)

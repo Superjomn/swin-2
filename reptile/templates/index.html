@@ -19,7 +19,7 @@
 				<option value='init'>Init</option>
 				<option value='resume'>Resume</option>
 			</select>
-			<button type="mode" id="init_sel_button" >确定</button>
+			<button type="button" id="init_sel_button" >确定</button>
 		</div><!-- end bar1 -->
         <div id-"bar2" class="bar">
             <span class="title">开始运行</span> <br/>
@@ -39,7 +39,7 @@
 
 	</div><!-- form -->
 
-	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/reptile/init/"> </iframe><!-- baright --><div class="clear"></div>
+	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/reptile/default-info/"> </iframe><!-- baright --><div class="clear"></div>
 
 	<div class="clear"	></div>
 </div><!-- end content -->
@@ -54,15 +54,34 @@
 <script type="text/javascript">
 $(function() {
 	$("button").button();
+
     $("button#start").click(function(){
         $("#baright").attr("src", "/reptile/start/");
     });
+    //开始模式选择
+    $("button#init_sel_button").click(function(){
+        var se=$("#start_sel").children('option:selected').val();
+        alert(se);
+        var path = "/reptile/"+se+"/";
+        $("#baright").attr("src", path);
+    });
+    //结束模式选择
+    $("button#end_sel_button").click(function(){
+        var se=$("end_sel").children('option:selected').val();
+        var path = "/reptile/"+se+"/";
+        $("#baright").attr("src", path);
+    });
+
     $(".sel").change(function(){
-        var p1=$(this).children('option:selected').val();
-        if(p1 != 'none')
+        var pa=$(this).children('option:selected').val();
+        if(pa == 'none')
+        {
+            $("#baright").attr('src', '/reptile/default-info/');
+        }
+        else //if(p1 != 'none')
         {
             //reptile/resume-info/
-            path='/reptile/'+p1+'-info/';
+            var path='/reptile/'+pa+'-info/';
             $("#baright").attr('src', path);
         }
     });

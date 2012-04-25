@@ -28,13 +28,19 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     #界面
+    #info
     url(r'^reptile/$', reptileframe.index),
-    url(r'^reptile/init/$', reptileframe.init),
+    url(r'^reptile/default-info/$', reptileframe.default_info),
     url(r'^reptile/init-info/$', reptileframe.init_info),
     url(r'^reptile/init-form/', reptileframe.init_form),
     url(r'^reptile/init-form-info/', reptileframe.init_form_info),
     url(r'^reptile/resume-info/', reptileframe.resume_info),
+    url(r'^reptile/halt-info/$', reptileframe.halt_info),
+    url(r'^reptile/stop-info/$', reptileframe.stop_info),
+    #commands
+    url(r'^reptile/init/$', reptileframe.init),
     url(r'^reptile/start/$', reptileframe.start),
+    url(r'^reptile/status/$', reptileframe.status),
     ##control
     #url(r'^initreptile/$', initReptileCtrl),
     #url(r'^reptile/resume', reptilectrl.sendResume),

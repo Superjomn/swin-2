@@ -11,7 +11,7 @@ cdef class Hit_lists:
         #路径管理
         object path
 
-    def __cinit__(self,long site_id, object path):
+    def __cinit__(self, object path):
         '''
         初始化数据空间
         '''
@@ -24,7 +24,7 @@ cdef class Hit_lists:
 
         #初始化每个list节点
         for i in range(List_num):
-            self.hit_list[i].start=<Hit *>malloc( sizeof(Hit) * List_init_size )
+            self.hit_list[i].start = <Hit *>malloc( sizeof(Hit) * List_init_size )
             self.hit_list[i].length=List_init_size
             self.hit_list[i].top=-1
             self.hit_list[i].size=0
