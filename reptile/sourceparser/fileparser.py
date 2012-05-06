@@ -10,12 +10,13 @@ import xml.dom.minidom as dom
 from Config import Config
 config = Config()
 import random
+import time
 
 from django.core.management import setup_environ
 sys.path.append('../../')
 from swin2 import settings 
 setup_environ(settings)
-from reptile.models import  ImageFile, TextFile, HtmlInfo
+from reptile.models import  ImageFile, TextFile, HtmlInfo, HtmlSource
 
 class ImageParser:
     '''
@@ -30,15 +31,21 @@ class ImageParser:
         self.size = config.getint('reptile', 'img_size')
         self.temPath = config.getpath('reptile', 'tem_file_path') + str(reptileID)
 
-    def init(self, url, toDocID):
+
+    def init(self, url, toDocID, extention):
         '''
         reptileID 为temfile 定义一个不同的path
         url image的url
+        extention 扩展名(jpg, png...) 不包括.
         '''
         self.url = url
         self.toDocID = toDocID
+        self.image = Image.open(self.temPath)
+        #扩展名 在Image存储时必须
+        self.extention = extention
 
-    def deal(self, source, url, toDocID):
+
+    def deal(self, source, extention, url, toDocID):
         '''
         从外界接收source
         全局处理
@@ -48,7 +55,7 @@ class ImageParser:
         f.write(source)
         f.close()
         #开始处理
-        self.init(url, toDocID)
+        self.init(url, toDocID, extention)
         self.compressImg()
 
 
@@ -58,39 +65,45 @@ class ImageParser:
         '''
         #提前需要将图片文件存储到此地址
         _size = self.compressSize()
-        f = Image.open(self.temPath)
-        f = Image.resize(_size)
+        size = self.image.size
+        if min(size) < 50:
+            #如果图案小到一定程度 视为无效
+            return
+        self.image = self.image.resize(_size)
         self.save(_size)
 
 
-
     def compressSize(self):
-        (w, h) = self.img.size
+        (w, h) = self.image.size
         _radio = 0
 
         if w>h:
             #按照w计算
-            _radio = w / self.size
+            _radio = self.size/w
             w = self.size
             h = h * _radio
         else:
-            _radio = h / self.size
+            _radio = self.size/h
             h = self.size
             w = w*_radio
         #height weight
-        return (w, h)
+        _size = (int(w), int(h))
+        print '.. size', _size
+        return  _size
         
 
     def save(self, size):
-        path = self.getNewPath() 
+        path = self.getNewPath() + '.'+self.extention
+        print '.. get new path', path
         #存储到磁盘
+        print 'image', self.image
         self.image.save(path)
         #取得 docid
-        htmlinfo = HtmlInfo.objects.filter(docID = self.toDocID)
+        htmlinfo = HtmlInfo.objects.filter(id = self.toDocID)[0]
         #存储到数据库
         image = ImageFile(
-            width = _size[0],
-            height = _size[1],
+            width = size[0],
+            height = size[1],
             path = path,
             url = self.url,
             doc = htmlinfo
@@ -141,8 +154,10 @@ class TextFileParser:
         save doc info to database
         data: binary file data
         '''
-        htmlinfo = HtmlInfo.objects.filter(docID = toDocID)
-        htmlsource = htmlinfo.htmlsource_set.all()[0]
+        print '.. toDocID', toDocID
+        htmlinfo = HtmlInfo.objects.filter(id = toDocID)[0]
+        htmlsource = HtmlSource.objects.filter(info=htmlinfo)[0]
+
         doc = TextFile(
                 title = title,
                 url = url,
@@ -155,5 +170,9 @@ class TextFileParser:
 
 
 
+if __name__ == '__main__':
+    imageparser = ImageParser(0)
+
+    
 
 

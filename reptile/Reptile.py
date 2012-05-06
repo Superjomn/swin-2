@@ -36,14 +36,17 @@ class Reptile(threading.Thread):
     '''
     单个线程
     '''
-    def __init__(self, name, urlQueue, urlist, Flock, homeUrls, maxPageNums, pages, continueRun = [True]):
+    def __init__(self, name, urlQueue, urlist, Flock, homeUrls, maxPageNums, pages, imagenum, continueRun = [True]):
         '''
         pages:  记录下载的网页数目
         '''
+        print '@'*50
+        print '.. Reptile, get imagenum', imagenum, type(imagenum)
+        print '@'*50
+
         self.__name = name
         threading.Thread.__init__(self, name = name )  
         #own data
-        self.pages = pages
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
@@ -57,12 +60,18 @@ class Reptile(threading.Thread):
         #num of downloaded pages
         self.__maxPageNums = maxPageNums
         #记录下载的页面数目
+        self.pages = pages
+        self.imagenum = imagenum
+        print '@'*50
+        print 'get self.imagenum', self.imagenum, type(self.imagenum)
+        print '@'*50
         #---------------------
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
         self.htmldb = HtmlDB(self.htmlparser)
         self.imageparser = ImageParser(name)
         self.textfileparser = TextFileParser()
+        
         
 
     def requestSource(self, url):
@@ -95,7 +104,7 @@ class Reptile(threading.Thread):
         '''
         是否 某个站点的收录页面超出限制
         '''
-        _type = self.urlparser.typeDetect(self.__pathinfo.url)
+        _type = self.urlparser.typeDetect(self.__pathinfo.url)[0]
         #如果 type 为‘’ 表示网页  image/doc表文件
         if _type:
             #对图片等文件不作计数
@@ -111,11 +120,12 @@ class Reptile(threading.Thread):
         ''' 运行主陈需 '''
 
         self.opener = urllib2.build_opener()     
+
         while self.continueRun[0] :
             self.Flock.acquire()
             self.__pathinfo = self.__urlQueue.pop()
             self.Flock.release()
-            print '.. get pathinfo', self.__pathinfo.url
+            print '.. get pathinfo', self.__pathinfo.url, self.__name
             #get (siteID, (title, path))
 
             if not self.__pathinfo:
@@ -144,14 +154,19 @@ class Reptile(threading.Thread):
                 print 'htmlsource is empty'
                 continue
 
-            _type = self.urlparser.typeDetect(self.__pathinfo.url)
+            filetype = self.urlparser.typeDetect(self.__pathinfo.url)
+            _type = filetype[0]
+            print '.. get file type', filetype, self.__name
 
             if not _type:
                 self.dealHtml(source)
             elif _type == 'image':
-                self.dealImage(source)
+                self.dealImage(source, filetype[1])
+                print 'self.imagenum', self.imagenum
+                self.imagenum[0] += 1
             else:
-                self.dealDoc(source)
+                self.dealDoc()
+                self.imagenum[0] += 1
 
             #处理源码为xml文件 存储到数据库
             #print '.. start to save html'
@@ -173,20 +188,24 @@ class Reptile(threading.Thread):
             return
         #开始进行处理
         #从 urlqueue中取得的url 已经为 绝对地址
-        self.addNewInQueue(self.__pathinfo.url)
         self.pages[self.__temSiteID] += 1
+        #取得links srcs列表
+        urlist = self.htmlparser.getLinks()
+        urlist += self.htmlparser.getSrcs()
         #save html
         self.Flock.acquire()
-        self.htmldb.saveHtml(self.__pathinfo.siteID, self.__pathinfo.title, self.__pathinfo.url, source)
+        docID = self.htmldb.saveHtml(self.__pathinfo.siteID, self.__pathinfo.title, self.__pathinfo.url, source)
         self.Flock.release()
 
+        self.addNewInQueue(docID, self.__pathinfo.url, urlist)
 
 
-    def dealImage(self, source):
+
+    def dealImage(self, source, extention):
         '''
         对 image文件 从解析到存储的完整操作
         '''
-        self.imageparser.deal(source, self.__pathinfo.url, self.__pathinfo.toDocID)
+        self.imageparser.deal(source, extention, self.__pathinfo.url, self.__pathinfo.toDocID)
 
     
     def dealDoc(self):
@@ -199,15 +218,15 @@ class Reptile(threading.Thread):
             self.__pathinfo.toDocID)
 
 
-    def addNewInQueue(self, pageStdUrl):
+    def addNewInQueue(self, docID, pageStdUrl, urlist):
         '''
         直接从html source中提取出path列表
         直接添加到各自的inqueue
+        docID:  以及存储的page id
+        urlist: html 及 文件地址混合列表
         '''
-        urlist = self.htmlparser.getLinks()
         #连同图片进行处理
         #图片也需要进行绝对化和判断是否重复等操作
-        urlist += self.htmlparser.getSrcs()
         #print 'get urlist'
         #for url in urlist:
             #print url[0], url[1]
@@ -217,7 +236,7 @@ class Reptile(threading.Thread):
             stdUrl = self.urlparser.transToStdUrl(pageStdUrl, urlInfor[1])
             #print '.. get STDURL', stdUrl
             siteID = self.urlparser.judgeUrl(pageStdUrl, urlInfor[1])
-            _type = self.urlparser.typeDetect(stdUrl)
+            _type = self.urlparser.typeDetect(stdUrl)[0]
             #print '.. get SITEID', siteID
             #path = self.urlparser.transPathByStd(stdUrl)
             #print '.. get PATH', path
@@ -226,24 +245,35 @@ class Reptile(threading.Thread):
                 '''
                 加入队列中
                 '''
-                if not _type:
+                #if not _type:
                     #正常网页
-                    if not self.__urlist.find(stdUrl) :
-                        '''
-                        urlist 中不重复
-                        '''
-                        #print '.. Add in Queue', stdUrl
+                if not self.__urlist.find(stdUrl) :
+                    '''
+                    urlist 中不重复
+                    '''
+                    print '.. Add in Queue', stdUrl, _type
+
+                    if not _type:
+                        #网页
                         self.Flock.acquire()
                         #siteID toDocID urlinfo
                         self.__urlQueue.append(siteID, -1, (urlInfor[0], stdUrl))
                         self.Flock.release()
+                    else:
+                        #图片 及 其他文件
+                        self.Flock.acquire()
+                        #siteID toDocID urlinfo
+                        self.__urlQueue.append(siteID, docID,  (urlInfor[0], stdUrl))
+                        self.Flock.release()
 
+                '''
                 else:
                     #image / doc 等文件 需要注册toSiteID
                     self.Flock.acquire()
                     #siteID toDocID urlinfo
                     self.__urlQueue.append(siteID, -1, (urlInfor[0], stdUrl))
                     self.Flock.release()
+                '''
                         
 
 
@@ -270,7 +300,6 @@ class ReptileLib(threading.Thread):
         #控制reptilelib 主程序及服务器是否运行 是否完全关闭
         self.reptileLibRun = [True]
 
-        self.curSiteID = [0]
         #urlQueue and init in lib
         self.urlQueue = UrlQueue()
         
@@ -278,7 +307,13 @@ class ReptileLib(threading.Thread):
         #为了列表的共享性 初始的数据初始化[] 之后不能随意改变
         self.homeUrls = []
         self.pages = []
+        self.imagenum  = []
+        self.imagenum.append(0)
+        print '-'*50
+        print '.. init self.imagenum', self.imagenum, type(self.imagenum)
+        print '-'*50
         self.maxPages = []
+        
         self.reptilectrl = ReptileCtrl(
             homeUrls = self.homeUrls,
             continueRun = self.continueRun,
@@ -286,6 +321,7 @@ class ReptileLib(threading.Thread):
             urlQueue = self.urlQueue,
             maxPages = self.maxPages,
             pages = self.pages,
+            imagenum = self.imagenum,
             outSignalQueue = self.outSignalQueue,
         )
         self.controlserver = ControlServer(self.inSignalQueue, self.outSignalQueue)
@@ -404,7 +440,9 @@ class ReptileLib(threading.Thread):
     def initThreads(self):
         self.thlist = []
         #default: from site 0
-        self.curSiteID[0] = 0
+        print '$'*50
+        print 'init thread imagenum', self.imagenum, type(self.imagenum)
+        print '$'*50
 
         for i in range(self.threadNum):  
             #此处前缀也需要变化
@@ -417,6 +455,7 @@ class ReptileLib(threading.Thread):
                 homeUrls = self.homeUrls,
                 maxPageNums = self.maxPages,
                 pages = self.pages,
+                imagenum = self.imagenum,
                 continueRun = self.continueRun
             )
             self.thlist.append(th)  
