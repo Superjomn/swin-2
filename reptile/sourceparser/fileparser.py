@@ -1,5 +1,5 @@
+from __future__ import division
 # -*- coding: utf-8 -*-
-from __feature__ import division
 import os
 import sys
 sys.path.append('../../')
@@ -11,6 +11,10 @@ from Config import Config
 config = Config()
 import random
 
+from django.core.management import setup_environ
+sys.path.append('../../')
+from swin2 import settings 
+setup_environ(settings)
 from reptile.models import  ImageFile, TextFile, HtmlInfo
 
 class ImageParser:

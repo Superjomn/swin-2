@@ -43,7 +43,7 @@ class Reptile(threading.Thread):
         self.__name = name
         threading.Thread.__init__(self, name = name )  
         #own data
-        self.__pages = pages
+        self.pages = pages
         self.__homeUrls = homeUrls
         self.__urlist = urlist
         self.__urlQueue = urlQueue
@@ -101,7 +101,7 @@ class Reptile(threading.Thread):
             #对图片等文件不作计数
             return True
 
-        if self.pages[self.__temSiteID] >= self.maxpages[self.__temSiteID] :
+        if self.pages[self.__temSiteID] >= self.__maxPageNums[self.__temSiteID] :
             return False
         return True
 
@@ -112,10 +112,11 @@ class Reptile(threading.Thread):
 
         self.opener = urllib2.build_opener()     
         while self.continueRun[0] :
-
+            self.Flock.acquire()
             self.__pathinfo = self.__urlQueue.pop()
+            self.Flock.release()
+            print '.. get pathinfo', self.__pathinfo.url
             #get (siteID, (title, path))
-            print '.. get pathinfo', self.__pathinfo
 
             if not self.__pathinfo:
                 '''
@@ -137,7 +138,7 @@ class Reptile(threading.Thread):
             #print '.. homeurls', self.__homeUrls
             #print '.. get cursiteid', self.__curSiteID
             #print 'the path is ', pathinfo[1][1]
-            source = self.requestSource(self.__pathinfo.siteID)
+            source = self.requestSource(self.__pathinfo.url)
 
             if not source:
                 print 'htmlsource is empty'
@@ -173,7 +174,7 @@ class Reptile(threading.Thread):
         #开始进行处理
         #从 urlqueue中取得的url 已经为 绝对地址
         self.addNewInQueue(self.__pathinfo.url)
-        self.__pages[self.__temSiteID] += 1
+        self.pages[self.__temSiteID] += 1
         #save html
         self.Flock.acquire()
         self.htmldb.saveHtml(self.__pathinfo.siteID, self.__pathinfo.title, self.__pathinfo.url, source)
@@ -265,7 +266,7 @@ class ReptileLib(threading.Thread):
         self.Flock = threading.RLock()  
 
         #控制reptile线程是否运行
-        self.continueRun = [True]
+        self.continueRun = [False]
         #控制reptilelib 主程序及服务器是否运行 是否完全关闭
         self.reptileLibRun = [True]
 
