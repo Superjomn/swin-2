@@ -19,7 +19,7 @@ class ReptileCtrl:
     将以一个控制线程的方式运行
     接受 人机界面的控制
     '''
-    def __init__(self, homeUrls, continueRun, urlist, urlQueue, maxPages, pages, outSignalQueue):
+    def __init__(self, homeUrls, continueRun, urlist, urlQueue, maxPages, pages, imagenum, outSignalQueue):
         '''
         需要掌握的数据:
             homeUrls
@@ -34,6 +34,7 @@ class ReptileCtrl:
         self.urlist = urlist
         self.urlQueue = urlQueue
         self.pages = pages
+        self.imagenum = imagenum
         self.maxPages = maxPages
         #向控制端陈需传递消息
         self.outSignalQueue = outSignalQueue
@@ -128,8 +129,9 @@ class ReptileCtrl:
         signal = {
             'type': 'status',
             'pages': self.pages,
-            'queue_num': self.urlQueue.getNums(),
-            'list_num': self.urlist.getNums(),
+            'imagenum': self.imagenum[0],
+            'queue_num': self.urlQueue.sizes,
+            'list_num': self.urlist.getNum(),
          }
         print signal
         self.outSignalQueue.put(signal)

@@ -11,7 +11,8 @@ from swin2 import settings
 setup_environ(settings)
 
 from pyquery import PyQuery as pq
-from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue
+from reptile.models import HtmlInfo, HtmlSource, HomeUrl, Urlist, UrlQueue, ImageFile, TextFile
+from query.models import Record
 
 
 class HtmlDB:
@@ -79,7 +80,31 @@ class HtmlDB:
         return [homeurl.title for homeurl in homeurls]
 
 
+    #---------image-------------------
+    def get_image_num(self, _list):
+        images = ImageFile.objects.filter(todocid__in = _list)
+        return len(images)
 
 
+    def get_images(self, _list, left, right):
+        '''
+        _list 需要先进行筛选
+        '''
+        images = ImageFile.objects.filter(todocid__in = _list)
+        return images[left:right]
+
+
+    #---------file-------------------
+    def get_file_num(self, _list):
+        files = TextFile.objects.filter(todocid__in = _list)
+        return len(files)
+
+
+    def get_files(self, _list, left, right):
+        '''
+        _list 需要先进行筛选
+        '''
+        files = TextFile.objects.filter(todocid__in = _list)
+        return files[left:right]
 
 

@@ -119,12 +119,13 @@ class ReptileSignal:
                 item.setAttribute('attr', str(_queue))
                 queue_node.appendChild(item)
 
-            list_node = dd.createElement('lists')
+            list_node = dd.createElement('list')
+            list_node.setAttribute('attr', str(list_num))
             signal.appendChild(list_node)
-            for _list in list_num:
-                item = dd.createElement('item')
-                item.setAttribute('attr', str(_list))
-                list_node.appendChild(item)
+
+            imagenum_node = dd.createElement('imagenum')
+            imagenum_node.setAttribute('attr', str(_signal['imagenum']))
+            signal.appendChild(imagenum_node)
 
             return signal.toxml()
 

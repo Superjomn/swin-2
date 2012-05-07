@@ -6,17 +6,20 @@ from django.contrib import admin
 from django.conf import settings
 
 from userframe.reptileframe import ReptileFrame
+from indexer.views import IndexerFrame
 from query.views import QueryFrame
 
 #import reptile.views as reptile_views
 queryframe = QueryFrame()
 reptileframe = ReptileFrame()
+indexerframe = IndexerFrame()
 
 print 'init ok reptile run'
 
 def initReptileCtrl(request):
     global reptilectrl
     reptilectrl = reptile_views.ReptileCtrl()
+
 
 urlpatterns = patterns('',
     # Examples:
@@ -35,7 +38,7 @@ urlpatterns = patterns('',
     ('^search/$', queryframe.search),
     
 
-    #info
+    #reptile ------------------------------------------------------
     url(r'^reptile/$', reptileframe.index),
     url(r'^reptile/default-info/$', reptileframe.default_info),
     url(r'^reptile/init-info/$', reptileframe.init_info),
@@ -44,10 +47,20 @@ urlpatterns = patterns('',
     url(r'^reptile/resume-info/', reptileframe.resume_info),
     url(r'^reptile/halt-info/$', reptileframe.halt_info),
     url(r'^reptile/stop-info/$', reptileframe.stop_info),
+    
     #commands
     url(r'^reptile/init/$', reptileframe.init),
     url(r'^reptile/start/$', reptileframe.start),
     url(r'^reptile/status/$', reptileframe.status),
+    url(r'^reptile/stop/$', reptileframe.stop),
+    #end reptile ------------------------------------------------>
+
+    #indexer -----------------------------------------------------
+    url(r'^indexer/$', indexerframe.index),
+
+
+
+
     ##control
     #url(r'^initreptile/$', initReptileCtrl),
     #url(r'^reptile/resume', reptilectrl.sendResume),
@@ -59,5 +72,8 @@ urlpatterns = patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': '/home/chunwei/swin2/media/'}),
 
+    #搜索 返回 图片
+    (r'^images/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': '/home/chunwei/swin2/data/images/'}),
 
 )

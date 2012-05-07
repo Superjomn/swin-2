@@ -3,6 +3,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 import Queue as Q
+import thread
 
 sys.path.append('../')
 from debug import *
@@ -17,37 +18,37 @@ class UrlQueue:
     url队列
     '''
     def __init__(self):
-        self.__queue = []
         self.__siteNum = None
+        self.sizes = []
+        self.size = 0
 
-    @dec
     def init(self, homeUrls):
         '''
         homeUrls is a [title, url]
         '''
-        '''
-        for url in homeUrls:
-            self.homeUrls.append(url['title'])
-        self.__siteNum = len(self.homeUrls)
-        '''
         self.homeUrls = homeUrls
-        #self.urlparser = UrlParser(homeUrls)
-        #self.htmlparser = HtmlParser(self.urlparser)
-        self.htmldb = HtmlDB(None)#self.htmlparser)
+        self.htmldb = HtmlDB(None)      #self.htmlparser)
+        self.clear()
         self.__siteNum = len(self.homeUrls)
-        self.__queue = []
         for i in range(self.__siteNum):
-            self.__queue.append(Q.Queue())
+            self.sizes.append(0)
 
-    @dec
-    def append(self, siteID, path):
+    def clear(self):
         '''
-        path = [title, path]
+        在一次全新项目时 清空整个urlqueue
         '''
-        _id = self.htmldb.saveUrlQueue( path, siteID)
-        self.__queue[siteID].put(_id)
+        self.htmldb.clearUrlQueue()
+
+    def append(self, siteID, toDocID, stdUrlInfo):
+        '''
+        stdUrlInfo = [title, url]
+        toSiteID: 附属于的网页编号 -1:正常网页 >0 文件
+        输入时 url 必须为绝对地址
+        '''
+        self.htmldb.saveUrlQueue( stdUrlInfo, siteID, toDocID)
+        self.size += 1
+        self.sizes[siteID] += 1
         
-    @dec 
     def initFrontPage(self):
         '''
         put homeUrl as front page to queue
@@ -55,43 +56,29 @@ class UrlQueue:
         default: reptile get homeurl as first page to download
         '''
         for i,url in enumerate(self.homeUrls):
-            self.append( i, [url[0], ""] )
-            #self.__queue[i].put([url[0], ""])
+            self.append( i, -1, url)
 
-    def pop(self, siteID):
+
+    def pop(self):
         '''
         如果需要的list为空
         则循环返回其他list的path
         '''
-        #print "get siteID%d"%siteID
-        assert(siteID>-1)
-        assert(self.__siteNum>0)
+        if not self.size:
+            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #need to sleep for a moment
+            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #模仿queue的功能 睡眠3秒
+            thread.sleep(3000)
 
-        def getQueue(siteID):
-            _i = 0
-            while True:
-                _i += 1
+        if self.size > 0:
+            url = self.htmldb.getCacheUrl()
+            print 'siteID', url.siteID
+            self.sizes[url.siteID] -= 1
+            return url
+        else:
+            return None
 
-                if _i == self.__siteNum :
-                    '''
-                    所有的均为空
-                    '''
-                    return None
-
-                siteID = (siteID+1) % self.__siteNum
-
-                if self.__queue[siteID].qsize() == 0 :
-                    pass
-                else:
-                    pathid = self.__queue[siteID].get()
-                    return (siteID, self.htmldb.getCacheUrl(pathid))
-            return (siteID, False)
-
-        try:
-            pathid = self.__queue[siteID].get(timeout = TIMEOUT)
-            return (siteID, self.htmldb.getCacheUrl(pathid))
-        except:
-            return getQueue(siteID)
 
     def show(self):
         for i,qu in enumerate(self.__queue) :
@@ -136,4 +123,5 @@ if __name__ == '__main__':
     urlqueue.init(homeurls)
     path = ['cau', '']
     urlqueue.append(4, path)
+
         

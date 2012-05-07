@@ -23,7 +23,7 @@ class ReptileFrame:
         '''
 
     def index(self, request):
-        return render_to_response('index.html', {})    
+        return render_to_response('reptile/index.html', {})    
 
     def start(self, request):
         self.reptilectrl.sendStart()
@@ -31,15 +31,15 @@ class ReptileFrame:
 
     def init(self, request):
         self.reptilectrl.sendInit()
-        return render_to_response('returnok-info.html', {'type':'Init'})    
+        return render_to_response('reptile/returnok-info.html', {'type':'Init'})    
 
     def resume(self, request):
         self.reptilectrl.sendResume()
-        return render_to_response('returnok-info.html', {'type':'Resume'})    
+        return render_to_response('reptile/returnok-info.html', {'type':'Resume'})    
 
     def stop(self, request):
         self.reptilectrl.sendStop()
-        return render_to_response('returnok-info.html', {'type':'Stop'})    
+        return render_to_response('reptile/returnok-info.html', {'type':'Stop'})    
         
     def status(self, request):
         def listStr(_list):
@@ -84,18 +84,19 @@ class ReptileFrame:
         res['queues'] = queues
         res['pages'] = pages
         res['total'] = sum(rs.pages)
+        res['imagenum'] = rs.imagenum
 
-        return render_to_response('status.html', res)    
+        return render_to_response('reptile/status.html', res)    
 
     #-------------------------------------------------------------
     #   default info
     #-------------------------------------------------------------
 
     def default_info(self, request):
-        return render_to_response('default-info.html', {})    
+        return render_to_response('reptile/default-info.html', {})    
 
     def init_info(self, request):
-        return render_to_response('init-info.html', {})    
+        return render_to_response('reptile/init-info.html', {})    
 
     def init_form(self, request):
         #num of sites
@@ -105,9 +106,9 @@ class ReptileFrame:
             for i in range(num):
                 res.append(i)
 
-            return render_to_response('initform.html', {'homeurls':res})    
+            return render_to_response('reptile/initform.html', {'homeurls':res})    
         else:
-            return render_to_response('initform.html', {})    
+            return render_to_response('reptile/initform.html', {})    
 
     def init_form_info(self, request):
         print request.GET
@@ -131,16 +132,16 @@ class ReptileFrame:
             'homeurls': homeurls,
             'reptilenum': reptilenum
         }
-        return render_to_response('init-form-info.html', res )    
+        return render_to_response('reptile/init-form-info.html', res )    
 
     def resume_info(self, request):
-        return render_to_response('resume-info.html', {} )    
+        return render_to_response('reptile/resume-info.html', {} )    
 
     def halt_info(self, request):
-        return render_to_response('halt-info.html', {} )    
+        return render_to_response('reptile/halt-info.html', {} )    
 
     def stop_info(self, request):
-        return render_to_response('stop-info.html', {} )    
+        return render_to_response('reptile/stop-info.html', {} )    
         
 
 

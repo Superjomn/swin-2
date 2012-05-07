@@ -1,0 +1,115 @@
+	*{
+		padding:0;
+		margin:0;
+	}
+	body{
+		font-size:16px;
+		background-image:url(/media/image/bg_top.png);
+		background-repeat:repeat-x;
+		background-position:left top;
+		}
+	.clear{
+		clear:both;
+		height:0;
+		width:100%;
+		}
+	
+	#logo{
+		margin-top:50px;
+		font-size:30px;
+		}
+	img{
+		border:none;
+		}
+    #logo a{
+        text-decoration:none;
+    }
+	
+	#res-content{
+		
+		width:800px;
+		margin:15px auto;
+        padding:5px;
+	}
+	
+	div.res{
+		margin:20px auto;
+	
+	}
+	
+	div.res h2{
+		font-size:18px;
+        font-weight:normal;
+		line-height:1.1em;
+	}
+	div.res .des{
+		font-size:15px;
+		line-height:1.5em;
+        font-weight:bold;
+	}
+	div.res .intro{
+		
+	}
+	div.res .url{
+		color:green;
+		font-size:14px;
+	}
+	li{
+	list-style:none;
+	}
+
+    .hi{
+        color:red;
+    }
+    div#page_nav li{
+        font-size:17px;
+    }
+
+
+
+
+
+    form#sea-form{
+        width:360px;
+        padding:5px;
+        font-size:17px;
+        border:1px solid #ccc;
+    }
+    form#sea-form input{
+        font-size:20px;
+        float:left;
+        border:none;
+        width:330px;
+    }
+
+    button{
+        font-size:17px;
+    }
+        
+    form#sea-form button{
+        width: 25px;
+        height:25px;
+        float:left;
+        background:url(/media/image/tt.png);
+        background-position:center;
+        border:none;
+    }
+
+    div#inform{
+        padding:0.2em;
+        width:100%;
+
+    }
+
+    div#time{
+        float:left;
+        margin-left: 10px;
+    }
+	div#footer{
+		background-image:url(/media/image/ft_bg.png);
+		background-repeat:repeat-x;
+		background-position:left top;
+		height:70px;
+		width:100%;
+		margin:0;
+		}

@@ -22,8 +22,8 @@ cdef class CreateHashIndex:
     cdef: 
         long* wlist
         long size
-        double left     #左侧最小hash
-        double right    #右侧最大hash
+        long left     #左侧最小hash
+        long right    #右侧最大hash
         long step
 
 
@@ -51,7 +51,7 @@ cdef class CreateHashIndex:
             HI hashIndex[STEP]
             int i
             int cur_step
-            double minidx
+            long minidx
         
         cur_step=0
         minidx = self.left
@@ -96,7 +96,7 @@ cdef class CreateHashIndex:
         f.close()
         
 
-    cdef double v(self, double data):
+    cdef long v(self, long data):
         '''
         将元素比较的属性取出
         '''
@@ -107,7 +107,7 @@ cdef class CreateHashIndex:
         for i in range(self.size):
             print self.wlist[i]
 
-    cdef int find(self,double data):
+    cdef int find(self,long data):
 
         '''
         具体查取值 
@@ -154,7 +154,7 @@ cdef class InitHashIndex:
         for i in range(STEP):
             print self.hi[i].left, self.hi[i].right
 
-    def pos(self, double hashvalue):
+    def pos(self, long hashvalue):
         '''
         pos the word by hashvalue 
         if the word is beyond hash return -1

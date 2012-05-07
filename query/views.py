@@ -13,7 +13,23 @@ class QueryFrame:
         self.htmldb = HtmlDB()
 
     def index(self, request):
+        Get = request.GET
         t = get_template('query/index.html')
+
+        #搜索模式选择
+        hi = ['', '', '']
+        if 'type' in Get:
+            _type = Get['type']
+            if Get['type'] == 'file':
+                hi[2] = 'hi'
+            elif Get['type'] == 'image':
+                hi[1] = 'hi'
+            else:
+                hi[0] = 'hi'
+        else:
+            hi[0] = 'hi'
+            _type = 'web'
+
         #加入站点信息
         if 'site' in request.GET:
             '''
@@ -35,7 +51,7 @@ class QueryFrame:
 
         titles = self.htmldb.get_titles()
 
-        html = t.render(Context({'site':site,'title':title,'titles':titles}))
+        html = t.render(Context({'site':site,'title':title,'titles':titles, 'type':_type, 'hi':hi}))
 
         return HttpResponse(html)
 
@@ -57,7 +73,8 @@ class QueryFrame:
         '''
         查询主程序
         '''
-        print 'get request', request
+        Get = request.GET
+
         if 'query_text' in request.GET:
             text = request.GET['query_text']
             print '.. search text', text
@@ -68,27 +85,35 @@ class QueryFrame:
             #from 1
             page = 1
 
-        print '.. page', page
+        #print '.. page', page
 
         if 'siteID' in request.GET:
             siteID = int(request.GET['siteID'])
         else:
             siteID = 0
 
-        print '.. siteID', siteID
+        #print '.. siteID', siteID
+        if 'type' in Get:
+            if Get['type'] == 'image':
+                #文本查询
+                #print 'search: text, page, siteID ',text, page, siteID
+                t = get_template('query/search_image.html')
+                res = queryer.searchImages(text, siteID, page)
+                print res
+            elif Get['type'] == 'file':
+                t = get_template('query/search_file.html')
+                res = queryer.searchFiles(text, siteID, page)
+            else:
+                t = get_template('query/search.html')
+                res = queryer.searchText(text, siteID, page)
+        else:
+            t = get_template('query/search.html')
+            res = queryer.searchText(text, siteID, page)
 
-        res = queryer.search(text, siteID, page )
 
-        print '.. res', res 
+        #print '.. res', res 
 
-        t = get_template('query/search.html')
-        html = t.render( Context(
-            {
-                'res': res,
-                'page': page,
-                'siteID': siteID
-            })
-        )
+        html = t.render( Context( res))
 
         return HttpResponse(html)
 

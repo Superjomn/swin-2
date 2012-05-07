@@ -1,4 +1,4 @@
-{% include 'info-head.html' %}
+{% include 'reptile/info-head.html' %}
 <style>
     .chart{
         height:200;
@@ -17,13 +17,14 @@
     </div><!-- end queue -->
     <div id="pages">
         <span class="subtitle">处理情况</span>
-        <p>已下载页面数: {{ total }}
+        <p>已下载页面数: <b stype="color:blue;">{{ total }}</b> &nbsp; &nbsp;  &nbsp; &nbsp;
+        下载文件数目:{{ imagenum }}</p>
         <div id="page-chart" class='chart'></div>
     </div><!-- end pages -->
 
 </div>
 
-{% include 'info-script.html' %}
+{% include 'reptile/info-script.html' %}
 <link rel="stylesheet" type="text/css" hrf="/media/script/jqplot/jquery.jqplot.min.css" />
 <script type="text/javascript" src="/media/script/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
@@ -90,6 +91,6 @@ $('body').everyTime('6s',refresh);
 
 {% endautoescape %}
 </script>
-{% include 'info-footer.html' %}
+{% include 'reptile/info-footer.html' %}
 
 

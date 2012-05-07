@@ -38,7 +38,41 @@ class UrlQueue(models.Model):
     '''
     siteID = models.IntegerField()
     title = models.CharField(max_length=100)
-    path = models.CharField(max_length=120)
+    url = models.CharField(max_length=120)
+    #type = models.CharField(max_length=5)
+    #如果为 file , 则 toDocID>0
+    #如果为原始态的htmlsource 直接存储
+    toDocID = models.IntegerField()
+    
+
+
+#-------------- file --------------------------------
+class ImageFile(models.Model):
+    '''
+    图片文件
+    png jpeg jpg gif
+    '''
+    height = models.IntegerField()
+    width = models.IntegerField()
+    path = models.CharField(max_length=70)
+    url = models.CharField(max_length=100)
+    #doc = models.ForeignKey(HtmlInfo)
+    todocid = models.IntegerField()
+
+
+class TextFile(models.Model):
+    '''
+    文本文件
+    doc xls 
+    但是此处与图片不同 此为docid
+    '''
+    #标题逻辑
+    title = models.CharField(max_length=50)
+    url = models.CharField(max_length=100)
+    #doc = models.ForeignKey(HtmlInfo)
+    todocid = models.IntegerField()
+
+
 
 '''
 admin.site.register(HomeUrl)

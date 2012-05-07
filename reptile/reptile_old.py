@@ -7,6 +7,7 @@ import gzip
 import string  
 
 
+import httplib
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -47,60 +48,38 @@ class Reptile(threading.Thread):
         self.__urlist = urlist
         self.__urlQueue = urlQueue
         self.Flock = Flock
-        self.__curSiteID = [0]#curSiteID
-        self.__temSiteID = -1
-        self.__conn = None
         self.__homeurl = None
         self.continueRun = continueRun
         #some information to send to UserFrame ----
         #num of downloaded pages
         self.__maxPageNums = maxPageNums
         #记录下载的页面数目
-        self.__netloc = None
         #---------------------
         self.urlparser = UrlParser(homeUrls)
         self.htmlparser = HtmlParser(self.urlparser)
         self.htmldb = HtmlDB(self.htmlparser)
         
 
-    def requestSource(self, url):
-        request = urllib2.Request(url) 
-        request.add_header('Accept-encoding', 'gzip')
-
-        try:            
-            page = opener.open(request,timeout=2) #设置超时为2s
-
-            if page.code == 200:      
-                predata = page.read()
-                pdata = StringIO.StringIO(predata)
-                gzipper = gzip.GzipFile(fileobj = pdata)  
-                
-                try:  
-                    data = gzipper.read()  
-                except(IOError):  
-                    data = predata
-                    
-                try:  
-                    if len(data)<300:
-                        return False
-                    #begain to parse the page
-                    return data
-
-                except:  
-                    print 'not a useful page'
-            page.close()  
-        except:  
-            print 'end error'  
+    def requestSource(self, path):
+        conn = self.conn()
+        print '.. conn',conn
+        conn.request("GET", path)
+        r1 = conn.getresponse()
+        data = r1.read()
+        #需要对data的返回转台进行解析
+        return data
 
 
-    def getPage(self, url):
+    def getPage(self, path):
+        print '>>path to load', path
 
         try:
-            r = self.requestSource(url)
+            r = self.requestSource(path)
         except:
             r = None
 
         return r
+
 
     def run(self):
 
@@ -112,10 +91,8 @@ class Reptile(threading.Thread):
             #从temSiteID开始 
             print '.. temSiteID : ', self.__temSiteID
 
-            assert(self.__curSiteID[0] != -1)
-
             pathinfo = self.__urlQueue.pop(self.__curSiteID[0])
-            #get (siteID, (title, path))
+            #get (siteID, (title, url))
             print '.. get pathinfo', pathinfo
 
             if not pathinfo:
@@ -126,13 +103,11 @@ class Reptile(threading.Thread):
                 #return None
                 break
 
-            self.__curSiteID[0] = pathinfo[0]
-            print '.. curSite', self.__curSiteID[0] 
-            print '.. homeurls', self.__homeUrls
             self.__temHomeUrl = self.__homeUrls[self.__curSiteID[0]][1]
             #print '.. get cursiteid', self.__curSiteID
 
             #print 'the path is ', pathinfo[1][1]
+
             try:
                 htmlsource = self.getPage(pathinfo[1][1])
             except:
@@ -156,17 +131,10 @@ class Reptile(threading.Thread):
 
             #处理源码为xml文件 存储到数据库
             print '.. start to save html'
-            self.__pages[self.__temSiteID] += 1
-
             self.Flock.acquire()
             self.htmldb.saveHtml(self.__curSiteID[0], pathinfo[1][0], pageStdUrl, htmlsource)
             self.Flock.release()
 
-            if self.__pages[self.__temSiteID] == self.__maxPageNums[self.__temSiteID] :
-                '''
-                达到最大数量
-                '''
-                return
 
         print '.. ',self.__name, 'quit!'
 
@@ -187,20 +155,18 @@ class Reptile(threading.Thread):
             #print '.. get STDURL', stdUrl
             siteId = self.urlparser.judgeUrl(pageStdUrl, urlInfor[1])
             #print '.. get SITEID', siteId
-            path = self.urlparser.transPathByStd(stdUrl)
-            #print '.. get PATH', path
             
             if siteId != -1 :
                 '''
                 加入队列中
                 '''
-                if not self.__urlist.find(siteId, path) :
+                if not self.__urlist.find(stdUrl) :
                     '''
                     urlist 中不重复
                     '''
                     print '.. Add in Queue', path
                     self.Flock.acquire()
-                    self.__urlQueue.append(siteId, (urlInfor[0] ,path))
+                    self.__urlQueue.append(siteId, (urlInfor[0] ,stdUrl))
                     self.Flock.release()
 
 

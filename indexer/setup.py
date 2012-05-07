@@ -23,9 +23,7 @@ setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("hitindexer", ["__hitindexer.pyx"])] 
 )
-'''
 
-'''
 setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("doclist", ["__doclist.pyx"])] 

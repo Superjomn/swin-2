@@ -9,15 +9,14 @@
 </head>
 <body>
 <div id="content">
-    <span id = "header">Swin2爬虫控制系统</span>
+    <span id = "header">Swin2索引控制库 —— Indexer</span>
 
 	<div id="init_sel">
 		<div id="bar1" class="bar">
 			<span class="title">选择开始模式</span> <br />
 			<select class='sel' id="start_sel">
                 <option value='none'></option>
-				<option value='init'>Init</option>
-				<option value='resume'>Resume</option>
+				<option value='start'>Start</option>
 			</select>
 			<button type="button" id="init_sel_button" >确定</button>
 		</div><!-- end bar1 -->
@@ -30,7 +29,6 @@
 			<select class='sel' id="end_sel">
                 <option value='none'></option>
 				<option value='stop'>stop</option>
-				<option value='halt'>halt</option>
 			</select>
 			<button type="button" id="end_sel_button">确定</button>
 		</div><!-- end bar1 -->
@@ -39,7 +37,7 @@
 
 	</div><!-- form -->
 
-	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/reptile/default-info/"> </iframe><!-- baright --><div class="clear"></div>
+	<iframe name="info" id="baright" onload="this.height=baright.document.body.scrollHeight"  src="/indexer/default-info/"> </iframe><!-- baright --><div class="clear"></div>
 
 	<div class="clear"	></div>
 </div><!-- end content -->
@@ -56,19 +54,19 @@ $(function() {
 	$("button").button();
 
     $("button#start").click(function(){
-        $("#baright").attr("src", "/reptile/start/");
+        $("#baright").attr("src", "/indexer/start/");
     });
     //开始模式选择
     $("button#init_sel_button").click(function(){
         var se=$("#start_sel").children('option:selected').val();
-        var path = "/reptile/"+se+"/";
+        var path = "/indexer/"+se+"/";
         $("#baright").attr("src", path);
     });
 
     //结束模式选择
     $("#end_sel_button").click(function(){
         var se = $("#end_sel").children('option:selected').val();
-        var path = "/reptile/"+se+"/";
+        var path = "/indexer/"+se+"/";
         $("#baright").attr("src", path);
     });
 
@@ -76,12 +74,12 @@ $(function() {
         var pa=$(this).children('option:selected').val();
         if(pa == 'none')
         {
-            $("#baright").attr('src', '/reptile/default-info/');
+            $("#baright").attr('src', '/indexer/default-info/');
         }
         else //if(p1 != 'none')
         {
-            //reptile/resume-info/
-            var path='/reptile/'+pa+'-info/';
+            //indexer/resume-info/
+            var path='/indexer/'+pa+'-info/';
             $("#baright").attr('src', path);
         }
     });

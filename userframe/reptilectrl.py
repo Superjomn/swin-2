@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 import socket
 import xml.dom.minidom as dom
@@ -26,7 +27,7 @@ class ReptileStatus:
         #contain a list of numeric values of every urlQueue's length
         self.queue_nums = []
         #contain a list of numeric values of every list's length
-        self.list_nums = []
+        self.listnum = 0
         #calculated data
         self.pageSum = []
         #contains a queue of numeric values
@@ -64,8 +65,11 @@ class ReptileStatus:
         self.queue_nums = []
         refreshListFromXML(status, 'queues', self.queue_nums)
         #refresh list_nums
-        self.list_nums = []
-        refreshListFromXML(status, 'lists', self.list_nums)
+        self.listnum = 0
+        _list = status('list')
+        self.listnum = int( _list.attr('attr'))
+        self.imagenum = int( status('imagenum').attr('attr'))
+        #refreshListFromXML(status, 'lists', self.list_nums)
         #refresh vs
         self.calDownloadSpeed()
         
@@ -95,7 +99,7 @@ class ReptileStatus:
         and drop the first speed value for the new speed
         the num of speeds remain self.historyNum
         '''
-        total = sum(self.pages)
+        total = sum(self.pages) + self.imagenum
         self.listAppendData(self.pageSum, total)
 
         if len(self.pageSum) == 1:
@@ -121,7 +125,6 @@ class ReptileCtrl:
     def __init__(self):
         self.reptilestatus = ReptileStatus()
         
-    @dec
     def sendMessage(self, signal):
         '''
         base
@@ -133,41 +136,42 @@ class ReptileCtrl:
         print ".. Succeed send signal .."
         sock.close()
 
-    @dec
     def sendInit(self):
+        '''
+                    <item title='中国农业大学官网'  url='http://www.cau.edu.cn' maxpage=200 />
+                    <item title='网络中心'  url='http://netcenter.cau.edu.cn/' maxpage=200 />
+                    <item title='农学院'  url='http://cab.cau.edu.cn/main/' maxpage=200 />
+                    <item title='红十字会'  url='http://org.wusetu.cn/hsz/' maxpage=200 />
+                    <item title='教务处'  url='http://jwc.cau.edu.cn/administration_office/' maxpage=200 />
+                    <item title='信息与电气学院'  url='http://www.ciee.cn/ciee/' maxpage=200 />
+        '''
         signal = '''
             <signal type='init'>
-                <homeurl reptilenum=2>
-                    <item title='CAU'  url='http://www.cau.edu.cn' maxpage=200 />
-                    <item title='news'  url='http://news.cau.edu.cn' maxpage=200 />
-                    <item title='hsz'  url='http://org.wusetu.cn/hsz/' maxpage=200 />
+                <homeurl reptilenum=1>
+                    <item title='新闻中心'  url='http://news.cau.edu.cn' maxpage=200 />
                 </homeurl>
             </signal>
         '''
         self.sendMessage(signal)
 
-    @dec
     def sendStart(self):
         signal = '''
             <signal type='start'/>
         '''
         self.sendMessage(signal)
 
-    @dec
     def sendResume(self):
         signal = '''
             <signal type='resume'/>
         '''
         self.sendMessage(signal)
 
-    @dec
     def sendStop(self):
         signal = '''
             <signal type='stop'/>
         '''
         self.sendMessage(signal)
 
-    @dec
     def sendStatus(self):
         signal = '''
             <signal type='status'/>
@@ -182,11 +186,11 @@ class ReptileCtrl:
         #show status
         print '.. status ..'
         print '.. pages', self.reptilestatus.pages
+        print '.. imagenum', self.reptilestatus.imagenum
         print '.. queue_nums', self.reptilestatus.queue_nums
-        print '.. list_nums', self.reptilestatus.list_nums
+        print '.. list_nums', self.reptilestatus.listnum
         print '.. downloadSpeed', self.reptilestatus.downloadSpeed
 
-    @dec
     def sendHalt(self):
         signal = '''
             <signal type='halt'/>

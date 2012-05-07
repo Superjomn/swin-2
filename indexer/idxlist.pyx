@@ -163,7 +163,7 @@ cdef class InitIdxList:
         查找 并返回 ResList结果
         '''
         console('find')
-        print 'find wordID:', wordID
+        #print 'find wordID:', wordID
         self.curWid = wordID
         #产生对应的范围 (self.left, self.right)
         self.__posWidScope()
@@ -232,10 +232,12 @@ cdef class InitIdxList:
         end = self.size - 1
         
         console('__posWidMid')
+        '''
         print 'self.curWid:', self.curWid
         print 'self.size', self.size
         print 'fir, mid, end:', fir,mid,end
         print 'left.wordID, right:', self._list[0].wordID, self._list[self.size-1].wordID
+        '''
 
         while fir<end:
             mid = (fir+end)/2
@@ -278,8 +280,8 @@ cdef class InitIdxList:
         mid = self.__posWidMid()
 
         i = mid
-        print 'pos mid:', i
-        print 'mid wordID', self._list[i].wordID
+        #print 'pos mid:', i
+        #print 'mid wordID', self._list[i].wordID
 
         while i-1>=0:
             if self._list[i-1].wordID == self.curWid:
@@ -298,8 +300,8 @@ cdef class InitIdxList:
 
         self.right = i
 
-        print 'scope: left,right', self.left, self.right
-        print 'scope wordID: left,right', self._list[self.left].wordID, self._list[self.right].wordID
+        #print 'scope: left,right', self.left, self.right
+        #print 'scope wordID: left,right', self._list[self.left].wordID, self._list[self.right].wordID
 
 
         
@@ -321,7 +323,7 @@ cdef class InitIdxList:
 
     cdef void __setPos(self, unsigned int pos):
         console('__setPos')
-        print 'setPos:',pos
+        #print 'setPos:',pos
         self.pos = pos
         self.__dealloc()
 
@@ -330,7 +332,7 @@ cdef class InitIdxList:
         console('__initList')
         path = str(self.pos)+'.idx'
         path = config.getpath('indexer', 'idxs_path') + path
-        print 'init path', path
+        #print 'init path', path
         cdef char* ph = path
         cdef FILE *fp=<FILE *>fopen(ph,"rb")
         fread(self._list, sizeof(Idx), self.size, fp)
@@ -345,7 +347,7 @@ cdef class InitIdxList:
         f.close()
         _split = c.split()
         self.size = int(_split[self.pos])
-        print 'size', self.size
+        #print 'size', self.size
         
     cdef void __initSpace(self):
         console('InitIdxList __initSpace')
