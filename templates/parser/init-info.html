@@ -1,0 +1,19 @@
+{% include 'reptile/info-head.html' %}
+    <div id="init">
+        <span class="title">生成词库</span>
+        <p>本库将统计所有下载的网页中的关键词，并且最终生成一个二进制索引文件。</p>
+
+    </div>
+</body>
+
+<script type="text/javascript">
+$(function() {
+	$("button").button();
+    $("#ok").click(function(){
+        alert('ok')
+        window.location.href="/reptile/init-form/?homeurls="+$("#homeurls").val();
+
+        });
+    });
+</script>
+{% include 'reptile/info-footer.html' %}

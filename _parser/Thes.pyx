@@ -35,27 +35,44 @@ cdef class CreateThes:
         object htmldb
         object htmlnum
         object ict
+        #向外界传递状态 ---------
+        #现在已经解析的网页数目
+        unsigned int curHtmlNum
+        object  statusPath
+        #状态刷新频率
+        unsigned short refreshFrequency
 
     def __cinit__(self):
         self.__list = List()
         self.htmldb = htmldb.HtmlDB()
         self.htmlnum = self.htmldb.getHtmlNum()
         self.ict = Ictclas( config.getpath('parser', 'ict_configure_path') )
+        self.curHtmlNum = 0
+        self.statusPath = config.getpath('parser', 'status_path')
+        self.refreshFrequency = config.getint('parser', 'refresh_frequency')
 
     def run(self):
         '''
         此处直接将词转化为相应的hash值
         词库即为hash值
         '''
+        cdef:
+            unsigned int i
+
         for i in range(self.htmlnum):
+            #刷新状态
+            self.curHtmlNum = i+1
             _content = self.htmldb.getContentByIndex(i)
             _splitedContent = self.ict.split(str(_content))
+            '''
             f = open('../data/bug_words.txt', 'a')
             f.write(_splitedContent)
             f.close()
-
+            '''
             for word in _splitedContent.split():
                 self.__list.find( word )
+
+            self.refreshStatus()
 
         print '词库分词完毕'
 
@@ -79,6 +96,25 @@ cdef class CreateThes:
         fwrite( self.__list.getListPos(), sizeof(long), self.__list.size, fp)
         fclose(fp)
 
+
+    cdef void refreshStatus(self):
+        '''
+        刷新状态
+        '''
+        cdef:
+            object res
+            #将进度转化为百分读
+            float radio
+
+        res = ''
+
+        if self.curHtmlNum % self.refreshFrequency == 0 or self.curHtmlNum == self.htmlnum:
+            radio = self.curHtmlNum + 0.0
+            radio = radio / self.htmlnum * 100
+            res = str(self.htmlnum) + ' ' +str(self.curHtmlNum) +' '+ str( int(radio) )
+            f = open(self.statusPath, 'w')
+            f.write(res)
+            f.close()
 
     cdef __createHashIndex(self):
         '''
