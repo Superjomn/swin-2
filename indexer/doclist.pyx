@@ -12,6 +12,8 @@ from libc.stdio cimport fopen ,fclose ,fwrite ,FILE ,fread
 
 config = Config()
 
+Cimport Type.pyx            swin2/indexer/Type.pyx
+
 cdef class DocList:
     '''
     记录每个doc的值
@@ -25,11 +27,18 @@ cdef class DocList:
         object url
         object htmldb
         object ict
+        #status
+        object statusPath
+        uint    curHtmlNum
+        uint    refreshFrequency
 
     def __cinit__(self):
         self.ict = Ictclas( config.getpath('parser', 'ict_configure_path') )
         self.htmldb = HtmlDB()
         self.__initSpace()
+        #status
+        self.statusPath = config.getpath('indexer', 'status_path')
+        self.refreshFrequency = config.getint('indexer', 'refresh_frequency')
 
     def __dealloc__(self):
         print 'delete all C space!'
@@ -45,7 +54,30 @@ cdef class DocList:
         for i in range(self.size):
             self.setRecordHandle(i)
             self.calScore()
+            #status
+            self.curHtmlNum = i+1
+            self.saveStatus()
         self.save()
+
+
+    def saveStatus(self):
+        '''
+        人机界面刷新
+        '''
+        cdef:
+            object res
+            float radio
+        
+        if self.curHtmlNum%self.refreshFrequency == 0 or self.curHtmlNum==self.size:
+            radio = self.curHtmlNum + 0.0
+            radio = radio/self.size * 100
+
+            res = 'doclist' + ' ' + str(self.size) + ' ' + str(self.curHtmlNum) + ' ' + str( int(radio) )
+            f = open(self.statusPath, 'w')
+            f.write(res)
+            f.close()
+
+
 
 
     cdef void calScore(self):

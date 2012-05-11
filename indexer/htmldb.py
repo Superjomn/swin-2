@@ -34,6 +34,9 @@ class HtmlDB:
     def setRecordHandle(self, _id):
         _htmlinfo = HtmlInfo.objects.all()[_id]
         self.title = _htmlinfo.title
+        #filetitle
+        self.filetitle = _htmlinfo.filetitle
+
         record = (HtmlSource.objects.filter(info=_htmlinfo)[0])
         xmlcontent = record.parsed_source
         self.docID = record.id
@@ -82,7 +85,7 @@ class HtmlDB:
     def getHOne(self):
         t1 = self.getItemsText('h1')
         t2 = self.getItemsText('h2')
-        return t1+t2
+        return t1+t2+self.filetitle
 
     def getHTwo(self):
         t3 = self.getItemsText('h3')
@@ -107,6 +110,7 @@ class ArrangePageDB:
     def __init__(self):
         self.sitenum = None
         self.sites = []
+        self.statusPath = config.getpath('indexer', 'status_path')
 
     def getSiteNum(self):
         self.sitenum = len(HomeUrl.objects.all())
@@ -133,10 +137,20 @@ class ArrangePageDB:
         '''
         print 'running'
         self.getSiteNum()
-        self.moveNewRecord()
+
+        #self.moveNewRecord()
+
         self.reverseRecord()
         print self.sites
         self.save()
+        self.saveStatus(100)
+
+
+    def saveStatus(self, value):
+        res = 'arrange' + ' ' + str(0) + ' ' + str(0) + ' ' + str(value)
+        f = open(self.statusPath, 'w')
+        f.write(res)
+        f.close()
 
 
     def save(self):
@@ -154,6 +168,7 @@ class ArrangePageDB:
 
 
     def moveNewRecord(self):
+        self.getSiteNum()
         print '.. moveNewRecord'
         '''
         将 reptile 记录进行排序 
@@ -163,14 +178,20 @@ class ArrangePageDB:
             htmlinfos = HtmlInfo.objects.filter(siteID = i)
             #记录数目
             self.sites.append(len(htmlinfos))
+            '''
             for htmlinfo in htmlinfos:
                 self.saveRecord(htmlinfo)
+            '''
+
+        #HtmlInfo.objects.all().delete()
+        #HtmlSource.objects.all().delete()
 
 
     def reverseRecord(self):
         '''
         排序后 将新记录返回
         重新传输到 reptile 中
+        should clear all records in old database
         '''
         print '.. reverseRecord'
         htmlinfos = models.HtmlInfo.objects.all()
@@ -181,12 +202,18 @@ class ArrangePageDB:
                     url = htmlinfo.url,
                     date = htmlinfo.date
                 )
+            _htmlinfo.save()
+
+            '''
             htmlsource = htmlinfo.htmlsource_set.all()[0]
             _htmlsource = HtmlSource(
                     parsed_source = htmlsource.parsed_source,
                     info = _htmlinfo
                 )
-        self.clearNewDB()
+            _htmlsource.save()
+            '''
+
+        #self.clearNewDB()
 
 
 

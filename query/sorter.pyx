@@ -15,7 +15,7 @@ cdef class QueryResSorter:
         self.length = length
 
 
-    cdef float gvalue(self, QueryRes  data):
+    cdef uint gvalue(self, QueryRes  data):
         '''
 		返回需要进行比较的值
         '''

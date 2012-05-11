@@ -9,13 +9,15 @@ from htmldb import ArrangePageDB
 #以便于网页站点的判断
 '''
 arrange_page_db = ArrangePageDB()
-arrange_page_db.run()
-'''
+arrange_page_db.moveNewRecord()
+arrange_page_db.save()
 
 hitindexer = HitIndexer()
 hitindexer.run()
 
 doclist = DocList()
 doclist.run()
+'''
+
 indexer = Indexer()
 indexer.run()

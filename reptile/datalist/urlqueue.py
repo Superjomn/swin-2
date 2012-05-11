@@ -55,8 +55,20 @@ class UrlQueue:
         and start to run
         default: reptile get homeurl as first page to download
         '''
+
         for i,url in enumerate(self.homeUrls):
             self.append( i, -1, url)
+        '''
+        #为蛋站但设计
+        for i in range(8):
+            self.append(0, -1, ['信电学院',"http://www.ciee.cn/ciee/"])
+        homeurls = [
+            ['今日新闻', 'http://news.cau.edu.cn/list.php?mid=1'],
+            ['媒体农大','http://news.cau.edu.cn/list.php?mid=4'],
+            ['推荐新闻', 'http://news.cau.edu.cn/list.php?mid=3'],
+            ['农大科技', 'http://news.cau.edu.cn/list.php?lid=3'],
+        ]
+        '''
 
 
     def pop(self):
@@ -69,11 +81,11 @@ class UrlQueue:
             #need to sleep for a moment
             #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             #模仿queue的功能 睡眠3秒
-            thread.sleep(3000)
+            thread.sleep(10000)
 
         if self.size > 0:
             url = self.htmldb.getCacheUrl()
-            print 'siteID', url.siteID
+            #print 'siteID', url.siteID
             self.sizes[url.siteID] -= 1
             return url
         else:
@@ -116,12 +128,7 @@ class UrlQueue:
 
 if __name__ == '__main__':
     urlqueue = UrlQueue()
-    homeurls = [
-        ['cau', 'http://www.cau.edu.cn'],
-        ['news', 'http://news.cau.edu.cn'],
-    ]
-    urlqueue.init(homeurls)
-    path = ['cau', '']
-    urlqueue.append(4, path)
+    urlqueue.initFrontPage()
+
 
         

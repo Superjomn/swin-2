@@ -28,8 +28,8 @@ setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("doclist", ["__doclist.pyx"])] 
 )
-'''
 
+'''
 setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("idxlist", ["__idxlist.pyx"])] 

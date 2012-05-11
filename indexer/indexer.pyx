@@ -33,6 +33,7 @@ cdef class Indexer:
         uint            docnum
         uint            pos
         long            curWordID
+        object          statusPath
 
     '''
     计算每个hit的私有score
@@ -46,6 +47,7 @@ cdef class Indexer:
         self.htmldb = HtmlDB()
         self.__initDocnum()
         print 'init OK'
+        self.statusPath = config.getpath('indexer', 'status_path')
 
     def run(self):
         '''
@@ -87,9 +89,9 @@ cdef class Indexer:
             unsigned int i 
             #外部 doc score
             #外部 doc决定的score
-            float doc_score
+            float  doc_score
             #内部词决定的score
-            float private_score
+            uint private_score
             object path
             Idx idx
             Hit hit
@@ -111,8 +113,8 @@ cdef class Indexer:
             print 'private_score'
             private_score = self.calPrivateScore(i)
             print 'end private_score'
-            doc_score = self.doclist.get(hit.docID)
-            idx.score = private_score * doc_score
+            #doc_score = self.doclist.get(hit.docID)
+            idx.score = private_score #* doc_score
             print 'score cal ok'
 
             #合并记录值
@@ -125,6 +127,7 @@ cdef class Indexer:
                 self.temidx = idx
                 temid = i
             print '合并ok'
+            self.saveStatus(i+1)
 
         if self.hitlist.size-1 != temid:
             print self.hitlist.size - 1
@@ -135,8 +138,21 @@ cdef class Indexer:
         ph = path
         self.idxlist.save(ph)
 
+    cdef void saveStatus(self, curNum):
+        cdef:
+            object res
 
-    cdef float calPrivateScore(self, unsigned long i):
+        res = 'indexer' + ' ' + str(STEP) + ' '+ str(curNum)
+        radio = curNum + 0.0
+        radio = radio/STEP * 100
+        res += ' '+str( int(radio) )
+        f = open(self.statusPath, 'w')
+        f.write(res)
+        f.close()
+
+
+
+    cdef uint calPrivateScore(self, unsigned long i):
         '''
         i is a hit's index
         确定好pos后， 外界传入hit的序号，本程序计算出hit的private score
@@ -163,19 +179,30 @@ cdef class Indexer:
         docnum = self.wordwidthlist.get(wordID).docnum
         cdef float res = math.log( self.docnum / docnum )
         print 'get HitedDocScore', res
+        return res
 
 
-    cdef float calFormatScore(self, ushort _format):
+    cdef uint calFormatScore(self, ushort _format):
         '''
         _format 1 2 3 4
         '''
         console(' calFormatScore')
 
+        cdef:
+            uint res
+
         #cdef float res = math.log(math.e, _format)
-        cdef float format = _format + 0.1
-        cdef float res = 1/format
-        print 'format score', res
+        if _format == 1:
+            res = 50
+        elif _format == 2:
+            res = 20
+
+        elif _format == 3:
+            res = 1
+        #cdef float format = _format + 0.0
+        #cdef float res = 1/format
         return res
+
 
     cdef __initDocnum(self):
 

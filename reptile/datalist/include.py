@@ -5,6 +5,7 @@ from cimport import Cimport
 
 files = [
     'urlist.pyx',
+    'List.pyx',
 ]
 
 for f in files:

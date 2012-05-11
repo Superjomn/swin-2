@@ -6,13 +6,18 @@ from django.contrib import admin
 from django.conf import settings
 
 from userframe.reptileframe import ReptileFrame
+from userframe.status import Status
 from indexer.views import IndexerFrame
 from query.views import QueryFrame
+
+from _parser.parserFrame import ParserFrame
 
 #import reptile.views as reptile_views
 queryframe = QueryFrame()
 reptileframe = ReptileFrame()
 indexerframe = IndexerFrame()
+parserframe = ParserFrame()
+status = Status()
 
 print 'init ok reptile run'
 
@@ -34,8 +39,10 @@ urlpatterns = patterns('',
     #界面
     #query 
     ('^index/$', queryframe.index),
+    ('^index/site_ctrl/$', queryframe.site_ctrl),
     ('^index/more_sites/$', queryframe.more_sites),
     ('^search/$', queryframe.search),
+    ('^status/$', status.getStatus), 
     
 
     #reptile ------------------------------------------------------
@@ -47,6 +54,9 @@ urlpatterns = patterns('',
     url(r'^reptile/resume-info/', reptileframe.resume_info),
     url(r'^reptile/halt-info/$', reptileframe.halt_info),
     url(r'^reptile/stop-info/$', reptileframe.stop_info),
+
+    #self 
+    url(r'^reptile/resume/$', reptileframe.resume_ok),
     
     #commands
     url(r'^reptile/init/$', reptileframe.init),
@@ -57,6 +67,14 @@ urlpatterns = patterns('',
 
     #indexer -----------------------------------------------------
     url(r'^indexer/$', indexerframe.index),
+    #url(r'^indexer/status/$', indexerframe.status),
+    url(r'^indexer/init-info/$', indexerframe.init_info),
+    #url(r'^indexer/status/$', 
+
+    #parser ctrl -------------------------------------------------
+    url(r'^parser/$', parserframe.index),
+    #url(r'^parser/status$', parserframe.status),
+    url(r'^parser/init-info$', parserframe.init_info),
 
 
 

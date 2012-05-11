@@ -45,6 +45,45 @@ class ReptileSignal:
                 </homeurl>
             </signal>
         '''
+
+        signal = '''
+            <signal type='init'>
+                <homeurl reptilenum=3>
+
+                    <item title='新闻中心'  url='http://news.cau.edu.cn' maxpage=300 />
+                    <item title='教务处'  url='http://jwc.cau.edu.cn/administration_office' maxpage=200 />
+                    <item title='人事处'  url='http://rsc1.cau.edu.cn/' maxpage=200 />
+                    <item title='校团委'  url='http://youth.cau.edu.cn/' maxpage=300 />
+                    <item title='团工委'  url='http://shetuan.cau.edu.cn/' maxpage=300 />
+                    <item title='曲辰网'  url='http://quchen.cau.edu.cn' maxpage=300 />
+                    <item title='农学院'  url='http://cab.cau.edu.cn/' maxpage=300 />
+                    <item title='食品学院'  url='http://spxy.cau.edu.cn' maxpage=300 />
+                    <item title='信息与电气学院'  url='http://www.ciee.cn/ciee/' maxpage=300 />
+                    <item title='理学院'  url='http://www.cau.edu.cn/sci' maxpage=300 />
+                    <item title='中国农业大学'  url='http://www.cau.edu.cn' maxpage=200 />
+
+                </homeurl>
+            </signal>
+            '''
+
+        #signal_parser = pq(signal)
+
+        _homeurls = [
+            '新闻中心',
+            '教务处',
+            '人事处',
+            '校团委',
+            '团工委',
+            '曲辰网',
+            '农学院',
+            '食品学院',
+            '食品学院',
+            '信息与电气学院',
+            '理学院',
+            '中国农业大学',
+
+        ]
+
         htmlurl = signal_parser('homeurl')
         items = htmlurl('item')
         res = {}
@@ -56,8 +95,15 @@ class ReptileSignal:
         for i in range(len(items)):
             item = items.eq(i)
             sg = []
-            sg.append(item.attr('title'))
+            #sg.append(item.attr('title'))
+            sg.append(_homeurls[i])
+
+            #if i == 8:
             sg.append(item.attr('url'))
+            #    sg.append('http://www.ciee.cn/ciee/')
+            #else:
+            #    sg.append('http://xxx.xxx.xxx.com')
+
             res['maxpages'].append( int(item.attr('maxpage')) )
             res['homeurls'].append(sg)
         self.inQueue.put(res)

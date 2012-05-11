@@ -11,12 +11,11 @@
     </div>
 </body>
 
-{% include 'info-script.html' %}
+{% include 'reptile/info-script.html' %}
 <script type="text/javascript">
 $(function() {
 	$("button").button();
     $("#ok").click(function(){
-        alert('ok')
         window.location.href="/reptile/init-form/?homeurls="+$("#homeurls").val();
 
         });

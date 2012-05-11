@@ -8,12 +8,12 @@ cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("sorter", ["__sorter.pyx"])] 
 )
 
+'''
 setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("_query", ["__query.pyx"])] 
 )
 
-'''
 
 setup(
 cmdclass = {'build_ext': build_ext},

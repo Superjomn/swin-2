@@ -8,36 +8,36 @@ config = Config()
 
 DEF STEP = 20
 
-cdef struct HI: 
-    long left    #左侧范围
-    long right   #右侧范围
+cdef struct HI:
+    long left #左侧范围
+    long right #右侧范围
 
 cdef class CreateHashIndex:
     '''
-    建立一级hash参考表
-    使用较复杂的中分法 单独作为一类
-    传入 划分数目：  step
-    结果将会把完整hash划分为step步
-    '''
-    cdef: 
+建立一级hash参考表
+使用较复杂的中分法 单独作为一类
+传入 划分数目： step
+结果将会把完整hash划分为step步
+'''
+    cdef:
         long* wlist
         long size
-        long left     #左侧最小hash
-        long right    #右侧最大hash
+        long long left #左侧最小hash
+        long long right #右侧最大hash
         long step
 
 
     def __cinit__(self, left, right):
         '''
-        init
-        li : 词库list '''
+init
+li : 词库list '''
         self.left = left
         self.right = right
         print '.. create hash index'
         print 'left : right', self.left, self.right
         self.step = long( (self.right - self.left) / STEP ) + 1
         print '.. right - left', self.right - self.left
-        print '.. step', self.step
+        print '.. self.step', self.step
 
     cdef void initList(self, long* li, long size):
         self.wlist = li
@@ -45,8 +45,8 @@ cdef class CreateHashIndex:
 
     cdef createHash(self):
         '''
-        产生hash index
-        '''
+产生hash index
+'''
         cdef:
             HI hashIndex[STEP]
             int i
@@ -73,8 +73,8 @@ cdef class CreateHashIndex:
 
     cdef __saveHash(self, HI *hi):
         '''
-        将hash参考表用二进制文件方式进行保存
-        '''
+将hash参考表用二进制文件方式进行保存
+'''
         print '.. begin to save hash'
         cdef object path = config.getpath('parser', 'hash_index_path')
         cdef char* ph = path
@@ -86,8 +86,8 @@ cdef class CreateHashIndex:
 
     cdef __saveWidth(self):
         '''
-        save left right
-        '''
+save left right
+'''
         print '.. save width'
         path = config.getpath('parser', 'hash_index_width')
         f = open(path, 'w')
@@ -98,8 +98,8 @@ cdef class CreateHashIndex:
 
     cdef long v(self, long data):
         '''
-        将元素比较的属性取出
-        '''
+将元素比较的属性取出
+'''
         return data
 
     def show(self):
@@ -110,8 +110,8 @@ cdef class CreateHashIndex:
     cdef int find(self,long data):
 
         '''
-        具体查取值 
-        '''
+具体查取值
+'''
 
         #使用更加常规的方式
         cdef:
@@ -120,23 +120,23 @@ cdef class CreateHashIndex:
         for i in range(self.size):
             if self.wlist[i] > data:
                 return i-1
-        #最后一个词汇 
+        #最后一个词汇
         print 'last data'
-        return self.size 
+        return self.size
 
 
 cdef class InitHashIndex:
     '''
-    init he hash index
-    '''
-    #define the hash index 
+init he hash index
+'''
+    #define the hash index
     cdef HI hi[STEP]
     cdef long *li
 
     def __cinit__(self):
         '''
-        init
-        '''
+init
+'''
         print 'init hashindex'
         cdef object path = config.getpath("parser", "hash_index_path")
         cdef char *ph = path
@@ -156,10 +156,10 @@ cdef class InitHashIndex:
 
     def pos(self, long hashvalue):
         '''
-        pos the word by hashvalue 
-        if the word is beyond hash return -1
-        else return the pos
-        '''
+pos the word by hashvalue
+if the word is beyond hash return -1
+else return the pos
+'''
         cdef int cur = -1
         
         if hashvalue> self.li[self.hi[0].left] :
@@ -172,5 +172,3 @@ cdef class InitHashIndex:
             if cur==STEP:
                 return STEP-1
         return cur-1
-
-

@@ -46,6 +46,7 @@ class HtmlDB:
         self.docID = record.id
         self.xmlhtml = xmlcontent
         self.dd = pq(self.xmlhtml)
+        self.filetitle = _htmlinfo.filetitle
         return _htmlinfo
 
     def getItemsText(self, tagname):
@@ -63,10 +64,13 @@ class HtmlDB:
         '''
         return self.getItemsText('b')
 
+
     def getHOne(self):
         t1 = self.getItemsText('h1')
         t2 = self.getItemsText('h2')
-        return t1+t2
+        return t1+t2+self.filetitle
+
+
 
     def getHTwo(self):
         t3 = self.getItemsText('h3')
@@ -88,10 +92,14 @@ class HtmlDB:
 
 if __name__ == '__main__':
     htmldb = HtmlDB()
-    content = htmldb.getContentByIndex(8)
+    for i in range(100):
+        content = htmldb.getContentByIndex(8)
+        print content
+    '''
     f = open('../data/d2.txt', 'w')
     f.write(content)
     f.close()
+    '''
 
         
     

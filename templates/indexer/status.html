@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>jQuery UI Progressbar - Default functionality</title>
+    <link type="text/css" rel="stylesheet" href="/media/script/development-bundle/themes/start/jquery.ui.all.css" />
+	<script src="/media/script/development-bundle/jquery-1.7.1.js"></script>
+	<script src="/media/script/development-bundle/ui/jquery.ui.core.js"></script>
+	<script src="/media/script/development-bundle/ui/jquery.ui.widget.js"></script>
+	<script src="/media/script/development-bundle/ui/jquery.ui.progressbar.js"></script>
+    <script type="text/javascript" src="/media/script/jQuery.timers.js"></script>
+<style>
+.status{
+    margin-bottom:30px;
+}
+</style>
+</head>
+<body>
+
+
+
+<div class="status">
+    <span class="subtitle">1、网页站点分类</span>
+    <p>已经处理{{status.0}} 
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    共{{status.0}}页
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <span style='color:red'>完成</span></p>
+    <div id="arrange" style="width=400px;"></div>
+</div><!-- End demo -->
+
+
+
+
+<div class="status">
+    <span class="subtitle">2、生成hit列表</span>
+    <p>已经处理{{status.0}} 
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    共{{status.0}}页
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <span style='color:red'>完成</span></p>
+    <div id="hitindexer" style="width=400px;"></div>
+</div><!-- End demo -->
+
+
+<div class="status">
+    <span class="subtitle">3、生成doc列表</span>
+    <p>已经处理 {{status.1}} 页
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    共{{status.0}}页
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <span style='color:red'>解析中...</span></p>
+    <div id="doclist" style="width=400px;"></div>
+</div><!-- End demo -->
+
+
+<div class="status">
+    <span class="subtitle">4、生成倒排索引</span>
+    <p>0页
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    共{{status.0}}页</p>
+    <div id="indexer" style="width=400px;"></div>
+</div><!-- End demo -->
+
+
+
+
+</body>
+
+
+<script type="text/javascript">
+	$(function() {
+		$( "#arrange" ).progressbar({ value: 100 });
+		$( "#hitindexer" ).progressbar({ value: 100 });
+		$( "#doclist" ).progressbar({ value: {{status.2}} });
+		$( "#indexer" ).progressbar({ value: 0 });
+        /*
+            $( "#hitindexer" ).progressbar({ value: {{hitindexer.2}} });
+            $( "#doclist" ).progressbar({ value: {{doclist.2}} });
+            $( "#indexer" ).progressbar({ value: {{indexer.2}} });
+        */
+	});
+
+    function refresh() { window.location.href=window.location.href; }
+    $('body').everyTime('3s',refresh);
+</script>
+
+
+</html>

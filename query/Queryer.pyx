@@ -51,6 +51,7 @@ cdef class Queryer:
         object  siteNums             #num of pages of each site
         RecordCollector             recordCollector
         object  htmldb
+        object titles
 
 
     def __cinit__(self):
@@ -113,17 +114,20 @@ cdef class Queryer:
                 [ dectitle, url, date, dectext],
             ]
         '''
+        print 'siteID', siteID
         if self.text == strr and siteID == self.siteID:
             #底层 Cache
             return
 
         #缓存判断
         self.text = strr
+        self.siteID = siteID
         self.docIDs = self.__query.query(strr)
         self.pageNum = len(self.docIDs)
 
         #print '.. return docIDs', self.docIDs
 
+        self.docIDs.reverse()
         if siteID != 0:
             '''
             siteID为 siteID+1
@@ -131,6 +135,8 @@ cdef class Queryer:
             '''
             siteID -= 1
             self.siteNumFilter(siteID)
+            print 'siteNum left, right',self.siteNums[siteID]
+            #sort reverse from big to less
 
         #self.pagerFilterDocIDs(page)    #将docIDs进行一些筛选处理
         #现在self.docIDs可以使用
@@ -147,24 +153,34 @@ cdef class Queryer:
         self.search(strr, siteID)
         #self.pagerFilterDocIDs(page)
         self.setDomain(Html, page)
+        #print '.. begin to left:right', self.domain.left, self.domain.right
+
         self.resIDs = self.docIDs[self.domain.left : self.domain.right]
+        #print 'self.resIDs', self.resIDs
         #包装
         #print self.resIDs 
         #开始生成部分结果格式 ---------------------
         #计算页面数目
+
         pagenum = self.pageNum / self.pagePerNum
+
         if pagenum * self.pagePerNum > self.pageNum:
             pagenum += 1
+
+        #print '.. pagenum', pagenum
+
         res = {}
         res['res_list'] = self.recordCollector.getRecord(self.resIDs, self.__query.words)
+        #print 'res[res_list]', res['res_list']
         time2 = time.time()
         res['time'] = round(time2-time1, 4)
         res['site'] = siteID
         res['length'] = self.pageNum
         res['page'] = page
-        res['title'] = strr
         res['pagenum'] = pagenum
         res['query_text'] = strr
+
+        #print res
 
         return res
 
@@ -185,6 +201,7 @@ cdef class Queryer:
         self.search(strr, siteID)
         self.imageNum = self.htmldb.get_image_num(self.docIDs)
         self.setDomain(Image, page)
+        self.docIDs.reverse()
         res = self.htmldb.get_images(self.docIDs, self.domain.left, self.domain.right)
 
         images = []
@@ -208,7 +225,6 @@ cdef class Queryer:
         res['site'] = siteID
         res['length'] = self.imageNum
         res['page'] = page
-        res['title'] = strr
         res['pagenum'] = pagenum
         res['res_list'] = images
         res['query_text'] = strr
@@ -224,10 +240,13 @@ cdef class Queryer:
             object res
 
         self.search(strr, siteID)
-        self.fileNum = self.htmldb.get_file_num()
+        self.fileNum = self.htmldb.get_file_num(self.docIDs)
         self.setDomain(File, page)
         res = self.get_files(self.docIDs, self.domain.left, self.domain.right)
-        return self.recordcollector.getFiles(res)
+
+        files = []
+        for image in res:
+            tem = []
 
 
     cdef inline void siteNumFilter(self, siteID):
@@ -245,8 +264,11 @@ cdef class Queryer:
 
         for docID in self.docIDs:
             if docID >= left and docID <= right:
+                print 'siteIDs append', docID
                 _tem.append(docID)
         self.docIDs = _tem
+        self.pageNum = len(self.docIDs)
+        print 'filter siteNUm siteID' ,self.docIDs
 
 
     cdef void initSiteNums(self):

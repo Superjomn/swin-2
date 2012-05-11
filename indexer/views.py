@@ -3,6 +3,11 @@ from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
 
+import sys
+sys.path.append('../')
+from Config import Config
+config = Config()
+
 
 class IndexerCtrl:
     '''
@@ -45,20 +50,57 @@ class IndexerFrame:
     Indexframe 控制程序
     '''
     def __init__(self):
-        indexerCtrl = IndexerCtrl()
+        #标志现在工作状态
+        self.cur_type = ''
+        #progress 
+        self.status = {}
+        self.indexerCtrl = IndexerCtrl()
+        self.satusPath = config.getpath('indexer', 'status_path')
 
+    
+    def initStatus(self):
+        _types = ['arrange', 'hitindexer', 'doclist', 'indexer']
+        for _type in types:
+            status = [0,0,0]    #htmlNum #curNum #radio
+            self.status[_type] = status
 
     def index(self, request):
-        return render_to_response('indexer/index.html', {})    
+        t = get_template('indexer/index.html')
+        html = t.render(Context({}))
+        return HttpResponse(html)
+
+
+    def init_info(self, request):
+        t = get_template('indexer/init-info.html')
+        html = t.render(Context({}))
+        return HttpResponse(html)
+
 
     def start(self, request):
         self.indexerCtrl.run()
 
-    def status(self):
+    def status(self, request):
         '''
         返回相应标志
         '''
-        pass
+        t = get_template('indexer/status.html')
+
+        f = open(self.statusPath)
+        c = f.read()
+        f.close()
+
+        words = c.split()
+        
+        self.status[words[0]] = [ int(word) for word in words[1:]]
+
+        html = t.render(Context({'status': self.status }))
+        return HttpResponse(html)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     indexerctrl = IndexerCtrl()

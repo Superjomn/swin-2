@@ -1,0 +1,36 @@
+{% include 'reptile/info-head.html' %}
+    <div id="init">
+
+        <span class="title">索引生成</span>
+        <p>本库将会对下载的网页做处理，为每个关键词生成一个记录，最终生成二进制倒排索引</p>
+        <p>处理步骤：</p>
+
+        <span class="subtitle">网页站点分类</span>
+        <p>将网页登记到相应站点下</p>
+
+        <span class="subtitle">生成hit列表</span>
+        <p>为所有内容中每个关键词生成一个记录</p>
+
+        <span class="subtitle">生成doc列表</span>
+        <p>为每个网页基本信息作统计</p>
+
+        <span class="subtitle">生成倒排索引</span>
+        <p>生成二进制倒排索引文件</p>
+
+    </div>
+
+    <button type="button">Start</button>
+
+</body>
+
+<script type="text/javascript">
+$(function() {
+	$("button").button();
+    $("#ok").click(function(){
+        alert('ok')
+        window.location.href="/reptile/init-form/?homeurls="+$("#homeurls").val();
+
+        });
+    });
+</script>
+{% include 'reptile/info-footer.html' %}

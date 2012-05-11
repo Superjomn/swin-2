@@ -64,7 +64,7 @@ cdef class IdxList:
         cdef FILE *fp=<FILE *>fopen(path,"wb")
         fwrite( self._list, sizeof(Idx), self.size, fp)
         fclose(fp)
-        self.saveToText(path)
+        #self.saveToText(path)
 
     cdef saveToText(self, path):
         path += '.txt'

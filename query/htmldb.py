@@ -79,6 +79,10 @@ class HtmlDB:
         homeurls = HomeUrl.objects.all()[:4]
         return [homeurl.title for homeurl in homeurls]
 
+    def get_all_titles(self):
+        homeurls = HomeUrl.objects.all()
+        return [homeurl.title for homeurl in homeurls]
+
 
     #---------image-------------------
     def get_image_num(self, _list):
@@ -91,6 +95,7 @@ class HtmlDB:
         _list 需要先进行筛选
         '''
         images = ImageFile.objects.filter(todocid__in = _list)
+        images.reverse()
         return images[left:right]
 
 

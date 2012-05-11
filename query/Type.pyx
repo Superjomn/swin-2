@@ -6,7 +6,7 @@ cdef enum bool:
 
 cdef struct QueryRes:
     uint    docID
-    float  score
+    uint    score
     bool    able     #0 1 判定此记录是否有效
 
 cdef struct QueryResList:

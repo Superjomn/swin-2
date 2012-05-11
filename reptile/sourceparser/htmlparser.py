@@ -18,9 +18,11 @@ class HtmlParser:
     def init(self, source):
         source = self.transcode(source)
         self.d = pq(source)
+
         if not len(self.d('body')):
             print 'not html'
             return False
+
         self.initRemoveNodes()
         return True
 
@@ -145,4 +147,13 @@ class HtmlParser:
         contentNode.appendChild(ctext)
         html.appendChild(contentNode)
         return html.toxml()
+
+
+
+if __name__ == '__main__':
+    f = open('~/1.html')
+    c = f.read()
+    f.close()
+    print c
+
 

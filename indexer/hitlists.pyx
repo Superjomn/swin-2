@@ -141,7 +141,7 @@ cdef class HitLists:
             fwrite( self.hitlists[pos]._list , sizeof(Hit), self.hitlists[pos].size, fp)
             fclose(fp)
 
-        self.saveToText()
+        #self.saveToText()
     
     cdef void saveToText(self):
         path = config.getpath('indexer', 'hits_path')

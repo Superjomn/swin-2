@@ -4,7 +4,7 @@ from Cython.Distutils import build_ext
 
 setup(
 cmdclass = {'build_ext': build_ext},
-ext_modules = [Extension("HashIndex", ["HashIndex.pyx"])] 
+ext_modules = [Extension("HashIndex", ["__HashIndex.pyx"])] 
 )
 
 setup(
@@ -16,3 +16,9 @@ setup(
 cmdclass = {'build_ext': build_ext},
 ext_modules = [Extension("Thes", ["__Thes.pyx"])] 
 )
+
+setup(
+cmdclass = {'build_ext': build_ext},
+ext_modules = [Extension("List", ["__List.pyx"])] 
+)
+

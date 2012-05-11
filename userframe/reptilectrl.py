@@ -137,21 +137,35 @@ class ReptileCtrl:
         sock.close()
 
     def sendInit(self):
-        '''
-                    <item title='中国农业大学官网'  url='http://www.cau.edu.cn' maxpage=200 />
-                    <item title='网络中心'  url='http://netcenter.cau.edu.cn/' maxpage=200 />
-                    <item title='农学院'  url='http://cab.cau.edu.cn/main/' maxpage=200 />
-                    <item title='红十字会'  url='http://org.wusetu.cn/hsz/' maxpage=200 />
-                    <item title='教务处'  url='http://jwc.cau.edu.cn/administration_office/' maxpage=200 />
-                    <item title='信息与电气学院'  url='http://www.ciee.cn/ciee/' maxpage=200 />
-        '''
+
         signal = '''
+            <signal type='init'>
+                <homeurl reptilenum=4>
+
+                    <item title='新闻中心'  url='http://news.cau.edu.cn' maxpage=300 />
+                    <item title='教务处'  url='http://jwc.cau.edu.cn/administration_office' maxpage=200 />
+                    <item title='人事处'  url='http://rsc1.cau.edu.cn/' maxpage=200 />
+                    <item title='校团委'  url='http://youth.cau.edu.cn/' maxpage=300 />
+                    <item title='团工委'  url='http://shetuan.cau.edu.cn/' maxpage=200 />
+                    <item title='曲辰网'  url='http://quchen.cau.edu.cn' maxpage=200 />
+                    <item title='农学院'  url='http://cab.cau.edu.cn/' maxpage=200 />
+                    <item title='食品学院'  url='http://spxy.cau.edu.cn' maxpage=300 />
+                    <item title='信息与电气学院'  url='http://www.ciee.cn/ciee/' maxpage=300 />
+                    <item title='理学院'  url='http://www.cau.edu.cn/sci' maxpage=200 />
+                    <item title='中国农业大学'  url='http://www.cau.edu.cn' maxpage=200 />
+
+                </homeurl>
+            </signal>
+            '''
+
+
+        signal_1 = """
             <signal type='init'>
                 <homeurl reptilenum=1>
                     <item title='新闻中心'  url='http://news.cau.edu.cn' maxpage=200 />
                 </homeurl>
             </signal>
-        '''
+        """
         self.sendMessage(signal)
 
     def sendStart(self):

@@ -25,6 +25,7 @@
 </div>
 
 {% include 'reptile/info-script.html' %}
+
 <link rel="stylesheet" type="text/css" hrf="/media/script/jqplot/jquery.jqplot.min.css" />
 <script type="text/javascript" src="/media/script/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="/media/script/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
@@ -83,10 +84,7 @@ $(document).ready(function(){
   );
   
 });
-function refresh()
-{ 
-    window.location.href=window.location.href;
-}
+function refresh() { window.location.href=window.location.href; }
 $('body').everyTime('6s',refresh);
 
 {% endautoescape %}

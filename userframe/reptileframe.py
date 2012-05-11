@@ -37,6 +37,10 @@ class ReptileFrame:
         self.reptilectrl.sendResume()
         return render_to_response('reptile/returnok-info.html', {'type':'Resume'})    
 
+    def resume_ok(self, request):
+        return render_to_response('reptile/resume-start.html', {})    
+        
+
     def stop(self, request):
         self.reptilectrl.sendStop()
         return render_to_response('reptile/returnok-info.html', {'type':'Stop'})    

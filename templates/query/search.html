@@ -48,7 +48,7 @@
             <a href='/index/'> 
             	<img src="/media/image/logo.png" />
             </a>
-			<span id="site">—{{title}}搜索</span>
+			<span id="site">农学院搜索</span>
         </div>
 		
 		<div class="clear"></div>
@@ -67,18 +67,22 @@
 	<div class="clear"></div>
     {%if res_list%}	
         {%for res in res_list%}
-
+            {% autoescape off %} 
             <div class="res">
-                {%autoescape off%}
                 <h2><a href="{{res.1}}">
-                        {{res.0}}
+                        {%if res.0%}
+                            {{res.0}}
+                        {%else%}
+                            {{res.4}}
+                        {%endif%} 
                     </a></h2>
+                <b>{{res.4}}</b><br/>
                 <div class="intro">{{res.3}}</div>
 
                 <span class="url">{{res.1}}</span>
 
-                {%endautoescape%}
             </div><!-- res -->
+            {% endautoescape %}
 
         {%endfor%}
 

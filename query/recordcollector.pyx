@@ -6,6 +6,7 @@ from swin2 import settings
 setup_environ(settings)
 sys.path.append('../')
 from query.models import Record
+import cgi
 
 cdef class RecordCollector:
     cdef:
@@ -42,6 +43,7 @@ cdef class RecordCollector:
                     record.url,
                     record.date,
                     self.addHighLightt(record.decsource) ,
+                    self.addHighLightt(record.title),
                 ]
             )
 
@@ -52,14 +54,14 @@ cdef class RecordCollector:
         '''
         添加高亮
         '''
-        for w in self.words:
-            print w
+
         print 'end Hightlight-----------------------------------'
 
+        text = cgi.escape(text)
         for word in self.words:
             text = text.replace(word, '<span class="hi">'+word+'</span>')
             print 'replacing .................'
-            print text
+            #print text
         return text
 
 
@@ -98,7 +100,7 @@ cdef class RecordCollector:
             print 'image', image
             res.append(self.transImageRes(image))
 
-        print 'final res', res
+        #print 'final res', res
 
         return res
 

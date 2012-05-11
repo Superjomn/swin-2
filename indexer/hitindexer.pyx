@@ -28,6 +28,10 @@ cdef class HitIndexer:
         object htmldb
         object htmlnum
         object ict
+        #status
+        object statusPath
+        uint    curHtmlNum
+        uint    refreshFrequency
 
     def __cinit__(self):
         #database
@@ -39,9 +43,15 @@ cdef class HitIndexer:
         self.ict = Ictclas( config.getpath('parser', 'ict_configure_path') )
         self.hitsort = HitSort()
         self.hitlists = HitLists()
+        #status
+        self.statusPath = config.getpath('indexer', 'status_path')
+        self.refreshFrequency = config.getint('indexer', 'refresh_frequency')
 
 
     def run(self):
+        cdef:
+            uint i
+
         console("run")
         '''
         循环运行主程序
@@ -63,10 +73,50 @@ cdef class HitIndexer:
             self.indexStr(format1, 1)
             self.indexStr(format2, 2)
             self.indexStr(format3, 3)
+            #status
+            self.curHtmlNum = i+1
+            self.saveStatus('')
+            print 'begin i',i
         #进行存储
         #存储hits 和 hit_num
-        self.sort()
+        self.saveStatus('sort')
         self.hitlists.save()
+        self.sort()
+        self.saveStatus('save')
+        self.hitlists.save()
+
+
+    def saveStatus(self, _type=''):
+        '''
+        人机界面刷新
+        '''
+        cdef:
+            object res
+            float radio
+
+        if not _type: 
+            if self.curHtmlNum%self.refreshFrequency == 0 or self.curHtmlNum==self.htmlnum:
+                radio = self.curHtmlNum + 0.0
+                radio = radio/self.htmlnum * 70
+                res = 'hitindex' +' ' + str(self.htmlnum) + ' ' + str(self.curHtmlNum) + ' ' + str( int(radio) ) +' '+'处理中...'
+
+                f = open(self.statusPath, 'w')
+                f.write(res)
+                f.close()
+
+        elif _type == 'sort':
+            res = 'hitindex' +' ' + str(self.htmlnum) + ' ' + str(self.curHtmlNum) + ' ' + str( 70 ) + ' ' +'排序中...'
+            f = open(self.statusPath, 'w')
+            f.write(res)
+            f.close()
+
+        elif _type == 'save':
+            res = 'hitindex' +' ' + str(self.htmlnum) + ' ' + str(self.curHtmlNum) + ' ' + str( 95 ) + ' ' +'存储中...'
+            f = open(self.statusPath, 'w')
+            f.write(res)
+            f.close()
+
+
 
     cdef void indexStr(self, strr, _format):
         '''

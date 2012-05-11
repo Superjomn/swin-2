@@ -5,6 +5,7 @@ class HtmlInfo(models.Model):
     title = models.CharField(max_length=100)
     url = models.URLField(max_length=150)
     date = models.DateField()
+    filetitle = models.URLField(max_length=150) 
 
 
 class HtmlSource(models.Model):

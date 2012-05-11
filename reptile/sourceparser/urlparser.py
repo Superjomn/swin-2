@@ -45,10 +45,9 @@ class UrlParser:
         length = 0
         for i,u in enumerate(self.__homeUrls):
             u = u[1]
-            assert( type(u) != type([]) )
             length = len(u)
             if len(stdUrl) > length and stdUrl[:length] == u:
-                return i
+                return  i
         return -1
 
     def transPathByStd(self, stdUrl):
@@ -118,6 +117,9 @@ class UrlParser:
 
         elif ext in ('doc', 'pdf', 'xls'):
             return ('doc', ext)
+
+        elif ext in ('zip', 'tar'):
+            return ('not', ext)
         #html
         return ('', '')
 

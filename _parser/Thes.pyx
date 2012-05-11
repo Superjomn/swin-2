@@ -6,9 +6,9 @@ Created on May 19, STEP11
 #需要添加进动态内存管理
 #但似乎动态管理不可能--词库中char长度不一
 #需要提前知道词库大小(可以保存到sqlite)
-#本文件包含两个库 建立词库  及新建词库
+#本文件包含两个库 建立词库 及新建词库
 
-# *******相关函数可以考虑写为   inline   提供必要接口
+# *******相关函数可以考虑写为 inline 提供必要接口
 
 #hashIndex 结构
 
@@ -27,8 +27,8 @@ Cimport ../reptile/datalist/List.pyx swin/reptile/datalist/List.pyx
 
 cdef class CreateThes:
     '''
-    新建词库
-    '''
+新建词库
+'''
     #此处字符串传入方式需要确定
     cdef:
         List __list
@@ -38,7 +38,7 @@ cdef class CreateThes:
         #向外界传递状态 ---------
         #现在已经解析的网页数目
         unsigned int curHtmlNum
-        object  statusPath
+        object statusPath
         #状态刷新频率
         unsigned short refreshFrequency
 
@@ -53,9 +53,9 @@ cdef class CreateThes:
 
     def run(self):
         '''
-        此处直接将词转化为相应的hash值
-        词库即为hash值
-        '''
+此处直接将词转化为相应的hash值
+词库即为hash值
+'''
         cdef:
             unsigned int i
 
@@ -65,10 +65,10 @@ cdef class CreateThes:
             _content = self.htmldb.getContentByIndex(i)
             _splitedContent = self.ict.split(str(_content))
             '''
-            f = open('../data/bug_words.txt', 'a')
-            f.write(_splitedContent)
-            f.close()
-            '''
+f = open('../data/bug_words.txt', 'a')
+f.write(_splitedContent)
+f.close()
+'''
             for word in _splitedContent.split():
                 self.__list.find( word )
 
@@ -79,8 +79,8 @@ cdef class CreateThes:
         
     def save(self):
         '''
-        将hash值存储为二进制文件
-        '''
+将hash值存储为二进制文件
+'''
         print 'begin to save'
         print 'thes size', self.__list.size
         self.__createHashIndex()
@@ -99,8 +99,8 @@ cdef class CreateThes:
 
     cdef void refreshStatus(self):
         '''
-        刷新状态
-        '''
+刷新状态
+'''
         cdef:
             object res
             #将进度转化为百分读
@@ -118,9 +118,9 @@ cdef class CreateThes:
 
     cdef __createHashIndex(self):
         '''
-        生成一级索引哈系表
-        需要通过动态分配内存的方式？
-        '''
+生成一级索引哈系表
+需要通过动态分配内存的方式？
+'''
         print 'begin create_hash'
         #分为STEP个hashindex表
         cdef long left, right
@@ -139,15 +139,15 @@ cdef class CreateThes:
 
     cdef find(self, long word):
         '''
-        在list中查找word
-        如果查找到 返回True
-        如果没有找到 返回False
-        '''
+在list中查找word
+如果查找到 返回True
+如果没有找到 返回False
+'''
         print 'begin find()'
 
         #定义变量
         cdef:
-            long l       #长度 
+            long l #长度
             long first
             long end
             long mid
@@ -187,7 +187,7 @@ cdef class CreateThes:
                while hash(self.li[end])==num and end<l:
                    
                     if self.li[end]==word:
-                        return True 
+                        return True
                     end=end+1
 
                self.li.insert(mid+1,word)
@@ -221,8 +221,8 @@ cdef class CreateThes:
 
     def show(self):
         '''
-        展示词库
-        '''
+展示词库
+'''
         for i in self.li:
             print i
 

@@ -11,6 +11,7 @@ queryer = Queryer()
 class QueryFrame:
     def __init__(self):
         self.htmldb = HtmlDB()
+        self.titles = self.htmldb.get_all_titles()
 
     def index(self, request):
         Get = request.GET
@@ -56,13 +57,21 @@ class QueryFrame:
         return HttpResponse(html)
 
 
+    def site_ctrl(self, request):
+        t = get_template('query/site_ctrl.html')
+        html = t.render(Context({}))
+        return HttpResponse(html)
+
+
+        
+
 
     def more_sites(self, request):
         '''
         展示更多站点
         '''
         t = get_template('query/more.html')
-        titles = self.htmldb.get_titles()
+        titles = self.htmldb.get_all_titles()
 
         html = t.render(Context({'titles':titles}))
         return HttpResponse(html)
@@ -87,10 +96,11 @@ class QueryFrame:
 
         #print '.. page', page
 
-        if 'siteID' in request.GET:
-            siteID = int(request.GET['siteID'])
+        if 'site' in request.GET:
+            siteID = int(request.GET['site'])
         else:
             siteID = 0
+
 
         #print '.. siteID', siteID
         if 'type' in Get:
@@ -109,6 +119,13 @@ class QueryFrame:
         else:
             t = get_template('query/search.html')
             res = queryer.searchText(text, siteID, page)
+            if siteID != 0:
+                res['title'] = self.titles[siteID-1]
+            elif siteID == 7:
+                res['title'] = '农学院'
+
+            else:
+                res['title'] = "全域"
 
 
         #print '.. res', res 

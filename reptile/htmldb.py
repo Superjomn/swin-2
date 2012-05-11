@@ -89,7 +89,7 @@ class HtmlDB:
         #_date = today.strftime("%y-%m-%d")
         #存储网页信息
         print '.. save htmlinfo'
-        htmlinfo = HtmlInfo(siteID = siteID, title=_title, url=stdUrl, date=today)
+        htmlinfo = HtmlInfo(siteID = siteID, title=_title, url=stdUrl, date=today, filetitle=" ")
         htmlinfo.save()
         xmltext = self.htmlparser.transXML(stdUrl)
         #print '.. save htmlsource'

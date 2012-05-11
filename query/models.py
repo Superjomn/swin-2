@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.db import models
+from django.contrib import admin
 
 class Record(models.Model):
     '''
@@ -12,12 +12,11 @@ class Record(models.Model):
             dectext
     '''
     dectitle = models.CharField(max_length=100)
+    title  = models.CharField(max_length=100)
     url = models.URLField(max_length=150)
     decsource = models.TextField()
     date = models.DateField()
 
 
 
-'''
-admin.site.register(Record)
-'''
+#admin.site.register(Record)

@@ -84,8 +84,10 @@ class Reptile(threading.Thread):
                     data = gzipper.read()  
                 except(IOError):  
                     data = predata
-                    
-                if len(data)<300:
+
+                length = len(data)    
+
+                if length<300 or length > 3000000:
                     return False
                 #begain to parse the page
                 return data
@@ -93,6 +95,7 @@ class Reptile(threading.Thread):
             page.close()  
         except:  
             print 'time out'  
+
 
     def underPageLimit(self):
         '''
@@ -117,59 +120,59 @@ class Reptile(threading.Thread):
 
         while self.continueRun[0] :
             try:
-                try:
-                    self.Flock.acquire()
-                    self.__pathinfo = self.__urlQueue.pop()
-                    self.Flock.release()
-                except:
-                    print 'nothing in urlqueue'
-                    print 'droped'
-                    return
-                print '.. get pathinfo', self.__pathinfo.url, self.__name
-                #get (siteID, (title, path))
-
-                if not self.__pathinfo:
-                    '''
-                    如果所有的队列均为空 则退出线程
-                    '''
-                    print '.. get pathinfo empty'
-                    #return None
-                    break
-
-                #self.__curSiteID[0] = pathinfo[0]
-                self.__temSiteID = self.__pathinfo.siteID
-                self.__temHomeUrl = self.__homeUrls[self.__temSiteID]
-                            
-                #判断是否超过限制页数
-                if not self.underPageLimit():
-                    continue
-
-                #print '.. curSite', self.__curSiteID[0] 
-                #print '.. homeurls', self.__homeUrls
-                #print '.. get cursiteid', self.__curSiteID
-                #print 'the path is ', pathinfo[1][1]
-                source = self.requestSource(self.__pathinfo.url)
-
-                if not source:
-                    print 'htmlsource is empty'
-                    continue
-
-                filetype = self.urlparser.typeDetect(self.__pathinfo.url)
-                _type = filetype[0]
-                print '.. get file type', filetype, self.__name
-
-                if not _type:
-                    self.dealHtml(source)
-                elif _type == 'image':
-                    self.dealImage(source, filetype[1])
-                    print 'self.imagenum', self.imagenum
-                    self.imagenum[0] += 1
-                else:
-                    self.dealDoc()
-                    self.imagenum[0] += 1
+                self.Flock.acquire()
+                self.__pathinfo = self.__urlQueue.pop()
+                self.Flock.release()
             except:
-                print '!'*50
-                print 'something wrong'
+                print 'nothing in urlqueue'
+                print 'droped'
+                return
+            print '.. get pathinfo', self.__pathinfo.url, self.__name
+            #get (siteID, (title, path))
+
+            if not self.__pathinfo:
+                '''
+                如果所有的队列均为空 则退出线程
+                '''
+                print '.. get pathinfo empty'
+                #return None
+                break
+
+            #self.__curSiteID[0] = pathinfo[0]
+            self.__temSiteID = self.__pathinfo.siteID
+            self.__temHomeUrl = self.__homeUrls[self.__temSiteID]
+                        
+            #判断是否超过限制页数
+            if not self.underPageLimit():
+                continue
+
+            #print '.. curSite', self.__curSiteID[0] 
+            #print '.. homeurls', self.__homeUrls
+            #print '.. get cursiteid', self.__curSiteID
+            #print 'the path is ', pathinfo[1][1]
+            source = self.requestSource(self.__pathinfo.url)
+
+            #print source
+
+            if not source:
+                print 'htmlsource is empty'
+                continue
+
+            filetype = self.urlparser.typeDetect(self.__pathinfo.url)
+            _type = filetype[0]
+            print '.. get file type', filetype, self.__name
+
+            if not _type:
+                self.dealHtml(source)
+            elif _type == 'image':
+                self.dealImage(source, filetype[1])
+                print 'self.imagenum', self.imagenum
+                self.imagenum[0] += 1
+            elif _type == 'doc':
+                self.dealDoc()
+                self.imagenum[0] += 1
+            else:
+                print 'some unknown type...'
 
             #处理源码为xml文件 存储到数据库
             #print '.. start to save html'
@@ -428,6 +431,9 @@ class ReptileLib(threading.Thread):
         initList(self.maxPages, maxPages)
         self.threadNum = threadNum
         self.maxPages = maxPages
+
+        print '.. init maxPages:', self.maxPages
+        print '.. init pages', self.pages
         
         #self.htmldb = HtmlDB(self.htmlparser)
         #init self.pages 

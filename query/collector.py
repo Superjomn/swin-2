@@ -39,12 +39,14 @@ class Collector:
         for i in range(self.htmlnum):
             htmlinfo = self.htmldb.setRecordHandle(i)
             dectitle = htmlinfo.title
+            title = self.htmldb.getTitle()
             _content = self.htmldb.getContent()
             pagedec = self.transPageDec(_content)
             url = htmlinfo.url
             date = htmlinfo.date
 
             record = Record(
+                        title = title,
                         dectitle = dectitle,
                         url = url,
                         decsource = pagedec,

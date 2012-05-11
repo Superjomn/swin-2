@@ -6,12 +6,12 @@ sys.path.append('../')
 from Config import Config
 config = Config()
 
-Cimport HashIndex.pyx   swin2/_parser/HashIndex.pyx
+Cimport HashIndex.pyx swin2/_parser/HashIndex.pyx
 
 cdef class InitThes:
     '''
-    初始化词库
-    '''
+初始化词库
+'''
     cdef:
         long *__list
         long size
@@ -26,23 +26,23 @@ cdef class InitThes:
 
     def __dealloc__(self):
         '''
-        释放c内存空间
-        '''
+释放c内存空间
+'''
         print 'delete all C space'
         free(self.__list)
 
     def __del__(self):
         '''
-        释放c内存空间
-        '''
+释放c内存空间
+'''
         print 'delete all C space'
         free(self.__list)
     
     
     cdef __initList(self):
         '''
-        将二进制文件载入内存
-        '''
+将二进制文件载入内存
+'''
         print '__initList'
         #get thes size
         cdef object size
@@ -67,17 +67,17 @@ cdef class InitThes:
 
     def pos(self, dv):
         '''
-        返回hashindex对应块
-        '''
+返回hashindex对应块
+'''
         return self.hashIndex.pos(dv)
 
 
     def find(self, v):
         '''
-        通过hashvalue查找wordID
-        若存在 返回位置 
-        若不存在 返回   0
-        '''
+通过hashvalue查找wordID
+若存在 返回位置
+若不存在 返回 0
+'''
         #print '初始化数据ok'
         cdef long dv = hash(v)
         return self.findByHash(dv)
@@ -89,7 +89,7 @@ cdef class InitThes:
             long mid
             long end
             long pos
-            HI cur  #范围
+            HI cur #范围
 
 
         pos=self.hashIndex.pos( dv )
@@ -107,10 +107,10 @@ cdef class InitThes:
         print 'hash left right hashvalue', self.__list[fir], self.__list[end], dv
         mid=fir
         '''
-        fir = 0
-        end = self.size-1
-        mid = fir
-        '''
+fir = 0
+end = self.size-1
+mid = fir
+'''
         if dv > self.__list[end]:
             return 0
 
@@ -124,7 +124,7 @@ cdef class InitThes:
                 fir = mid + 1
                 #print '1 if fir',fir
 
-            elif  dv < self.__list[mid] :
+            elif dv < self.__list[mid] :
                 end = mid - 1
                 #print '1 elif end',end
 
@@ -134,7 +134,7 @@ cdef class InitThes:
         if fir == end:
 
             if self.__list[fir] > dv:
-                return 0 
+                return 0
 
             elif self.__list[fir] < dv:
                 return 0
@@ -147,5 +147,6 @@ cdef class InitThes:
 
         else:
             return mid#需要测试
+
 
 

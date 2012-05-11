@@ -61,6 +61,7 @@ $(function() {
     //开始模式选择
     $("button#init_sel_button").click(function(){
         var se=$("#start_sel").children('option:selected').val();
+        
         var path = "/reptile/"+se+"/";
         $("#baright").attr("src", path);
     });
